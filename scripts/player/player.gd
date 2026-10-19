@@ -23,6 +23,9 @@ const TURN_SPEED := 9.0
 const GRAVITY := 18.0
 ## How long a ledge climb takes, start to finish.
 const CLIMB_DURATION := 0.85
+## Forward lean of the body while running, in radians, and how fast it eases.
+const RUN_LEAN := 0.1
+const LEAN_SPEED := 6.0
 
 var _move_input := Vector2.ZERO
 var _full_tilt_time := 0.0
@@ -31,6 +34,8 @@ var _climb_from := Vector3.ZERO
 var _climb_to := Vector3.ZERO
 var _climb_elapsed := 0.0
 var _is_climbing := false
+
+@onready var _mesh: Node3D = %Mesh
 
 
 func _physics_process(delta: float) -> void:
@@ -95,6 +100,11 @@ func _advance_ground(delta: float) -> void:
 		# atan2 of its negation. Using atan2(wish.x, wish.z) would face away.
 		var facing := atan2(-wish.x, -wish.z)
 		rotation.y = lerp_angle(rotation.y, facing, TURN_SPEED * delta)
+
+	# A little weight: lean into a run, stand up straight when it stops.
+	if _mesh != null:
+		var lean := RUN_LEAN if _is_running else 0.0
+		_mesh.rotation.x = lerpf(_mesh.rotation.x, -lean, minf(1.0, LEAN_SPEED * delta))
 
 	move_and_slide()
 

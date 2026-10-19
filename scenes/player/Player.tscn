@@ -1,11 +1,13 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=8 format=3]
 
-; PLACEHOLDER: a capsule with a flat coat colour. Replaced by the traveler
-; form of GDD §10 "Characters" — elongated proportions, hand-painted cloth,
-; and no emissive rim (the Grove glow is gone in Hollow Vale).
+; PLACEHOLDER: a capsule body and a sphere head with procedural cloth and
+; skin. Replaced by the traveler form of GDD §10 "Characters" — elongated
+; proportions, hand-painted cloth, no emissive rim (the Grove glow is gone).
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
-[ext_resource type="Material" path="res://assets/materials/player_coat.tres" id="2_coat"]
+[ext_resource type="Material" path="res://assets/materials/coat.tres" id="2_coat"]
+[ext_resource type="Material" path="res://assets/materials/skin.tres" id="3_skin"]
+[ext_resource type="Material" path="res://assets/materials/timber.tres" id="4_hair"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.34
@@ -13,10 +15,17 @@ height = 1.72
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
 material = ExtResource("2_coat")
-radius = 0.34
-height = 1.72
-radial_segments = 12
-rings = 4
+radius = 0.32
+height = 1.3
+radial_segments = 14
+rings = 5
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+material = ExtResource("3_skin")
+radius = 0.19
+height = 0.38
+radial_segments = 14
+rings = 7
 
 [node name="Player" type="CharacterBody3D"]
 collision_layer = 2
@@ -28,11 +37,20 @@ script = ExtResource("1_player")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)
 shape = SubResource("CapsuleShape3D_body")
 
-[node name="Mesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)
+; Everything visible hangs off Mesh so the run lean can tilt it as one piece.
+[node name="Mesh" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="Body" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78, 0)
 mesh = SubResource("CapsuleMesh_body")
 
-; A nub on the -Z side so the capsule's facing is readable while grey-boxing.
-[node name="Facing" type="MeshInstance3D" parent="Mesh"]
-transform = Transform3D(0.3, 0, 0, 0, 0.18, 0, 0, 0, 0.3, 0, 0.3, -0.3)
-mesh = SubResource("CapsuleMesh_body")
+[node name="Head" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+mesh = SubResource("SphereMesh_head")
+
+; A cap of hair on the -Z-facing side reads as a face without modelling one.
+[node name="Hair" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(1.1, 0, 0, 0, 0.62, 0, 0, 0, 1.1, 0, 1.7, 0.03)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = ExtResource("4_hair")

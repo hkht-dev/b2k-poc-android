@@ -1,0 +1,17 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+; PLACEHOLDER: procedural texture from tools/gen_textures.py, replaced 1:1 by
+; the painted surfaces of GDD §10. Triplanar so every scaled primitive in the
+; street tiles correctly without UVs. Roofs of the shop and the chai stall, AC units.
+
+[ext_resource type="Texture2D" path="res://assets/textures/corrugated.png" id="1_tex"]
+
+[resource]
+resource_name = "corrugated"
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("1_tex")
+roughness = 0.93
+specular_mode = 1
+uv1_triplanar = true
+uv1_scale = Vector3(0.8, 0.8, 0.8)
+uv1_triplanar_sharpness = 4.0

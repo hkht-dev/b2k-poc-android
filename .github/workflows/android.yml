@@ -87,16 +87,13 @@ jobs:
             "build/android/${APK_NAME}.apk"
           ls -la build/android
 
-      - name: Report APK size against the 60 MB slice budget
+      # The 60 MB budget of CLAUDE_CODE_BRIEF.md §1 was lifted by the owner on
+      # 2026-10-19 (docs/DECISIONS.md). The size is still reported.
+      - name: Report APK size
         run: |
           bytes=$(stat -c%s "build/android/${APK_NAME}.apk")
           mb=$(( bytes / 1024 / 1024 ))
-          echo "APK is ${mb} MB (budget: 60 MB, CLAUDE_CODE_BRIEF.md §1)"
-          echo "### APK ${mb} MB / 60 MB budget" >> "$GITHUB_STEP_SUMMARY"
-          if [ "$mb" -gt 60 ]; then
-            echo "Over the install-size budget." >&2
-            exit 1
-          fi
+          echo "### APK ${mb} MB" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Do we have release signing secrets?
         id: signing

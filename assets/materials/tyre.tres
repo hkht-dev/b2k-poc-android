@@ -1,0 +1,17 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+; PLACEHOLDER: procedural texture from tools/gen_textures.py, replaced 1:1 by
+; the painted surfaces of GDD §10. Triplanar so every scaled primitive in the
+; street tiles correctly without UVs. Vehicle tyres; the asphalt texture, darkened.
+
+[ext_resource type="Texture2D" path="res://assets/textures/asphalt.png" id="1_tex"]
+
+[resource]
+resource_name = "tyre"
+albedo_color = Color(0.55, 0.55, 0.55, 1)
+albedo_texture = ExtResource("1_tex")
+roughness = 0.93
+specular_mode = 1
+uv1_triplanar = true
+uv1_scale = Vector3(1.2, 1.2, 1.2)
+uv1_triplanar_sharpness = 4.0

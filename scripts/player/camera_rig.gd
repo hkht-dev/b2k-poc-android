@@ -18,9 +18,14 @@ const WORLD_LAYER := 1
 const PITCH_MIN := -0.52
 const PITCH_MAX := 0.42
 ## Radians of orbit per pixel of drag, before the sensitivity setting.
-const DRAG_TO_RADIANS := 0.006
+const DRAG_TO_RADIANS := 0.0042
 ## Height above the player's origin that the camera looks at.
 const SHOULDER_HEIGHT := 1.15
+## Field of view at a walk and at a run. The widening is the camera telling
+## the body it is moving faster; it eases so it never pops.
+const WALK_FOV := 62.0
+const RUN_FOV := 70.0
+const FOV_SPEED := 4.0
 
 @export var target_path: NodePath
 @export_range(0.25, 3.0, 0.05) var sensitivity := 1.0
@@ -50,6 +55,9 @@ func _physics_process(delta: float) -> void:
 	var wanted := target.global_position + Vector3.UP * SHOULDER_HEIGHT
 	global_position = global_position.lerp(wanted, minf(1.0, FOLLOW_SPEED * delta))
 	_pull_in_from_walls(delta)
+	var running: bool = target.has_method("is_running") and target.is_running()
+	var fov := RUN_FOV if running else WALK_FOV
+	_camera.fov = lerpf(_camera.fov, fov, minf(1.0, FOV_SPEED * delta))
 
 
 ## Shortens the arm when a wall is between the pivot and the camera, so the
