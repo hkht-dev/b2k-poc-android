@@ -53,13 +53,14 @@ you would rather pull it from there.
 
 Three ways, easiest first.
 
-**1. The Windows build.** Each hand-built release includes
-`journey-back-to-krishna-windows.zip`. Unzip it anywhere and run
-`journey-back-to-krishna.exe`. Windows SmartScreen will warn that the
-publisher is unknown — *More info → Run anyway*. Controls: **W A S D** or the
-arrow keys to walk, **drag the mouse on the right half** of the window to look
-around, **E** for the contextual button. The game is portrait on purpose; the
-window is tall.
+**1. A desktop build, no Godot needed.** Every push to `main` runs the
+*Desktop* workflow, which attaches `journey-back-to-krishna-windows-<run>.zip`
+and `journey-back-to-krishna-linux-<run>.zip` to the run on the **Actions**
+tab. Download, unzip anywhere, run `journey-back-to-krishna.exe` (Windows
+SmartScreen will warn that the publisher is unknown — *More info → Run
+anyway*) or `./journey-back-to-krishna.x86_64` on Linux. Controls: **W A S D**
+or the arrow keys to walk, **drag the mouse** to look around, **E** for the
+contextual button. The game is portrait on purpose; the window is tall.
 
 **2. The Godot editor** (any OS). Install
 [Godot 4.3](https://godotengine.org/download/archive/#4.3-stable) — exactly
@@ -77,6 +78,12 @@ python3 -m http.server 8000 --directory build/web
 
 Then open <http://localhost:8000> in Chrome or Firefox. It must be served over
 HTTP like this — opening `index.html` straight from the disk will not run.
+
+Why the Web preset has *thread support* off: GitHub Pages does not send the
+`Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy` headers that
+Godot 4's threaded web export needs, so a default export shows a blank page.
+With threads off (Godot 4.3+) it runs anywhere; audio uses the sample-playback
+fallback, which is fine for the slice.
 
 ## Play it in a browser
 

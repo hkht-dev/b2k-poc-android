@@ -410,3 +410,9 @@ brief §0; chapters have no clock (GDD §16a).
 where the two conflict: controls (A), visuals (B), the size budget (C, now
 250 MB) and desktop/web testing (D). Its items are applied in their own pull
 requests and each is recorded here as it lands.
+### Amendment 1 §D: desktop builds as artifacts
+
+`desktop.yml` exports Windows and Linux on every push to `main` and attaches
+each as a zipped workflow artifact (30 days). A Linux preset joins the Windows
+one. The README's desktop and browser sections now follow §D, including why
+the Web preset runs single-threaded. Affects brief §8, amendment §D.

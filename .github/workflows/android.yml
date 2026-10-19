@@ -151,4 +151,7 @@ jobs:
             Install steps and the fps recording table are in the README.
           files: build/android/${{ env.APK_NAME }}.apk
           draft: false
-          prerelease: true
+          # Not a prerelease: GitHub's /releases/latest — the URL the README's
+          # QR code encodes — ignores prereleases, so the first CI build
+          # (slice1-build-12) was published but the QR led to a 404.
+          prerelease: false
