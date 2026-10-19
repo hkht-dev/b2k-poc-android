@@ -17,7 +17,7 @@ env:
 jobs:
   lint:
     name: Format, lint and data
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +53,7 @@ jobs:
 
   test:
     name: GUT tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 

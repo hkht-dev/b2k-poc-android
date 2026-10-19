@@ -101,6 +101,15 @@ debug APK uses the prebuilt export template, whose own manifest sets the
 minimum. The declared target is API 28 and the device matrix enforces it in
 practice. Revisit if a tester's Android 8 device installs the APK. Affects §1.
 
+### Runners are `ubuntu-latest`, not a pinned image
+
+The first push pinned every job to `ubuntu-22.04`. All four jobs sat `queued`
+with no runner pickup for over ten minutes — the label no longer resolves to a
+GitHub-hosted runner. Switched all five `runs-on` lines to `ubuntu-latest`.
+Pinning the image would be better for reproducibility, but only an image that
+still exists is worth pinning; revisit with an explicit `ubuntu-24.04` once we
+know CI is green on it. Affects §8.
+
 ### Performance numbers
 
 None yet. P0 renders one `Control` screen and has no 3D content, so the §1
