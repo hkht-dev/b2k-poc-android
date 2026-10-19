@@ -383,3 +383,18 @@ steps per rendered frame, so the game *simulated* at about an eighth speed in
 that harness — which is why a browser-driven walk no longer reached the
 fountain wall in the time the P1 harness allowed. The end-to-end tests run at
 full speed and pass. Device testing is the only honest fps measurement.
+
+### First real CI runs (incident cleared)
+
+Once GitHub's incident cleared, the first runs that actually executed showed:
+
+- **CI: green.** Lint, format, data checks, generator checks and 102 tests
+  pass on GitHub's runner, not only here.
+- **Android: failed in `android-actions/setup-android@v3`** before any step
+  of ours — it runs `sdkmanager tools`, a package Google has removed. Dropped
+  the action; the runner image already carries an SDK, and we install the
+  three packages Godot needs with its own `sdkmanager`.
+- **Web: the export succeeded; `configure-pages` failed** because Pages is
+  not enabled on the repository. Set `enablement: true` so the action asks
+  for it; if the token may not, it is one setting by hand.
+Affects §8.

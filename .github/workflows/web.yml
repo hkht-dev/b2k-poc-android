@@ -44,7 +44,12 @@ jobs:
           touch build/web/.nojekyll
           ls -la build/web
 
+      # enablement: true asks GitHub to turn Pages on for this repository with
+      # the Actions source. If the token is not allowed to, enable it once by
+      # hand: Settings -> Pages -> Source: GitHub Actions.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -28,15 +28,18 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: android-actions/setup-android@v3
-
+      # GitHub's Ubuntu image ships an Android SDK at $ANDROID_HOME with
+      # cmdline-tools. android-actions/setup-android@v3 was used first and
+      # fails on its own: it runs `sdkmanager tools`, a package Google removed.
       - name: Install the Android SDK packages Godot 4.3 expects
         run: |
-          sdkmanager --install \
+          SDKMANAGER="$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager | sort -V | tail -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" --install \
             "platform-tools" \
             "build-tools;34.0.0" \
-            "platforms;android-34" \
-            "cmdline-tools;latest"
+            "platforms;android-34"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
 
       - uses: chickensoft-games/setup-godot@v2
         with:
