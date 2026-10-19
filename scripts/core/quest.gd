@@ -109,6 +109,13 @@ func ended_branch() -> String:
 	return _ended_branch
 
 
+## The objective text id of the current step, for the pause menu's one line.
+func current_objective_text_id() -> String:
+	if _status != Status.ACTIVE or _step_index >= steps.size():
+		return ""
+	return steps[_step_index]["objective_text_id"]
+
+
 ## Re-derives status from the journey. Flags this sets re-enter here through
 ## the journey's signals; the guard turns that into one more pass rather than
 ## a recursion.

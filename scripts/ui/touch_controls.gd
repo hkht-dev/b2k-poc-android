@@ -25,11 +25,13 @@ var _camera_start_ms := 0
 var _camera_last := Vector2.ZERO
 var _camera_moved := false
 var _mouse_orbiting := false
+var _subtitle_left := 0.0
 
 @onready var _joystick: Control = %Joystick
 @onready var _button: Button = %ContextualButton
 @onready var _pause: Button = %PauseButton
 @onready var _minimap: Control = %Minimap
+@onready var _subtitle: Label = %Subtitle
 
 
 func _ready() -> void:
@@ -42,11 +44,25 @@ func minimap() -> Control:
 	return _minimap
 
 
+## Shows a subtitle by string id for a few seconds (GDD §11 accessibility).
+func subtitle(text_id: String, seconds: float = 2.5) -> void:
+	_subtitle.text = Strings.t(text_id)
+	_subtitle_left = seconds
+
+
+func subtitle_text() -> String:
+	return _subtitle.text
+
+
 func pause_button() -> Button:
 	return _pause
 
 
 func _process(delta: float) -> void:
+	if _subtitle_left > 0.0:
+		_subtitle_left -= delta
+		if _subtitle_left <= 0.0:
+			_subtitle.text = ""
 	var stick := Input.get_vector("look_left", "look_right", "look_up", "look_down")
 	if stick.length() > 0.08:
 		camera_dragged.emit(stick * STICK_ORBIT_PIXELS_PER_SECOND * delta)

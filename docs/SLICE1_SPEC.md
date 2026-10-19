@@ -10,7 +10,7 @@ Status key: **built** · *in progress* · planned.
 | P0 | Scaffold, export presets, three workflows, GUT, title screen | **built** |
 | P1 | Grey-box street, player, joystick, orbit camera, climb | **built** (fps unverified on device) |
 | P2 | `FlagStore`, `GameState`, JSON loaders, choice cards, debug panel | **built** |
-| P3 | Tulu, the hum, the `Listen` verb | planned |
+| P3 | Tulu, the hum, the `Listen` verb | **built** (blindfold test pending) |
 | P4 | The Dry Fountain, all three outcomes | planned |
 | P5 | The Glimpse and the feather | planned |
 | P6 | End screen, audio bed, lighting, accessibility | planned |

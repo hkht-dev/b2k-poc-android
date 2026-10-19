@@ -414,6 +414,7 @@ header = (
     '[ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="6_controls"]\n'
     '[ext_resource type="Script" path="res://scripts/player/figure_animator.gd" id="7_animator"]\n'
     '[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/overcast_soil_puresky.hdr" id="8_sky"]\n'
+    '[ext_resource type="PackedScene" path="res://scenes/npc/Tulu.tscn" id="9_tulu"]\n'
     + "".join(
         f'[ext_resource type="Material" path="res://assets/materials/{m}.tres" id="{MAT_ID[m]}"]\n'
         for m in MATS
@@ -523,6 +524,14 @@ shape = SubResource("BoxShape3D_climb")
 
 [node name="ClimbOutExit" type="Marker3D" parent="."]
 transform = {xf((0, 0.05, -8.8))}
+
+; Tulu waits at the fountain's edge where the player surfaces, then leads to
+; the chai stall's back door (CLAUDE_CODE_BRIEF.md §4.3). Waypoints are the
+; pavement route round the stall, not a straight line through it.
+[node name="Tulu" parent="." instance=ExtResource("9_tulu")]
+unique_name_in_owner = true
+transform = Transform3D(0.72, 0, 0, 0, 0.72, 0, 0, 0, 0.72, 3.2, 0.05, -9.4)
+waypoints = PackedVector3Array(6, 0.05, -11, 10, 0.05, -14.5, 15.5, 0.05, -14.5, 15.0, 0.05, -12.4)
 
 [node name="UI" type="CanvasLayer" parent="."]
 

@@ -1,0 +1,115 @@
+[gd_scene load_steps=12 format=3]
+
+; PLACEHOLDER: a smaller humanoid of primitives with the procedural walk.
+; Replaced by Tulu of GDD §4 "Characters" (a boy, bright eyes, simple cloth).
+
+[ext_resource type="Script" path="res://scripts/npc/tulu.gd" id="1_tulu"]
+[ext_resource type="Script" path="res://scripts/player/figure_animator.gd" id="2_anim"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="3_interact"]
+[ext_resource type="Material" path="res://assets/materials/cloth_pale.tres" id="4_cloth"]
+[ext_resource type="Material" path="res://assets/materials/skin.tres" id="5_skin"]
+[ext_resource type="Material" path="res://assets/materials/timber.tres" id="6_hair"]
+[ext_resource type="Material" path="res://assets/materials/tyre.tres" id="7_shorts"]
+[ext_resource type="AudioStream" path="res://assets/audio/tulu_three_notes.ogg" id="8_notes"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_unit"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_unit"]
+radius = 0.5
+height = 1.0
+radial_segments = 14
+rings = 7
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
+radius = 2.6
+height = 2.5
+
+[node name="Tulu" type="Node3D" groups=["sound_source"]]
+transform = Transform3D(0.72, 0, 0, 0, 0.72, 0, 0, 0, 0.72, 0, 0, 0)
+script = ExtResource("1_tulu")
+
+; Positional, audible within ~15 m, faint beyond (CLAUDE_CODE_BRIEF.md §4.3).
+[node name="HumLoop" type="AudioStreamPlayer3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+stream = ExtResource("8_notes")
+volume_db = -4.0
+unit_size = 4.0
+max_distance = 24.0
+bus = &"Master"
+
+; The clear, close playback for *Listen* and for answering a hum.
+[node name="Reply" type="AudioStreamPlayer3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+stream = ExtResource("8_notes")
+volume_db = 2.0
+unit_size = 10.0
+max_distance = 60.0
+
+[node name="Listen" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_interact")
+verb_id = "verb.listen"
+
+[node name="Shape" type="CollisionShape3D" parent="Listen"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("CylinderShape3D_near")
+
+[node name="Figure" type="Node3D" parent="."]
+script = ExtResource("2_anim")
+
+[node name="Torso" type="Node3D" parent="Figure"]
+
+[node name="Chest" type="MeshInstance3D" parent="Figure/Torso"]
+transform = Transform3D(0.4, 0, 0, 0, 0.56, 0, 0, 0, 0.24, 0, 1.18, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("4_cloth")
+
+[node name="Hips" type="MeshInstance3D" parent="Figure/Torso"]
+transform = Transform3D(0.36, 0, 0, 0, 0.22, 0, 0, 0, 0.24, 0, 0.8, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("7_shorts")
+
+[node name="Head" type="MeshInstance3D" parent="Figure/Torso"]
+transform = Transform3D(0.38, 0, 0, 0, 0.4, 0, 0, 0, 0.38, 0, 1.72, 0)
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = ExtResource("5_skin")
+
+[node name="Hair" type="MeshInstance3D" parent="Figure/Torso"]
+transform = Transform3D(0.41, 0, 0, 0, 0.22, 0, 0, 0, 0.41, 0, 1.84, 0.02)
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = ExtResource("6_hair")
+
+[node name="LeftArm" type="Node3D" parent="Figure"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.27, 1.44, 0)
+
+[node name="Upper" type="MeshInstance3D" parent="Figure/LeftArm"]
+transform = Transform3D(0.1, 0, 0, 0, 0.56, 0, 0, 0, 0.1, 0, -0.28, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("5_skin")
+
+[node name="RightArm" type="Node3D" parent="Figure"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27, 1.44, 0)
+
+[node name="Upper" type="MeshInstance3D" parent="Figure/RightArm"]
+transform = Transform3D(0.1, 0, 0, 0, 0.56, 0, 0, 0, 0.1, 0, -0.28, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("5_skin")
+
+[node name="LeftLeg" type="Node3D" parent="Figure"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0.7, 0)
+
+[node name="Thigh" type="MeshInstance3D" parent="Figure/LeftLeg"]
+transform = Transform3D(0.14, 0, 0, 0, 0.68, 0, 0, 0, 0.16, 0, -0.35, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("5_skin")
+
+[node name="RightLeg" type="Node3D" parent="Figure"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0.7, 0)
+
+[node name="Thigh" type="MeshInstance3D" parent="Figure/RightLeg"]
+transform = Transform3D(0.14, 0, 0, 0, 0.68, 0, 0, 0, 0.16, 0, -0.35, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("5_skin")

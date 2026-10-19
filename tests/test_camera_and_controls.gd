@@ -100,8 +100,9 @@ func test_a_second_finger_cannot_steal_the_joystick() -> void:
 func test_the_contextual_button_is_hidden_until_a_verb_is_set() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
 	var button: Button = controls.contextual_button()
-	assert_false(button.visible, "the HUD is empty by default (GDD §11)")
-	assert_eq(button.current_verb(), "", "and it holds no verb")
+	assert_eq(button.current_verb(), "", "no verb until something is near (GDD §11)")
+	assert_eq(button.text, Strings.t("verb.idle"), "it idles as a faint mark the Call can land on")
+	assert_lte(button.modulate.a, button.IDLE_ALPHA + 0.01, "and stays faint")
 
 
 func test_the_contextual_button_labels_itself_from_the_string_table() -> void:
