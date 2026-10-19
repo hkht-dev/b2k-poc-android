@@ -93,22 +93,39 @@ needs Godot's Gradle build, so it uses its own preset (`Android Release (AAB)`,
 first. Expect to debug that path the first time real signing secrets are added.
 Affects §8.
 
-### `min_sdk=28` is declared but not enforced in the APK path
+### `min_sdk` is left empty on the APK preset
 
-§1 targets Android 9+ (API 28). `gradle_build/min_sdk="28"` is set on both
-Android presets, but Godot only applies it when the Gradle build is on. The
-debug APK uses the prebuilt export template, whose own manifest sets the
-minimum. The declared target is API 28 and the device matrix enforces it in
-practice. Revisit if a tester's Android 8 device installs the APK. Affects §1.
+§1 targets Android 9+ (API 28). Setting `gradle_build/min_sdk="28"` on the
+non-Gradle APK preset does not quietly do nothing, as first assumed — Godot
+refuses the export outright: *"Min SDK" can only be overridden when "Use Gradle
+Build" is enabled.* Found by exporting an APK for real, which CI had not yet
+managed to do. The APK preset now leaves `min_sdk` and `target_sdk` empty and
+the prebuilt template decides (it reports `sdkVersion:'21'`,
+`targetSdkVersion:'34'`). The AAB preset keeps `min_sdk="28"` because it does
+use the Gradle build. API 28 remains the declared target and the device matrix
+enforces it in practice. Affects §1, §8.
 
-### Runners are `ubuntu-latest`, not a pinned image
+### GitHub Actions is not running any job on this repository
 
-The first push pinned every job to `ubuntu-22.04`. All four jobs sat `queued`
-with no runner pickup for over ten minutes — the label no longer resolves to a
-GitHub-hosted runner. Switched all five `runs-on` lines to `ubuntu-latest`.
-Pinning the image would be better for reproducibility, but only an image that
-still exists is worth pinning; revisit with an explicit `ubuntu-24.04` once we
-know CI is green on it. Affects §8.
+Every job from the P0 push sat `queued` with no runner pickup. The first guess
+was the `ubuntu-22.04` label; switching all five jobs to `ubuntu-latest` changed
+nothing, so the label was not the cause and that diagnosis was wrong. No runner
+is being allocated at all, which is an account- or repository-level Actions
+condition (minutes exhausted, a spending limit of zero, or Actions restricted
+for the org), not a defect in the workflow files. The workflows are therefore
+unverified: they have never executed a single step. Resolve the Actions
+condition and re-run before trusting them. Affects §8.
+
+### The first APK was built locally, not by CI
+
+Because CI cannot run, the P0 APK was exported on a developer machine with
+Godot 4.3, Android SDK build-tools 34.0.0 and a generated debug keystore —
+the same steps `android.yml` performs. Verified: `apksigner verify` passes
+v1, v2 and v3 schemes; `arm64-v8a` and `armeabi-v7a` both present; portrait
+locked; `data/strings/en.json` present in `assets/`; 46.6 MB against the 60 MB
+budget. Not verified: that it launches on a physical device — no emulator is
+available here (no KVM), so the first real device run is the playtest. Affects
+§3 P0.
 
 ### Performance numbers
 
