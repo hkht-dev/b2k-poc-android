@@ -398,3 +398,10 @@ Once GitHub's incident cleared, the first runs that actually executed showed:
   not enabled on the repository. Set `enablement: true` so the action asks
   for it; if the token may not, it is one setting by hand.
 Affects §8.
+
+### Amendment 1 §D: desktop builds as artifacts
+
+`desktop.yml` exports Windows and Linux on every push to `main` and attaches
+each as a zipped workflow artifact (30 days). A Linux preset joins the Windows
+one. The README's desktop and browser sections now follow §D, including why
+the Web preset runs single-threaded. Affects brief §8, amendment §D.

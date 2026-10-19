@@ -1,0 +1,65 @@
+name: Desktop
+
+# docs/BRIEF_AMENDMENT_1.md §D: a zipped desktop build on every push to main,
+# so the slice can be run on a PC without installing Godot.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.3.0
+  NAME: journey-back-to-krishna
+
+jobs:
+  export:
+    name: Export ${{ matrix.preset }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: Windows Desktop
+            slug: windows
+            file: journey-back-to-krishna.exe
+          - preset: Linux
+            slug: linux
+            file: journey-back-to-krishna.x86_64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      # Twice on purpose: see docs/DECISIONS.md "Two import passes".
+      - name: Import project
+        run: |
+          godot --headless --import --path . || true
+          godot --headless --import --path .
+
+      - name: Export
+        run: |
+          mkdir -p "build/${{ matrix.slug }}"
+          godot --headless --path . --export-release "${{ matrix.preset }}" \
+            "build/${{ matrix.slug }}/${{ matrix.file }}"
+          ls -la "build/${{ matrix.slug }}"
+
+      - name: Zip
+        run: |
+          cd "build/${{ matrix.slug }}"
+          zip -9 -r "../${NAME}-${{ matrix.slug }}.zip" .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.NAME }}-${{ matrix.slug }}-${{ github.run_number }}
+          path: build/${{ env.NAME }}-${{ matrix.slug }}.zip
+          if-no-files-found: error
+          retention-days: 30
