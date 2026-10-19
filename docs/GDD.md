@@ -208,15 +208,17 @@ The story in section 3 is what the player sees. This is what their hands do, wha
 
 ### After the chapter: a typical ten-minute day in the living world
 
-- Open the game in the Grove; walk to the plot; see what sprouted from yesterday’s choices, each with its sentence.
+- Wake at dawn at a lamp or by the fountain, in whatever world and body the last sleep gave you; the sun begins to move.
 
-- Pull a weed (tap and hold); water the creeper by sitting with a friend for a three-minute tale or humming with the calf.
+- Walk to the Grove plot (always reachable through the basin): see what sprouted from yesterday, pull a weed, water the creeper by sitting for a three-minute tale or humming with the calf.
 
 - Taste a ripe fruit: a vignette waits in the Street.
 
-- Enter the Street: today’s dawn vignette (a stranger’s problem, or a witness tale beside Prahlada or Dhruva), one cow route, one rooftop run; a companion may drop in to hum a chord together.
+- The day’s Street: one dawn vignette (a stranger’s problem, or a witness tale beside Prahlada or Dhruva), one cow route, one rooftop run; a companion may drop in to hum a chord together.
 
-- Set down a lamp; sit at someone else’s; leave.
+- Dusk: lamps come on; set one down, sit at someone else’s.
+
+- Lie down at a lamp. The garden shows; home if the creeper has climbed; otherwise tomorrow. On a day you are not told of, this sleep is the last one in this body, and you wake where the garden decides.
 
 - On festival days the whole Grove is shared and everyone plays one part of the Song.
 
@@ -754,6 +756,10 @@ Religious integrity is a gate in the schedule, not a final proofread. A panel of
 
 - No AI-generated theological text at runtime. All text is authored, reviewed and fixed at build time.
 
+- The sun is never a timer; no session can end against the player’s will. A life’s span is never shown as a number. Death comes only at a lamp, only in the living world, never inside a chapter, and costs the player nothing but the body.
+
+- Mastery is craft, never devotion; no skill result is described as spiritual progress. No leaderboards. Lamps carry preset lines only. Festival events are the only timed content. The garden is never a number and never touches the embrace.
+
 **Rights and permissions to secure (week 1 start).** BBT permission for verse translations in each shipped language; a recorded release from the devotee who chants; an attribution line for any tradition-specific artwork used as reference; trademark search on the title; a check that no character name coincides with a scriptural figure in a way the panel finds misleading.
 
 **Escalation.** If the panel and the design team disagree on a point of depiction or doctrine, the panel wins. If they disagree on a point of gameplay, the design team wins. The producer records every decision and its reason in a review log attached to this document.
@@ -847,6 +853,30 @@ The first draft of this document produced a game that is strong on story, agency
 
 - **Rule.** No leaderboards, no global rankings, no follower counts. A Circle can see its own members’ best cow and rooftop runs; no one else can.
 
+### Days and lives (the living world’s shape)
+
+In the living world, a session is a day and a body is a life. The sun moves with play, about fifteen minutes from dawn to dusk, and night never ends anything.
+
+- **The day.** Dawn: the player wakes at a lamp or by the fountain; the day’s vignette, cow route and rooftop run are waiting. Dusk: the Street quiets, lamps come on, companions drift toward lamps. A player who keeps going plays a quiet night street with fewer people in it; the day is as long as they stay awake.
+
+- **Sleep is the choice point.** Lying down at a lamp ends the day. The garden shows what today planted, with each sentence. If the creeper has cleared the wall, the player may go home from here. Otherwise they wake in the same world tomorrow. There is no menu that asks “stay or move”: the plant answers.
+
+- **A life has a number of days the player is not told.** Each body in a world lasts a hidden span, roughly seven to fourteen play-days, with signs: hair greying in the reflection, the clock-Tell stopping more often, Madhuri (or her counterpart) saying “you look tired.” On the last day, the sleep is the death. It always comes at a lamp, never mid-crossing, never mid-tale, never while the phone is in a pocket.
+
+- **Death decides by the garden.** The player wakes in the world the fruit has chosen: the Lower, the Street again, the Heights; or, if the creeper has cleared the wall, at home. They never choose. This is how movement between the three worlds happens in the living world; chapters remain the authored first passage through each.
+
+- **Nothing is lost but the body.** The garden, the *Noticed* list, lamps and the Circle persist, because karma persists. What changes is the world, the face in the reflection, and who remembers you: Tulu’s counterpart in the next world does not know you yet. That ache is the mechanic.
+
+- **Story chapters have no clock.** Inside a chapter the sun stands at the hour the scene needs. Days and deaths belong to the living world between chapters.
+
+- **The Grove has no day.** Eternal dusk, as designed. The only place one cannot die is home; the player is left to notice this.
+
+- **Companions.** A partner’s last day is visible to both (the greying, the tiredness); when they sleep for the last time the survivor gets a short scene at the lamp and may leave a flower. Deaths never interrupt a shared task.
+
+- **Safeguards.** The sun is not a timer and can end nothing; the span is never shown or hinted as a number; absence costs nothing (garden and life time pass only on play-days); the first-launch note names days and lives as a picture of the tradition’s teaching.
+
+- **Measures.** Days per life, deaths before the first return home, share of players who go home from the Lower, and whether players describe a death as sad or as unfair in interviews. The second answer is a redesign signal.
+
 ### Multiplayer spine
 
 - **Companions, two at a time (first release, not Season 1).** Another player’s glowing traveler appears in the Street or Grove; two hums make a chord one voice cannot; some cans need two carriers; cows are easier with two herders; rooftop runs become races against each other or against a Circle member’s recorded ghost. Matched by region, language and chapter; drop-in, drop-out, opt-out.
@@ -939,6 +969,71 @@ Ten decisions are yours to make before week 1; everything else in this document 
 - Recruit the eight round-1 testers.
 
 **What this document does not yet contain** (to be added as the work produces them): the art bible, the full dialogue file, the quest JSON, the rights register, the panel review log, playtest reports, and the Chapter 2 outline. Each should live alongside this document so the team keeps one source of truth.
+
+## 18. Final analysis
+
+The document now describes a game with two layers (authored chapters; a living world of days, lives, a garden, companions and festivals) inside a cosmology of three worlds and a home. This section judges each part on three questions: how strong is it as a game, how true is it to the tradition, and what it depicts.
+
+### Part by part
+
+| Part | As a game | As philosophy | What it depicts (real world → game) |
+| --- | --- | --- | --- |
+| **The Grove and the embrace** | Strong. The emotional destination; the trailer; the reason people recommend it | Strong, with the panel’s eye on depiction | The spiritual world and the soul’s relationship with Krishna → a riverbank in eternal dusk where the only interaction is to offer a garland |
+| **The Pool and the bubbles** | Strong. The signature image; the wordless explanation of leaving and returning | Sound: the brahmandas, the border, forgetting | The innumerable universes and the jiva’s fall → a pond that holds the sky; a dive; a climb out of a dry fountain |
+| **The Street (Hollow Vale)** | Strong. Relatable, cheap to build, carries the theme without saying it | Sound: samsara as the ordinary | The material world as the attempt to be the enjoyer → a neighbourhood of locks, phones and a tower for being seen |
+| **Choices with no right answer** | Strong. The core of the agency; both endings reach the embrace | The most important safeguard in the game | Free will, and grace that does not depend on it |
+| **Glimpses and Tells** | Strong and cheap. Rewards attention; the mystery that sells the game | Sound: the Lord present and unnoticed | Krishna in the world, unseen by those who do not look → a figure on a traffic light; a reflection that glows |
+| **The Song as a skill** | Strong. Gives mastery to a game that had none | Acceptable: craft, kept apart from grace | Chanting, playing and hearing as practice that improves with attention → rhythm the world answers |
+| **Rooftop running, stray cows** | Good. Variety and challenge; the clips’ energy | Neutral, with the cow as a quiet statement of care | Effort that is real, enjoyable and never arrives → climbing that never reaches the Grove |
+| **The Garden** | Very strong and the most original part; also the most delicate | Strong: the bhakti-lata-bija as written, with the Gita’s teaching on both fruits | Karma and bhakti → seeds, saplings, fruit that must be tasted and binds either way, weeds, the given creeper, roots cut only by hearing |
+| **Days and lives** | Strong. Gives the living world its shape and the game its most talked-about moment | Strong, as long as the sun never becomes a timer | Birth, a life of unknown length, death without choice, rebirth by karma → a day, a hidden span, a last sleep at a lamp, waking elsewhere |
+| **Three worlds and the direct path** | Strong structure for a season | Strong: the Fifth Canto’s picture and Bg 9.21 made playable | The gradual path through the lower, middle and upper worlds against the direct path home → the basin in every chapter, open from anywhere |
+| **Bhagavatam tales and witness companions** | Good. A content engine; the richest vignettes | Strong, provided no one plays a mahajana | Hearing from the great devotees and following in their footsteps → sitting for a tale; standing in Prahlada’s class |
+| **Lamps, companions, Circles, festival gathering** | Good to strong; companions are the most expensive and the most loved | Sound: association and sankirtan without any ranking | Association of devotees and congregational chanting → wordless company, lamps, the Song played in parts |
+| **Living Grove** | Good. The cozy home that brings people back | Sound, if the Grove stays unhurried | Home as the place one returns to → a garden, a calf, friends with stories |
+| **Business model** | Adequate, not yet proven: free chapter, paid chapters, voluntary support | Clean: nothing devotional is sold | — |
+
+### Strengths overall
+
+- One idea runs through everything: the Song. Music is the tutorial, the skill, the signal of the Song’s return, the multiplayer mechanic and the ending. Few games have this coherence.
+
+- Every spiritual claim is made by play, never by text; the text is optional and reviewed.
+
+- The game is enjoyable to a stranger (mystery, city, running, cows, a garden) and true to a devotee (grace free, karma honest, scripture cited).
+
+- The design has a clear statement no other game has made: the sweet fruit also roots you; no one climbs home; one is carried.
+
+### Weaknesses and risks, honestly
+
+- **Scope.** This is now a ₹26–34 lakh first release over 30–36 weeks with a backend, five core people, a 2D scroll artist and a heavy panel load. The original ₹12 lakh story is inside it, and a funder who wants only that can still have it, but retention would then be untested.
+
+- **The Garden can drift into a score.** The guards are written; the risk returns with every well-meant feature request (“show how tall the creeper is”). The producer’s job is to say no.
+
+- **Death will divide players** even at a lamp. Some will love it; some will stop playing after the first one. The interview question in the measures exists for this.
+
+- **Panel load and velocity.** Three worlds against the Fifth Canto, seven tales, four witness roles, the creeper’s wording, Krishna’s model: the panel is on the critical path. Name it in week one.
+
+- **The cozy audience and the challenge audience are different people.** Rooftop running and the Garden pull in different directions. The design keeps challenge optional and consequence-free; playtests must confirm that cozy players never feel rushed.
+
+- **Content volume.** 120 vignettes, 70 scroll frames, 40 cow routes, 70 Tells. Authorable, but a real writing and art schedule, not an afterthought.
+
+- **Marketing is still a plan.** Everything depends on the trailer landing and on festival timing; there is no paid acquisition budget of consequence.
+
+### What to protect, in order
+
+- The embrace is never earned, sold or scored.
+
+- The sun is never a timer; absence costs nothing.
+
+- No number anywhere near devotion or karma.
+
+- The chapter is free, whole, and ends at home.
+
+- The panel can stop a depiction; the design team decides gameplay.
+
+### Verdict
+
+As designed, this is a game with a genuine shot at the audience it wants: short enough to finish, deep enough to return to, strange enough to share, and true enough that the people who care most about the subject will defend it rather than attack it. Its risks are the risks of ambition (scope, content, the panel’s pace) rather than of concept. Build the chapter, the Garden and days first; let companions and the three worlds follow the numbers.
 
 ## Appendix A — Reference clips and what the design took from them
 
