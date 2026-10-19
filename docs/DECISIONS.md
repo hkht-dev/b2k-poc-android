@@ -398,3 +398,15 @@ Once GitHub's incident cleared, the first runs that actually executed showed:
   not enabled on the repository. Set `enablement: true` so the action asks
   for it; if the token may not, it is one setting by hand.
 Affects §8.
+
+---
+
+## Documents (2026-10-19)
+
+GDD revised 19 Oct: days/lives and §18 added; all out of scope for Slice 1 per
+brief §0; chapters have no clock (GDD §16a).
+
+`docs/BRIEF_AMENDMENT_1.md` added. It amends `CLAUDE_CODE_BRIEF.md` and wins
+where the two conflict: controls (A), visuals (B), the size budget (C, now
+250 MB) and desktop/web testing (D). Its items are applied in their own pull
+requests and each is recorded here as it lands.
