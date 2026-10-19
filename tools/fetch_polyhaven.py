@@ -172,6 +172,7 @@ def decimate_to_glb(gltf_path: Path, target: int) -> Path:
     total = sum(len(g.faces) for g in scene.geometry.values())
     out = trimesh.Scene()
     materials: dict[bytes, object] = {}  # one material per distinct albedo
+    parts: dict[bytes, list] = {}  # decimated meshes, grouped by material
     for name, geom in scene.geometry.items():
         share = max(1, int(target * len(geom.faces) / max(total, 1)))
         verts = np.asarray(geom.vertices, dtype=np.float64)
@@ -216,10 +217,15 @@ def decimate_to_glb(gltf_path: Path, target: int) -> Path:
             mesh.visual = trimesh.visual.TextureVisuals(uv=uv, material=material)
         for node_name in scene.graph.nodes_geometry:
             if scene.graph[node_name][1] == name:
-                out.add_geometry(mesh, node_name=node_name, geom_name=name, transform=scene.graph[node_name][0])
+                mesh.apply_transform(scene.graph[node_name][0])
                 break
-        else:
-            out.add_geometry(mesh, geom_name=name)
+        parts.setdefault(key, []).append(mesh)
+    # One mesh per material: a photoscan arrives as a dozen parts, and every
+    # part is a draw call (twice, with its shadow). Budget: amendment §C.
+    for index, (key, meshes) in enumerate(parts.items()):
+        merged = meshes[0] if len(meshes) == 1 else trimesh.util.concatenate(meshes)
+        merged.visual.material = materials[key]
+        out.add_geometry(merged, geom_name=f"{gltf_path.parent.name}_{index}")
     glb = gltf_path.parent / f"{gltf_path.parent.name}.glb"
     glb.write_bytes(out.export(file_type="glb", include_normals=True))
     for stale in gltf_path.parent.rglob("*"):
@@ -263,7 +269,7 @@ def register_row(asset: str, kind: str, source: str, used: str, path: Path) -> N
     marker = f"| `{asset}` |"
     processing = {
         "hdri": "none",
-        "model": "1K GLTF decimated (fast-simplification) to the budget in MODEL_TRIANGLES; albedo only, 512 px, gen_textures.stylise(); normal/roughness maps removed; written as .glb",
+        "model": "1K GLTF decimated (fast-simplification) to the budget in MODEL_TRIANGLES; albedo only, 512 px, gen_textures.stylise(); normal/roughness maps removed; parts joined into one mesh per material; written as .glb",
     }.get(kind, "1K Diffuse only; gen_textures.stylise() albedo pass; PNG")
     row = (
         f"{marker} {kind} | {source} | {LICENCE} | {dt.date.today().isoformat()} | {used} | "

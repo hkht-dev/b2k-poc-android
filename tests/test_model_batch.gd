@@ -6,6 +6,7 @@ extends GutTest
 
 const LAMP := preload("res://assets/thirdparty/polyhaven/models/street_lamp_01/street_lamp_01.glb")
 const SEDAN := preload("res://assets/thirdparty/kenney/car-kit/sedan.glb")
+const TREE := preload("res://assets/thirdparty/kenney/nature-kit/tree_default.glb")
 const STREET := preload("res://scenes/street/Street.tscn")
 
 
@@ -62,18 +63,18 @@ func test_one_multimesh_per_mesh_in_the_model_however_many_copies() -> void:
 
 
 func test_a_mesh_offset_inside_the_model_is_read_before_the_scene_is_in_the_tree() -> void:
-	# Kenney's wheels sit off the car's origin; the batch composes that offset
-	# with each placement rather than piling every wheel at the origin. (The
-	# headless renderer does not store MultiMesh transforms, so the maths is
-	# checked here and the composition is placement * local.)
-	var prototype: Node = SEDAN.instantiate()
+	# Kenney's tree mesh sits under a parent node with its own offset; the
+	# batch composes that offset with each placement rather than dropping it.
+	# (The headless renderer does not store MultiMesh transforms, so the maths
+	# is checked here and the composition is placement * local.)
+	var prototype: Node = TREE.instantiate()
 	var found_offset := false
 	for mesh_instance: MeshInstance3D in _mesh_instances(prototype):
 		var local := ModelBatch.local_transform_within(mesh_instance, prototype)
 		if not local.origin.is_zero_approx():
 			found_offset = true
 	prototype.free()
-	assert_true(found_offset, "at least one part of the car sits off its origin")
+	assert_true(found_offset, "the tree mesh sits off the model's origin")
 
 
 func test_a_nested_offset_composes_parent_then_child() -> void:

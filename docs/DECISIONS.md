@@ -617,9 +617,11 @@ editor in the cloud. The steps for the owner are in
 
 ### Lighting
 
-Shaded faces went near-black under the HDRI on the phone. Ambient light
-from the sky raised (0.85 → 1.0), the sun lowered to 1.0 and exposure to
-1.0; a first try at 1.35 ambient washed the whole street white in the
+Shaded faces went near-black under the HDRI on the phone: the overcast sky
+lights from above and the soil below it gives the undersides nothing.
+Ambient is now a flat grey (0.64, 0.66, 0.70) at 1.3 with 45% sky
+contribution, the sun 0.95 with shadows at 65% opacity, exposure 1.0. A
+first try — sky ambient at 1.35 — washed the whole street white in the
 browser build. Still real-time shadow, still the lightmap waiting for an
 editor bake (amendment §B5).
 
