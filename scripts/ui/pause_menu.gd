@@ -15,6 +15,7 @@ const MINIMAP := preload("res://scripts/ui/minimap.gd")
 @onready var _resume: Button = %ResumeButton
 @onready var _controls: Button = %ControlsButton
 @onready var _map: Button = %MapButton
+@onready var _now: Label = %Now
 
 
 func _ready() -> void:
@@ -26,7 +27,21 @@ func _ready() -> void:
 	_controls.pressed.connect(func() -> void: controls_requested.emit())
 	_refresh_map_label()
 	_map.pressed.connect(_on_map)
+	_now.text = now_line()
 	_resume.grab_focus()
+
+
+## The single line at the top of the pause menu saying what the player is
+## doing now, in the character's voice (GDD §6 "Quests"). Before Tulu has
+## been heard it is the slice's only guide (CLAUDE_CODE_BRIEF.md §4.3).
+static func now_line() -> String:
+	if not GameState.has_flag("heard_tulu"):
+		return Strings.t("now.boy_humming")
+	for id in Content.quest_ids():
+		var quest: Quest = Content.quest(id)
+		if quest.status() == Quest.Status.ACTIVE and quest.current_step_id() != "":
+			return Strings.t(quest.current_objective_text_id())
+	return Strings.t("now.boy_led")
 
 
 func _refresh_map_label() -> void:

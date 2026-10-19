@@ -55,6 +55,11 @@ REQUIRED_STRING_IDS = [
     "pause.controls",
     "pause.map_on",
     "pause.map_off",
+    "verb.idle",
+    "sub.tulu_hum",
+    "sub.player_hum",
+    "now.boy_humming",
+    "now.boy_led",
 ]
 
 QUEST_REQUIRED = ["id", "giver", "start_condition", "steps", "end_condition"]

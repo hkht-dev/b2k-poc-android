@@ -489,3 +489,73 @@ Applied from `docs/BRIEF_AMENDMENT_1.md` §A, §B and §C in one feature PR
   markers; this one has none — the block's footprints and the player's dot,
   built from the scene at runtime — and is toggled from the pause menu, which
   also lists the controls. A pause button sits top-left (GDD §11).
+
+---
+
+## P3 — Listen and Tulu (2026-10-19)
+
+### Amendment §A acceptance test: passed
+
+The owner ran the two-person, sixty-second, no-instruction test with the
+amendment-1 APK and reported it through. Recorded here as the gate for §A.
+
+### Audio placeholders are generated, as OGG
+
+`tools/gen_audio.py` (numpy + soundfile) writes Tulu's three notes (G4 A4 C5,
+a soft triangle with vibrato, on a 4 s loop), the player's hum, a street bed
+and a water loop, each documented in the script for the composer to replace
+1:1 (brief §6). Vorbis encoding is not byte-stable across libsndfile builds,
+so `--check` asserts the files exist and are not empty rather than comparing
+bytes. The loop flags live in the `.import` files, which are committed.
+
+### The contextual button idles as a faint mark
+
+GDD §11 says the button "appears only near something usable"; GDD §6's Call is
+"hold the interact button with nothing nearby". Both cannot hold at once. The
+button now idles at 35% opacity labelled "…" (a string id, `verb.idle`), takes
+its verb when something is near, and a half-second hold with no verb showing
+is the hum. On desktop E does the same. Affects GDD §6, §11.
+
+### `hum_count` is a field on the journey
+
+Brief §4.2 says "Track hummed count"; GDD §6 sets the flag `hummed` at three.
+A count is not a flag, so `GameState` carries one integer, `hum_count`,
+persisted with the rest, and sets `hummed` on the third. It is never shown to
+the player and is not a score. Affects §5, GDD §12.
+
+### *Listen* is generic; Tulu is its first consumer
+
+`Interactable` (an Area3D with a verb id) is the one mechanism behind the
+button. Any node in group `sound_source` that owns one gets the camera drift
+and the subtitle for free. The street scans the player's overlapping
+interactables each physics frame and shows the nearest's verb.
+
+### Tulu's behaviour, as built
+
+Waits at the fountain's edge humming (positional, `max_distance` 24 m, faint
+past ~15 m). *Listen* plays the notes clearly, sets `heard_tulu`, drifts the
+camera for 1.5 s and sends him along four pavement waypoints to the chai
+stall's back door, pausing whenever the player is more than 8 m behind. Ignored
+for 20 s, he follows at about 5 m. After `heard_tulu`, a hum anywhere within
+40 m is answered with his notes from wherever he is (GDD §6 "Call"). He does
+not path-find: the waypoints go round the stall, not through it.
+
+### The pause menu's one line
+
+GDD §6: "A single line at the top of the pause menu says what the player is
+doing now." Until `heard_tulu` it is *Somewhere a boy is humming.* (brief
+§4.3); after, the active quest step's objective text in the character's voice;
+with nothing active, *The boy went behind the chai stall.* Still no marker,
+arrow or objective on the HUD — a test holds that line.
+
+### Performance in the web build (P3)
+
+| Metric | Limit (amendment §C) | Measured |
+|---|---|---|
+| Draw calls per frame | < 200 | median 141, max 171 |
+| Primitives per frame | < 150k | median 18.2k, max 19.8k |
+| Web `.pck` | — | 27 MB |
+
+Tulu adds one figure and two audio players; the rise from P2 (114 → 141) is
+mostly the camera angle of the measured walk. Frames per second remain a
+device measurement.

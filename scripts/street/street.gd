@@ -12,6 +12,10 @@
 extends Node3D
 
 const PAUSE_MENU := preload("res://scenes/ui/PauseMenu.tscn")
+const PLAYER_HUM := preload("res://assets/audio/player_hum.ogg")
+const STREET_BED := preload("res://assets/audio/street_bed.ogg")
+## How far the player's hum carries to anything that can answer it.
+const HUM_REACH := 40.0
 const CONTROLS_HINT := preload("res://scenes/ui/ControlsHint.tscn")
 ## §A4: touch sensitivity is half the desktop default.
 const TOUCH_SENSITIVITY := 0.5
@@ -19,6 +23,9 @@ const DESKTOP_SENSITIVITY := 1.0
 
 var _pause_menu: Control = null
 var _controls_overlay: Control = null
+var _near: Interactable = null
+var _hum_player: AudioStreamPlayer = null
+var _bed_player: AudioStreamPlayer = null
 
 @onready var _player: CharacterBody3D = %Player
 @onready var _camera_rig: Node3D = %CameraRig
@@ -32,11 +39,22 @@ func _ready() -> void:
 	_controls.tapped.connect(_on_tapped)
 	_controls.pause_pressed.connect(pause)
 	_controls.minimap().bind(self, _player)
+	_controls.contextual_button().verb_used.connect(_on_verb_used)
+	_controls.contextual_button().hummed.connect(hum)
+	_hum_player = AudioStreamPlayer.new()
+	_hum_player.stream = PLAYER_HUM
+	add_child(_hum_player)
+	_bed_player = AudioStreamPlayer.new()
+	_bed_player.stream = STREET_BED
+	_bed_player.volume_db = -10.0
+	add_child(_bed_player)
+	_bed_player.play()
 	_player.moved_first_time.connect(func() -> void: _controls.joystick().dismiss_hint())
 	_ui.process_mode = Node.PROCESS_MODE_ALWAYS
 
 
 func _physics_process(_delta: float) -> void:
+	_scan_interactables()
 	if _player.is_climbing():
 		_player.set_move_input(Vector2.ZERO, 0.0)
 		return
@@ -45,7 +63,61 @@ func _physics_process(_delta: float) -> void:
 	)
 
 
+## The nearest usable thing the player stands in decides the button's verb.
+func _scan_interactables() -> void:
+	var best: Interactable = null
+	var best_distance := INF
+	for node in get_tree().get_nodes_in_group(Interactable.GROUP):
+		var area := node as Interactable
+		if area == null or not area.is_available() or not area.overlaps_body(_player):
+			continue
+		var distance := area.global_position.distance_to(_player.global_position)
+		if distance < best_distance:
+			best = area
+			best_distance = distance
+	_near = best
+	_controls.contextual_button().show_verb(best.verb_id if best != null else "")
+
+
+func near() -> Interactable:
+	return _near
+
+
+func _on_verb_used(_verb_id: String) -> void:
+	if _near == null or is_paused():
+		return
+	var target := _near
+	if (
+		target.is_in_group(Interactable.SOUND_SOURCE_GROUP)
+		or target.get_parent().is_in_group(Interactable.SOUND_SOURCE_GROUP)
+	):
+		_camera_rig.drift_toward(target.global_position, 1.5)
+		_controls.subtitle("sub.tulu_hum")
+	target.use(_player)
+
+
+## The Call (GDD §6): the player hums; anything that can answer, does.
+func hum() -> void:
+	if is_paused() or _player.is_climbing():
+		return
+	_hum_player.play()
+	_controls.subtitle("sub.player_hum")
+	GameState.record_hum()
+	for node in get_tree().get_nodes_in_group(Interactable.SOUND_SOURCE_GROUP):
+		var source := node as Node3D
+		if source == null or not source.has_method("hear_hum"):
+			continue
+		if source.global_position.distance_to(_player.global_position) <= HUM_REACH:
+			source.hear_hum()
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("contextual"):
+		_controls.contextual_button().button_down.emit()
+		if _near != null:
+			_controls.contextual_button().pressed.emit()
+	elif event.is_action_released("contextual"):
+		_controls.contextual_button().button_up.emit()
 	if event.is_action_pressed("pause"):
 		if is_paused():
 			resume()

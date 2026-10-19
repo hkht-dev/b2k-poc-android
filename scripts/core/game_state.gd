@@ -17,6 +17,8 @@ signal wiped
 
 const SAVE_PATH := "user://journey.json"
 const SAVE_VERSION := 1
+const HUMMED_FLAG := "hummed"
+const HUMMED_AT := 3
 
 ## Beats are an ordered list of ids in data (GDD §12). The slice has one.
 var beat: String = ""
@@ -28,6 +30,9 @@ var events := FlagStore.new()
 var choice_history: Array[Dictionary] = []
 var journey_lines: Array[String] = []
 var settings: Dictionary = {}
+## Times the player has hummed (CLAUDE_CODE_BRIEF.md §4.2 "Track hummed
+## count"). The flag `hummed` is set at three (GDD §6 "Remembering Krishna").
+var hum_count: int = 0
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -78,6 +83,15 @@ func has_event(event: String) -> bool:
 # -- beat, choices, journey ---------------------------------------------------
 
 
+## Counts a hum; the third sets `hummed`.
+func record_hum() -> int:
+	hum_count += 1
+	if hum_count >= HUMMED_AT:
+		set_flag(HUMMED_FLAG)
+	_save_if_enabled()
+	return hum_count
+
+
 func set_beat(new_beat: String) -> void:
 	if new_beat == beat:
 		return
@@ -116,6 +130,7 @@ func to_dict() -> Dictionary:
 		"choice_history": choice_history.duplicate(true),
 		"journey_lines": journey_lines.duplicate(),
 		"settings": settings.duplicate(true),
+		"hum_count": hum_count,
 	}
 
 
@@ -133,6 +148,7 @@ func from_dict(data: Dictionary) -> void:
 	for line in _string_array(data.get("journey_lines", [])):
 		journey_lines.append(line)
 	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
+	hum_count = int(data.get("hum_count", 0))
 
 
 func save() -> bool:
@@ -168,6 +184,7 @@ func wipe() -> void:
 	choice_history.clear()
 	journey_lines.clear()
 	settings = {}
+	hum_count = 0
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)

@@ -30,7 +30,7 @@ The repository owner lifted two of the brief's rules after playing P1; see
 grey-box) and the **60 MB install budget no longer binds**. Everything else in
 the brief still holds, in particular: no asset is pulled from the internet.
 Textures come from `tools/gen_textures.py`; the street scene comes from
-`tools/gen_street.py`. Edit the generators, not their output, and run them
+`tools/gen_street.py`; placeholder audio from `tools/gen_audio.py`. Edit the generators, not their output, and run them
 before committing — CI checks both with `--check`.
 
 `docs/BRIEF_AMENDMENT_1.md` wins over the brief where they conflict. Third-

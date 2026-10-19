@@ -29,6 +29,8 @@ it stays out of the way:
 | Walk there | Tap a spot on the right | Click the ground | — |
 | Climb | Walk into a ledge | Walk into a ledge | Walk into a ledge |
 | Use | The one button, lower right, when something is near | E | A |
+| Hum | Hold that button with nothing near | Hold E | Hold A |
+| Listen | The button says *Listen* beside a sound | E | A |
 | Pause | Button top-left | Esc | Start |
 
 There is no jump button. The pause menu has *Controls* (this card, with a

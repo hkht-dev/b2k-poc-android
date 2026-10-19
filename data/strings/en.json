@@ -57,6 +57,8 @@
   "line.gopal_fear_2": "Forty-one. I check. Every night I check.",
   "line.gopal_greet": "Water? I have water. Not for sale today, friend. Tomorrow, maybe.",
   "line.gopal_hurt": "I saw that. I'd have given it, if you'd asked.",
+  "now.boy_humming": "Somewhere a boy is humming.",
+  "now.boy_led": "The boy went behind the chai stall.",
   "pause.controls": "Controls",
   "pause.map_off": "Map: off",
   "pause.map_on": "Map: on",
@@ -67,7 +69,10 @@
   "quest.dry_fountain.notice": "The fountain is dry. The shop beside it is full.",
   "speaker.fountain": "",
   "speaker.gopal": "Gopal Seth",
+  "sub.player_hum": "[You hum]",
+  "sub.tulu_hum": "[Tulu hums three notes]",
   "title.begin": "Begin",
   "title.build_label": "Build %s",
+  "verb.idle": "…",
   "verb.listen": "Listen"
 }

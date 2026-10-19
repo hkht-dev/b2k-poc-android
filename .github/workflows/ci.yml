@@ -26,7 +26,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install tooling
-        run: pip install "gdtoolkit==4.3.*" "qrcode[pil]==7.4.*"
+        run: |
+          sudo apt-get install -y -qq libsndfile1 >/dev/null
+          pip install "gdtoolkit==4.3.*" "qrcode[pil]==7.4.*" soundfile
 
       # addons/ is vendored third-party code (GUT) and is not ours to format.
       - name: Collect our GDScript
@@ -61,6 +63,9 @@ jobs:
 
       - name: Third-party assets are present and registered
         run: python3 tools/fetch_polyhaven.py --check
+
+      - name: Generated audio is present
+        run: python3 tools/gen_audio.py --check
 
   test:
     name: GUT tests

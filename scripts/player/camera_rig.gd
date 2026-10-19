@@ -38,6 +38,8 @@ var _pitch := -0.18
 var _distance := DISTANCE
 var _bob_phase := 0.0
 var _since_drag := 1000.0
+var _drift_target := Vector3.ZERO
+var _drift_left := 0.0
 
 @onready var _yaw_pivot: Node3D = $YawPivot
 @onready var _pitch_pivot: Node3D = $YawPivot/PitchPivot
@@ -66,6 +68,16 @@ func _physics_process(delta: float) -> void:
 	var wanted := target.global_position + Vector3.UP * (SHOULDER_HEIGHT + bob)
 	var follow := 1.0 - exp(-delta / FOLLOW_LAG)
 	global_position = global_position.lerp(wanted, follow)
+
+	if _drift_left > 0.0:
+		_drift_left -= delta
+		var to := _drift_target - global_position
+		to.y = 0.0
+		if to.length() > 0.1:
+			# Put the camera on the far side of the player from the sound.
+			var wanted_yaw := atan2(to.x, to.z) + PI
+			_yaw = lerp_angle(_yaw, wanted_yaw, minf(1.0, 3.0 * delta))
+			_yaw_pivot.rotation.y = _yaw
 
 	if running and target.has_method("run_time") and target.run_time() > AUTO_ALIGN_AFTER:
 		if _since_drag > AUTO_ALIGN_AFTER:
@@ -97,9 +109,21 @@ func camera_distance() -> float:
 	return _distance
 
 
+## Eases the camera round to face [param point] for [param seconds]
+## (CLAUDE_CODE_BRIEF.md §4.3: *Listen* "drifts the camera toward him").
+func drift_toward(point: Vector3, seconds: float = 1.5) -> void:
+	_drift_target = point
+	_drift_left = seconds
+
+
+func is_drifting() -> bool:
+	return _drift_left > 0.0
+
+
 ## Orbits by a drag delta in pixels and resets the auto-align timer.
 func orbit(drag: Vector2) -> void:
 	_since_drag = 0.0
+	_drift_left = 0.0
 	_yaw -= drag.x * DRAG_TO_RADIANS * sensitivity
 	var vertical := drag.y * DRAG_TO_RADIANS * sensitivity
 	_pitch += vertical if invert_y else -vertical
