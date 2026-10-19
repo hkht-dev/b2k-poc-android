@@ -1,0 +1,1117 @@
+[gd_scene load_steps=38 format=3]
+
+; Hollow Vale — the Street, grey-box. CLAUDE_CODE_BRIEF.md §4.1.
+;
+; PLACEHOLDER: every mesh here is a primitive with a flat colour. Replaced by
+; the painted stylized 3D of GDD §10 and the licensed village/building sets of
+; its "Asset sourcing plan".
+;
+; Palette is the Hollow Vale row of GDD §10 — ochre, dust, timber brown, flat
+; overcast white, rust red on fences and the tower. Peacock blue and magenta
+; are forbidden in this scene; the only exception in the whole slice is the
+; Glimpse backlight and its feather, which arrive in P5.
+
+[ext_resource type="Script" path="res://scripts/street/street.gd" id="1_street"]
+[ext_resource type="Script" path="res://scripts/street/climb_point.gd" id="2_climb"]
+[ext_resource type="Script" path="res://scripts/street/path_mover.gd" id="3_pathmover"]
+[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="4_player"]
+[ext_resource type="PackedScene" path="res://scenes/player/CameraRig.tscn" id="5_rig"]
+[ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="6_controls"]
+[ext_resource type="Material" path="res://assets/materials/ochre.tres" id="10_ochre"]
+[ext_resource type="Material" path="res://assets/materials/dust.tres" id="11_dust"]
+[ext_resource type="Material" path="res://assets/materials/timber.tres" id="12_timber"]
+[ext_resource type="Material" path="res://assets/materials/flat_white.tres" id="13_white"]
+[ext_resource type="Material" path="res://assets/materials/rust.tres" id="14_rust"]
+[ext_resource type="Material" path="res://assets/materials/asphalt.tres" id="15_asphalt"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_unit"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_unit"]
+top_radius = 0.5
+bottom_radius = 0.5
+height = 1.0
+radial_segments = 10
+rings = 0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ped"]
+radius = 0.3
+height = 1.7
+radial_segments = 8
+rings = 2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_climb"]
+size = Vector3(7, 1.8, 2.2)
+
+[sub_resource type="ProceduralSkyMaterial" id="Sky_overcast"]
+sky_top_color = Color(0.835, 0.831, 0.804, 1)
+sky_horizon_color = Color(0.886, 0.867, 0.816, 1)
+ground_bottom_color = Color(0.761, 0.725, 0.631, 1)
+ground_horizon_color = Color(0.843, 0.816, 0.749, 1)
+sun_angle_max = 1.0
+sun_curve = 0.3
+
+[sub_resource type="Sky" id="Sky_flat"]
+sky_material = SubResource("Sky_overcast")
+
+[sub_resource type="Environment" id="Environment_vale"]
+background_mode = 2
+sky = SubResource("Sky_flat")
+ambient_light_source = 3
+ambient_light_color = Color(0.878, 0.859, 0.804, 1)
+ambient_light_sky_contribution = 0.75
+ambient_light_energy = 1.1
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.859, 0.835, 0.776, 1)
+fog_density = 0.0016
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0"]
+size = Vector3(130, 1, 38)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1"]
+size = Vector3(58, 1, 14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2"]
+size = Vector3(14, 0.3, 14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3"]
+size = Vector3(14, 1.8, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4"]
+size = Vector3(0.7, 1.8, 12.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5"]
+size = Vector3(10, 4, 0.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6"]
+size = Vector3(0.4, 4, 6.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7"]
+size = Vector3(10, 0.3, 7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8"]
+size = Vector3(8.4, 1, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_9"]
+size = Vector3(5, 2.8, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_10"]
+size = Vector3(5.6, 0.3, 4.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_11"]
+size = Vector3(0.35, 6, 0.35)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_12"]
+size = Vector3(15, 14, 15)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_13"]
+size = Vector3(0.5, 7, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_14"]
+size = Vector3(11, 8, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_15"]
+size = Vector3(12, 7, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_16"]
+size = Vector3(3.4, 0.18, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_17"]
+size = Vector3(0.16, 2.6, 0.16)
+
+[node name="Street" type="Node3D"]
+script = ExtResource("1_street")
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_vale")
+
+; Flat overcast midday: one directional light, no real-time shadows
+; (CLAUDE_CODE_BRIEF.md §1 "no real-time shadows").
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.287, 0.409, 0, 0.819, 0.574, -0.5, -0.497, 0.709, 0, 24, 0)
+light_energy = 0.85
+light_color = Color(1, 0.984, 0.945, 1)
+shadow_enabled = false
+directional_shadow_mode = 0
+
+[node name="Ground" type="Node3D" parent="."]
+
+[node name="GroundNorth" type="StaticBody3D" parent="Ground"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, -0.5, -26)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Ground/GroundNorth"]
+shape = SubResource("BoxShape3D_0")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/GroundNorth"]
+transform = Transform3D(130, 0, -0, 0, 1, 0, 0, 0, 38, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("11_dust")
+
+[node name="GroundSouth" type="StaticBody3D" parent="Ground"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, -0.5, 26)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Ground/GroundSouth"]
+shape = SubResource("BoxShape3D_0")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/GroundSouth"]
+transform = Transform3D(130, 0, -0, 0, 1, 0, 0, 0, 38, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("11_dust")
+
+[node name="GroundWest" type="StaticBody3D" parent="Ground"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -36, -0.5, 0)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Ground/GroundWest"]
+shape = SubResource("BoxShape3D_1")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/GroundWest"]
+transform = Transform3D(58, 0, -0, 0, 1, 0, 0, 0, 14, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("11_dust")
+
+[node name="GroundEast" type="StaticBody3D" parent="Ground"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 36, -0.5, 0)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Ground/GroundEast"]
+shape = SubResource("BoxShape3D_1")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/GroundEast"]
+transform = Transform3D(58, 0, -0, 0, 1, 0, 0, 0, 14, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("11_dust")
+
+[node name="RoadEastWest" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(130, 0, -0, 0, 0.02, 0, 0, 0, 11, 0, 0.01, 16)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("15_asphalt")
+
+[node name="RoadNorthSouth" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(11, 0, -0, 0, 0.02, 0, 0, 0, 90, 30, 0.01, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("15_asphalt")
+
+[node name="Fountain" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="Fountain"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, -1.25, 0)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Fountain/Floor"]
+shape = SubResource("BoxShape3D_2")
+
+[node name="Mesh" type="MeshInstance3D" parent="Fountain/Floor"]
+transform = Transform3D(14, 0, -0, 0, 0.3, 0, 0, 0, 14, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="WallNorth" type="StaticBody3D" parent="Fountain"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, -0.2, -6.65)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Fountain/WallNorth"]
+shape = SubResource("BoxShape3D_3")
+
+[node name="Mesh" type="MeshInstance3D" parent="Fountain/WallNorth"]
+transform = Transform3D(14, 0, -0, 0, 1.8, 0, 0, 0, 0.7, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="WallSouth" type="StaticBody3D" parent="Fountain"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, -0.2, 6.65)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Fountain/WallSouth"]
+shape = SubResource("BoxShape3D_3")
+
+[node name="Mesh" type="MeshInstance3D" parent="Fountain/WallSouth"]
+transform = Transform3D(14, 0, -0, 0, 1.8, 0, 0, 0, 0.7, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="WallWest" type="StaticBody3D" parent="Fountain"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -6.65, -0.2, 0)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Fountain/WallWest"]
+shape = SubResource("BoxShape3D_4")
+
+[node name="Mesh" type="MeshInstance3D" parent="Fountain/WallWest"]
+transform = Transform3D(0.7, 0, -0, 0, 1.8, 0, 0, 0, 12.6, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="WallEast" type="StaticBody3D" parent="Fountain"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 6.65, -0.2, 0)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Fountain/WallEast"]
+shape = SubResource("BoxShape3D_4")
+
+[node name="Mesh" type="MeshInstance3D" parent="Fountain/WallEast"]
+transform = Transform3D(0.7, 0, -0, 0, 1.8, 0, 0, 0, 12.6, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="Spout" type="MeshInstance3D" parent="Fountain"]
+transform = Transform3D(0.9, 0, -0, 0, 1.1, 0, 0, 0, 0.9, 0, -0.55, 0)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="Shop" type="Node3D" parent="."]
+
+[node name="Back" type="StaticBody3D" parent="Shop"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -14, 2, -4.2)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Shop/Back"]
+shape = SubResource("BoxShape3D_5")
+
+[node name="Mesh" type="MeshInstance3D" parent="Shop/Back"]
+transform = Transform3D(10, 0, -0, 0, 4, 0, 0, 0, 0.4, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="Left" type="StaticBody3D" parent="Shop"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -18.8, 2, -1)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Shop/Left"]
+shape = SubResource("BoxShape3D_6")
+
+[node name="Mesh" type="MeshInstance3D" parent="Shop/Left"]
+transform = Transform3D(0.4, 0, -0, 0, 4, 0, 0, 0, 6.8, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="Right" type="StaticBody3D" parent="Shop"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -9.2, 2, -1)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Shop/Right"]
+shape = SubResource("BoxShape3D_6")
+
+[node name="Mesh" type="MeshInstance3D" parent="Shop/Right"]
+transform = Transform3D(0.4, 0, -0, 0, 4, 0, 0, 0, 6.8, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="Roof" type="StaticBody3D" parent="Shop"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -14, 4.1, -1)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Shop/Roof"]
+shape = SubResource("BoxShape3D_7")
+
+[node name="Mesh" type="MeshInstance3D" parent="Shop/Roof"]
+transform = Transform3D(10, 0, -0, 0, 0.3, 0, 0, 0, 7, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="Counter" type="StaticBody3D" parent="Shop"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -14, 0.5, 1.9)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Shop/Counter"]
+shape = SubResource("BoxShape3D_8")
+
+[node name="Mesh" type="MeshInstance3D" parent="Shop/Counter"]
+transform = Transform3D(8.4, 0, -0, 0, 1, 0, 0, 0, 0.6, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="Can0" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -17.2, 0.35, -2.6)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can1" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -15.1, 0.35, -2.6)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can2" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -13, 0.35, -2.6)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can3" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -10.9, 0.35, -2.6)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can4" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -17.2, 0.35, -1.5)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can5" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -15.1, 0.35, -1.5)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can6" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -13, 0.35, -1.5)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can7" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -10.9, 0.35, -1.5)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can8" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -17.2, 0.35, -0.4)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can9" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -15.1, 0.35, -0.4)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can10" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -13, 0.35, -0.4)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Can11" type="MeshInstance3D" parent="Shop"]
+transform = Transform3D(0.66, 0, -0, 0, 0.7, 0, 0, 0, 0.66, -10.9, 0.35, -0.4)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="ChaiStall" type="Node3D" parent="."]
+
+[node name="Body" type="StaticBody3D" parent="ChaiStall"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 13, 1.4, -9)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="ChaiStall/Body"]
+shape = SubResource("BoxShape3D_9")
+
+[node name="Mesh" type="MeshInstance3D" parent="ChaiStall/Body"]
+transform = Transform3D(5, 0, -0, 0, 2.8, 0, 0, 0, 4, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="Roof" type="StaticBody3D" parent="ChaiStall"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 13, 2.95, -9)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="ChaiStall/Roof"]
+shape = SubResource("BoxShape3D_10")
+
+[node name="Mesh" type="MeshInstance3D" parent="ChaiStall/Roof"]
+transform = Transform3D(5.6, 0, -0, 0, 0.3, 0, 0, 0, 4.6, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="BackDoor" type="MeshInstance3D" parent="ChaiStall"]
+transform = Transform3D(1.3, 0, -0, 0, 2.1, 0, 0, 0, 0.12, 13, 1.05, -11.05)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="TrafficLight" type="Node3D" parent="."]
+
+[node name="Pole" type="StaticBody3D" parent="TrafficLight"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 25.5, 3, 14)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="TrafficLight/Pole"]
+shape = SubResource("BoxShape3D_11")
+
+[node name="Mesh" type="MeshInstance3D" parent="TrafficLight/Pole"]
+transform = Transform3D(0.35, 0, -0, 0, 6, 0, 0, 0, 0.35, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="Beam" type="MeshInstance3D" parent="TrafficLight"]
+transform = Transform3D(8.4, 0, -0, 0, 0.3, 0, 0, 0, 0.3, 29.5, 5.7, 14)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="Lamp0" type="MeshInstance3D" parent="TrafficLight"]
+transform = Transform3D(0.32, 0, -0, 0, 0.3, 0, 0, 0, 0.32, 32.6, 5.25, 13.7)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Lamp1" type="MeshInstance3D" parent="TrafficLight"]
+transform = Transform3D(0.32, 0, -0, 0, 0.3, 0, 0, 0, 0.32, 32.6, 5.25, 14)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Lamp2" type="MeshInstance3D" parent="TrafficLight"]
+transform = Transform3D(0.32, 0, -0, 0, 0.3, 0, 0, 0, 0.32, 32.6, 5.25, 14.3)
+mesh = SubResource("CylinderMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Tower" type="Node3D" parent="."]
+
+[node name="Block" type="StaticBody3D" parent="Tower"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -31, 7, -26)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Tower/Block"]
+shape = SubResource("BoxShape3D_12")
+
+[node name="Mesh" type="MeshInstance3D" parent="Tower/Block"]
+transform = Transform3D(15, 0, -0, 0, 14, 0, 0, 0, 15, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="Leg0" type="StaticBody3D" parent="Tower"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -36, 17.5, -31)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Tower/Leg0"]
+shape = SubResource("BoxShape3D_13")
+
+[node name="Mesh" type="MeshInstance3D" parent="Tower/Leg0"]
+transform = Transform3D(0.5, 0, -0, 0, 7, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Leg1" type="StaticBody3D" parent="Tower"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -26, 17.5, -31)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Tower/Leg1"]
+shape = SubResource("BoxShape3D_13")
+
+[node name="Mesh" type="MeshInstance3D" parent="Tower/Leg1"]
+transform = Transform3D(0.5, 0, -0, 0, 7, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Leg2" type="StaticBody3D" parent="Tower"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -36, 17.5, -21)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Tower/Leg2"]
+shape = SubResource("BoxShape3D_13")
+
+[node name="Mesh" type="MeshInstance3D" parent="Tower/Leg2"]
+transform = Transform3D(0.5, 0, -0, 0, 7, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Leg3" type="StaticBody3D" parent="Tower"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -26, 17.5, -21)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Tower/Leg3"]
+shape = SubResource("BoxShape3D_13")
+
+[node name="Mesh" type="MeshInstance3D" parent="Tower/Leg3"]
+transform = Transform3D(0.5, 0, -0, 0, 7, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Billboard" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(13, 0, -0, 0, 6, 0, 0, 0, 0.4, -31, 22.5, -26)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Flats" type="Node3D" parent="."]
+
+[node name="North0" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -62, 4, -22)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/North0"]
+shape = SubResource("BoxShape3D_14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/North0"]
+transform = Transform3D(11, 0, -0, 0, 8, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="North0Bars0" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -65.5, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North0Bars1" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -62, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North0Bars2" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -58.5, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North1" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -48, 4, -22)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/North1"]
+shape = SubResource("BoxShape3D_14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/North1"]
+transform = Transform3D(11, 0, -0, 0, 8, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="North1Bars0" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -51.5, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North1Bars1" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -48, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North1Bars2" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -44.5, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North2" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -10, 4, -24)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/North2"]
+shape = SubResource("BoxShape3D_14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/North2"]
+transform = Transform3D(11, 0, -0, 0, 8, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="North2Bars0" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -13.5, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North2Bars1" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -10, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North2Bars2" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, -6.5, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North3" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 4, 4, -24)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/North3"]
+shape = SubResource("BoxShape3D_14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/North3"]
+transform = Transform3D(11, 0, -0, 0, 8, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="North3Bars0" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 0.5, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North3Bars1" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 4, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North3Bars2" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 7.5, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North4" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 18, 4, -24)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/North4"]
+shape = SubResource("BoxShape3D_14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/North4"]
+transform = Transform3D(11, 0, -0, 0, 8, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="North4Bars0" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 14.5, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North4Bars1" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 18, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North4Bars2" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 21.5, 3.2, -18.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North5" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 46, 4, -22)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/North5"]
+shape = SubResource("BoxShape3D_14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/North5"]
+transform = Transform3D(11, 0, -0, 0, 8, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="North5Bars0" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 42.5, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North5Bars1" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 46, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="North5Bars2" type="MeshInstance3D" parent="Flats"]
+transform = Transform3D(1.6, 0, -0, 0, 1.4, 0, 0, 0, 0.12, 49.5, 3.2, -16.9)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="South0" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -56, 3.5, 30)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/South0"]
+shape = SubResource("BoxShape3D_15")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/South0"]
+transform = Transform3D(12, 0, -0, 0, 7, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="South1" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -40, 3.5, 30)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/South1"]
+shape = SubResource("BoxShape3D_15")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/South1"]
+transform = Transform3D(12, 0, -0, 0, 7, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="South2" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -22, 3.5, 30)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/South2"]
+shape = SubResource("BoxShape3D_15")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/South2"]
+transform = Transform3D(12, 0, -0, 0, 7, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="South3" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 2, 3.5, 32)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/South3"]
+shape = SubResource("BoxShape3D_15")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/South3"]
+transform = Transform3D(12, 0, -0, 0, 7, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="South4" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 16, 3.5, 32)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/South4"]
+shape = SubResource("BoxShape3D_15")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/South4"]
+transform = Transform3D(12, 0, -0, 0, 7, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("10_ochre")
+
+[node name="South5" type="StaticBody3D" parent="Flats"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 48, 3.5, 30)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Flats/South5"]
+shape = SubResource("BoxShape3D_15")
+
+[node name="Mesh" type="MeshInstance3D" parent="Flats/South5"]
+transform = Transform3D(12, 0, -0, 0, 7, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="Fences" type="Node3D" parent="."]
+
+[node name="Post0" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -44, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail0" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -44, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post1" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -42.1, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail1" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -42.1, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post2" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -40.2, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail2" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -40.2, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post3" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -38.3, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail3" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -38.3, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post4" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -36.4, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail4" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -36.4, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post5" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -34.5, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail5" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -34.5, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post6" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -32.6, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail6" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -32.6, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post7" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -30.7, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail7" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -30.7, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post8" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -28.8, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail8" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -28.8, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post9" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -26.9, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail9" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -26.9, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post10" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -25, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail10" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -25, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post11" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -23.1, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail11" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -23.1, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post12" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -21.2, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail12" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -21.2, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Post13" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.12, 0, -0, 0, 1.2, 0, 0, 0, 0.12, -19.3, 0.6, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Rail13" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(1.9, 0, -0, 0, 0.1, 0, 0, 0, 0.08, -19.3, 1.05, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Padlock" type="MeshInstance3D" parent="Fences"]
+transform = Transform3D(0.22, 0, -0, 0, 0.3, 0, 0, 0, 0.12, -31.1, 0.95, 7.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="BusStop" type="Node3D" parent="."]
+
+[node name="Bench" type="StaticBody3D" parent="BusStop"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 9, 0.45, 20.5)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="BusStop/Bench"]
+shape = SubResource("BoxShape3D_16")
+
+[node name="Mesh" type="MeshInstance3D" parent="BusStop/Bench"]
+transform = Transform3D(3.4, 0, -0, 0, 0.18, 0, 0, 0, 0.7, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="BenchLegL" type="MeshInstance3D" parent="BusStop"]
+transform = Transform3D(0.16, 0, -0, 0, 0.45, 0, 0, 0, 0.6, 7.6, 0.22, 20.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="BenchLegR" type="MeshInstance3D" parent="BusStop"]
+transform = Transform3D(0.16, 0, -0, 0, 0.45, 0, 0, 0, 0.6, 10.4, 0.22, 20.5)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="Shelter" type="MeshInstance3D" parent="BusStop"]
+transform = Transform3D(4.2, 0, -0, 0, 0.2, 0, 0, 0, 2.2, 9, 2.6, 20.8)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="ShelterPostL" type="StaticBody3D" parent="BusStop"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 7.1, 1.3, 21.7)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="BusStop/ShelterPostL"]
+shape = SubResource("BoxShape3D_17")
+
+[node name="Mesh" type="MeshInstance3D" parent="BusStop/ShelterPostL"]
+transform = Transform3D(0.16, 0, -0, 0, 2.6, 0, 0, 0, 0.16, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="ShelterPostR" type="StaticBody3D" parent="BusStop"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 10.9, 1.3, 21.7)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="BusStop/ShelterPostR"]
+shape = SubResource("BoxShape3D_17")
+
+[node name="Mesh" type="MeshInstance3D" parent="BusStop/ShelterPostR"]
+transform = Transform3D(0.16, 0, -0, 0, 2.6, 0, 0, 0, 0.16, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="Ambience" type="Node3D" parent="."]
+
+[node name="Pedestrian0" type="Node3D" parent="Ambience"]
+script = ExtResource("3_pathmover")
+points = PackedVector3Array(-22, 0, 9, 14, 0, 9, 14, 0, 24, -22, 0, 24)
+speed = 1.25
+face_travel = true
+start_offset = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Ambience/Pedestrian0"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_ped")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="Pedestrian1" type="Node3D" parent="Ambience"]
+script = ExtResource("3_pathmover")
+points = PackedVector3Array(20, 0, 10, 44, 0, 10, 44, 0, -6, 20, 0, -6)
+speed = 1.05
+face_travel = true
+start_offset = 7
+
+[node name="Mesh" type="MeshInstance3D" parent="Ambience/Pedestrian1"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_ped")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="Pedestrian2" type="Node3D" parent="Ambience"]
+script = ExtResource("3_pathmover")
+points = PackedVector3Array(-8, 0, -14, 10, 0, -14, 10, 0, -6, -8, 0, -6)
+speed = 1.4
+face_travel = true
+start_offset = 14
+
+[node name="Mesh" type="MeshInstance3D" parent="Ambience/Pedestrian2"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_ped")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="Pedestrian3" type="Node3D" parent="Ambience"]
+script = ExtResource("3_pathmover")
+points = PackedVector3Array(-40, 0, 12, -16, 0, 12, -16, 0, 2, -40, 0, 2)
+speed = 0.95
+face_travel = true
+start_offset = 21
+
+[node name="Mesh" type="MeshInstance3D" parent="Ambience/Pedestrian3"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_ped")
+surface_material_override/0 = ExtResource("12_timber")
+
+[node name="Pedestrian4" type="Node3D" parent="Ambience"]
+script = ExtResource("3_pathmover")
+points = PackedVector3Array(34, 0, 22, 52, 0, 22, 52, 0, 34, 34, 0, 34)
+speed = 1.15
+face_travel = true
+start_offset = 28
+
+[node name="Mesh" type="MeshInstance3D" parent="Ambience/Pedestrian4"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_ped")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="Vehicle0" type="Node3D" parent="Ambience"]
+script = ExtResource("3_pathmover")
+points = PackedVector3Array(-60, 0, 16, 60, 0, 16)
+speed = 7.5
+face_travel = true
+start_offset = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Ambience/Vehicle0"]
+transform = Transform3D(1.9, 0, -0, 0, 1.5, 0, 0, 0, 4.2, 0, 0.8, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="Vehicle1" type="Node3D" parent="Ambience"]
+script = ExtResource("3_pathmover")
+points = PackedVector3Array(60, 0, 13, -60, 0, 13)
+speed = 6.2
+face_travel = true
+start_offset = 31
+
+[node name="Mesh" type="MeshInstance3D" parent="Ambience/Vehicle1"]
+transform = Transform3D(1.9, 0, -0, 0, 1.5, 0, 0, 0, 4.2, 0, 0.8, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("14_rust")
+
+[node name="Vehicle2" type="Node3D" parent="Ambience"]
+script = ExtResource("3_pathmover")
+points = PackedVector3Array(30, 0, -40, 30, 0, 44)
+speed = 8
+face_travel = true
+start_offset = 62
+
+[node name="Mesh" type="MeshInstance3D" parent="Ambience/Vehicle2"]
+transform = Transform3D(1.9, 0, -0, 0, 1.5, 0, 0, 0, 4.2, 0, 0.8, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("13_white")
+
+[node name="Player" parent="." instance=ExtResource("4_player")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, -1, 2)
+
+[node name="CameraRig" parent="." instance=ExtResource("5_rig")]
+unique_name_in_owner = true
+target_path = NodePath("../Player")
+
+; Walking into the north wall from inside the basin climbs the player out.
+; No button: GDD §6, "approach a ledge or ladder and the character climbs".
+[node name="ClimbOut" type="Area3D" parent="."]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, -0.35, -5.2)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("2_climb")
+exit_marker_path = NodePath("../ClimbOutExit")
+
+[node name="Shape" type="CollisionShape3D" parent="ClimbOut"]
+shape = SubResource("BoxShape3D_climb")
+
+[node name="ClimbOutExit" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, 0.05, -8.8)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TouchControls" parent="UI" instance=ExtResource("6_controls")]
+unique_name_in_owner = true

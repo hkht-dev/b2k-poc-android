@@ -5,4 +5,4 @@
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
 
-[node name="ScreenRoot" type="CanvasLayer" parent="."]
+[node name="ScreenRoot" type="Node" parent="."]

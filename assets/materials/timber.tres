@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; PLACEHOLDER: grey-box material. Replaced by the painted textures of
+; GDD §10 "Visual style: painted stylized 3D".
+; Palette: GDD §10, Hollow Vale row — timber brown (dominant)
+
+[resource]
+resource_name = "timber"
+albedo_color = Color(0.420, 0.310, 0.208, 1)
+roughness = 0.95
+specular_mode = 1

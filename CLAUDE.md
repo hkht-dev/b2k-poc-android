@@ -43,9 +43,13 @@ CI runs exactly this. Run it first.
 gdformat --check $(git ls-files '*.gd' | grep -v '^addons/')
 gdlint          $(git ls-files '*.gd' | grep -v '^addons/')
 python3 tools/check_data.py
-godot --headless --path . -s addons/gut/gut_cmdln.gd \
-  -gdir=res://tests -ginclude_subdirs -gprefix=test_ -gsuffix=.gd -gexit
+tools/run_tests.sh
 ```
+
+Run the suite through `tools/run_tests.sh`, never `gut_cmdln.gd` directly:
+GUT skips a test script that will not compile and still exits 0, so a broken
+test file looks exactly like a passing one. The wrapper fails when fewer
+scripts ran than exist on disk.
 
 `addons/` is vendored third-party code. Do not format, lint or edit it.
 

@@ -2,6 +2,5 @@
   "app.title": "Journey Back to Krishna",
   "title.begin": "Begin",
   "title.build_label": "Build %s",
-  "placeholder.street_pending": "The street is not built yet.",
-  "placeholder.back": "Back"
+  "verb.listen": "Listen"
 }

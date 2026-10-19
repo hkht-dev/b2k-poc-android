@@ -8,8 +8,7 @@
 extends Node
 
 const TITLE_SCREEN := "res://scenes/ui/TitleScreen.tscn"
-# PLACEHOLDER: P1 replaces this with res://scenes/street/Street.tscn.
-const FIRST_PLAY_SCREEN := "res://scenes/core/NotYetBuilt.tscn"
+const FIRST_PLAY_SCREEN := "res://scenes/street/Street.tscn"
 
 var _current: Node = null
 
@@ -26,7 +25,13 @@ func show_screen(path: String) -> Node:
 	if not ResourceLoader.exists(path):
 		push_error("Main: no scene at %s" % path)
 		return null
-	var packed: PackedScene = load(path)
+	# exists() only says a file is there. A scene whose script fails to compile,
+	# or that is itself malformed, still loads as null — and the player would
+	# get a blank screen instead of an error.
+	var packed := load(path) as PackedScene
+	if packed == null:
+		push_error("Main: %s is not a scene that could be loaded" % path)
+		return null
 	var screen: Node = packed.instantiate()
 	if _current != null:
 		_screen_root.remove_child(_current)

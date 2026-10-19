@@ -64,9 +64,8 @@ exactly 4.3, pinned in `project.godot` and in all three workflows.
 godot --headless --import --path . || true
 godot --headless --import --path .
 
-# Tests
-godot --headless --path . -s addons/gut/gut_cmdln.gd \
-  -gdir=res://tests -ginclude_subdirs -gprefix=test_ -gsuffix=.gd -gexit
+# Tests (not gut_cmdln directly — see CLAUDE.md)
+tools/run_tests.sh
 
 # Format and lint exactly as CI does
 pip install "gdtoolkit==4.3.*"

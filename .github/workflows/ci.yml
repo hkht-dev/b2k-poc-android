@@ -71,9 +71,7 @@ jobs:
           godot --headless --import --path . || true
           godot --headless --import --path .
 
+      # Not gut_cmdln directly: GUT exits 0 after skipping a test script that
+      # will not compile. The wrapper fails when fewer scripts ran than exist.
       - name: Run tests
-        run: |
-          godot --headless --path . \
-            -s addons/gut/gut_cmdln.gd \
-            -gdir=res://tests -ginclude_subdirs \
-            -gprefix=test_ -gsuffix=.gd -gexit
+        run: tools/run_tests.sh

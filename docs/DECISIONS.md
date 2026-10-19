@@ -154,15 +154,106 @@ available here (no KVM), so the first real device run is the playtest. Affects
 
 ### Performance numbers
 
-None yet. P0 renders one `Control` screen and has no 3D content, so the §1
-budget (under 150 draw calls, under 100k triangles) is not meaningfully
-exercised. First real profile is due in P1, measured in the web build and
-recorded here.
-
-Measured so far:
+None for P0: it renders one `Control` screen and has no 3D content, so the §1
+budget is not meaningfully exercised. Sizes measured:
 
 | Build | Size | Note |
 |---|---|---|
 | Web `.pck` | 639 KB | data, scripts and three fonts; `addons/gut` and `tests` excluded |
 | Web total | 36 MB | dominated by `index.wasm` (35 MB), which is the engine, not content |
-| Android APK | not yet measured | CI prints it and fails over 60 MB |
+| Android APK | 46 MB | against the 60 MB budget |
+
+---
+
+## P1 — Movement (2026-10-19)
+
+### The climb is automatic; the contextual button ships unused
+
+GDD §6 is explicit — "approach a ledge or ladder and the character climbs; no
+jump button" — and the verbs it lists for the contextual button are Talk, Pick
+up, Place, Look and Listen. Climb is not among them. So walking into the
+fountain wall climbs the player out with no prompt and no press.
+
+That leaves P1's "contextual button scaffold" with nothing to drive it. Rather
+than invent a verb to demonstrate it, the button ships complete and covered by
+tests but with no consumer: in the P1 build it correctly never appears, which
+is also what GDD §11 asks for ("HUD is empty by default"). Its first real verb
+is *Listen* in P3. Affects §3 P1, §4.2, GDD §6.
+
+### The ledge only fires when the player walks into it
+
+A bare overlap test sent the player over the wall when they brushed along it.
+The climb now also requires the body's velocity to point into the ledge
+(dot product ≥ 0.35), so walking along the rim does nothing. Affects §4.2.
+
+### The fountain basin is 14 m across, not 10 m
+
+The first basin was 10 m square. With the camera arm at 3.5 m (GDD §6) the
+camera spent the whole opening shot inside the south wall, and once wall
+collision was added it pulled all the way in to its 0.6 m minimum and filled
+the screen with the player's capsule. Widening the basin to 14 m gives the arm
+room to sit at its full length at spawn. The ground is built as four boxes
+whose gap is exactly the basin footprint, so there is no seam to fall through.
+Affects §4.1.
+
+### The camera pulls in off walls itself, without a SpringArm3D
+
+`SpringArm3D` is the stock answer, but its cast direction is easy to get
+backwards and hard to assert in a test. The rig instead raycasts from the pivot
+to the ideal camera position against the world collision layer and shortens the
+arm to the hit. It snaps in and eases out: popping into a wall reads as a bug,
+easing out of one reads as the camera breathing. The player is on collision
+layer 2 and the world on layer 1, so the camera never pulls in on the body it
+is following. Affects GDD §6.
+
+### Two coordinate-convention bugs, found before the first run
+
+Both would have compiled and run while feeling broken. Written down because
+they are the kind of thing that gets re-introduced:
+
+- The joystick's screen-up is `y = +1`, but forward in Godot is `-Z`.
+  `stick_to_world` negates y; without it the stick drove the player backwards.
+- A `Node3D` faces along its **-Z**, so the yaw that aims it along `wish` is
+  `atan2(-wish.x, -wish.z)`. The obvious `atan2(wish.x, wish.z)` faces away.
+
+Both are now pinned by tests in `tests/test_camera_and_controls.gd`.
+
+### A skipped test script is a failing test script
+
+GUT prints a warning and exits 0 when a test script will not compile. Two of
+the new P1 test files did exactly that — 40 tests were silently not running
+while CI would have reported green. `tools/run_tests.sh` now counts the scripts
+GUT ran against the files on disk and fails when they disagree; CI calls the
+wrapper instead of `gut_cmdln.gd`. Verified by deliberately breaking a test
+file and checking the wrapper exits 1. Affects §8.
+
+### `Main.show_screen` checks the type, not just the path
+
+`ResourceLoader.exists()` is true for any file at that path. A scene whose
+script fails to compile loads as `null`, and a non-scene resource loads as the
+wrong type — both reached `instantiate()` and took the screen down. It now
+casts to `PackedScene` and refuses anything else, leaving the player on the
+screen they were already on.
+
+### Performance in the web build
+
+Measured by temporarily printing Godot's own `Performance` monitors from the
+Street scene, exporting to Web, and reading the browser console while walking
+the block. The instrumentation was removed before commit.
+
+| Metric | Budget (§1) | Measured | |
+|---|---|---|---|
+| Draw calls per frame | < 150 | median 15, max 22 | well inside |
+| Primitives per frame | < 100k | median ~1.0k, max 1.4k | well inside |
+| Web `.pck` | — | 716 KB | +77 KB over P0 |
+
+The budget has a lot of room because the block is primitives with flat
+materials and Godot culls aggressively — at any moment only a fraction of the
+street is on screen.
+
+**Frames per second could not be measured here and is not reported.** The only
+browser available in this environment runs SwiftShader, a software rasteriser,
+at 1080×1920 in a container; it reported 1 fps, which says nothing about a
+phone. P1's gate — "30 fps on a mid-range phone" — is therefore **not yet
+met, only un-blocked**: it needs the device matrix in the README, on hardware.
+Affects §3 P1, §11.

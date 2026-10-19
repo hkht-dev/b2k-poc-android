@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; PLACEHOLDER: grey-box material. Replaced by the painted textures of
+; GDD §10 "Visual style: painted stylized 3D".
+; Palette: GDD §10, Hollow Vale row — road surface, a darker dust
+
+[resource]
+resource_name = "asphalt"
+albedo_color = Color(0.388, 0.376, 0.353, 1)
+roughness = 0.95
+specular_mode = 1

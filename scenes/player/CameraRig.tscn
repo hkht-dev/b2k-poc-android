@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="1_rig"]
+
+[node name="CameraRig" type="Node3D"]
+script = ExtResource("1_rig")
+
+[node name="YawPivot" type="Node3D" parent="."]
+
+[node name="PitchPivot" type="Node3D" parent="YawPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.9839, 0.1788, 0, -0.1788, 0.9839, 0, 0, 0)
+
+; Camera sits behind the pivot on +Z and looks down its own -Z at the player.
+; 3.5 m, per GDD §6 "soft-follow third person at 3.5 m".
+[node name="Camera" type="Camera3D" parent="YawPivot/PitchPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.5)
+fov = 60.0
+near = 0.1
+far = 160.0

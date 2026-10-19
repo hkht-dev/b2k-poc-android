@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3]
+
+; PLACEHOLDER: a capsule with a flat coat colour. Replaced by the traveler
+; form of GDD §10 "Characters" — elongated proportions, hand-painted cloth,
+; and no emissive rim (the Grove glow is gone in Hollow Vale).
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Material" path="res://assets/materials/player_coat.tres" id="2_coat"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.34
+height = 1.72
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+material = ExtResource("2_coat")
+radius = 0.34
+height = 1.72
+radial_segments = 12
+rings = 4
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 0.4
+script = ExtResource("1_player")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+; A nub on the -Z side so the capsule's facing is readable while grey-boxing.
+[node name="Facing" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(0.3, 0, 0, 0, 0.18, 0, 0, 0, 0.3, 0, 0.3, -0.3)
+mesh = SubResource("CapsuleMesh_body")

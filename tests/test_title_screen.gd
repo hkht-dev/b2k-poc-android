@@ -48,7 +48,6 @@ func test_main_swaps_screens_on_begin() -> void:
 	await get_tree().process_frame
 	assert_ne(main.current_screen(), title, "the screen changed")
 	assert_false(is_instance_valid(title), "the screen it replaced was freed, not orphaned")
-	assert_true(main.current_screen().has_signal("back_pressed"), "and it can get back")
 
 
 func test_main_refuses_a_missing_scene_without_losing_the_current_one() -> void:
@@ -56,3 +55,12 @@ func test_main_refuses_a_missing_scene_without_losing_the_current_one() -> void:
 	var before: Node = main.current_screen()
 	assert_null(main.show_screen("res://scenes/ui/NoSuchScreen.tscn"))
 	assert_eq(main.current_screen(), before, "a bad path leaves the player where they were")
+
+
+func test_main_refuses_a_resource_that_is_not_a_scene() -> void:
+	# A material loads fine and is not a PackedScene. Without the cast guard
+	# this reached instantiate() and took the whole screen down.
+	var main: Node = add_child_autofree(MAIN.instantiate())
+	var before: Node = main.current_screen()
+	assert_null(main.show_screen("res://assets/materials/ochre.tres"))
+	assert_eq(main.current_screen(), before, "a non-scene resource changes nothing")
