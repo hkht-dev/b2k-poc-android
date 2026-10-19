@@ -105,33 +105,45 @@ the prebuilt template decides (it reports `sdkVersion:'21'`,
 use the Gradle build. API 28 remains the declared target and the device matrix
 enforces it in practice. Affects §1, §8.
 
-### GitHub Actions is not running any job on this repository
+### Runners are `ubuntu-latest`
 
-Every job from the P0 push sat `queued` with no runner pickup. The first guess
-was the `ubuntu-22.04` label; switching all five jobs to `ubuntu-latest` changed
-nothing, so the label was not the cause and that diagnosis was wrong. No runner
-is allocated at all.
+Changed from `ubuntu-22.04` while chasing jobs that would not start. That
+diagnosis was wrong — see the next entry; the label was never the problem. The
+change is kept because `ubuntu-latest` is the sensible default for a project
+with no pinned-image requirement, but it fixed nothing. If reproducibility
+later matters more than currency, pin an explicit image and check it still
+resolves. Affects §8.
 
-The repository is **private**, and Actions on a private repository bills
-minutes against the account. With the included minutes spent, or no payment
-method and a spending limit of zero, runs queue indefinitely rather than
-failing — which is exactly the symptom. This is an account condition, not a
-defect in the workflow files.
+### Why no CI job would start: a GitHub incident, not this repository
 
-Three ways out, in the order they cost least:
+Every job from the P0 push sat `queued` with no runner pickup. Two diagnoses
+were made and **both were wrong**:
 
-1. Make the repository public. Actions is free and unmetered on public repos,
-   and the brief already plans for a public web build on Pages.
-2. Add a payment method and raise the Actions spending limit for `hkht-dev`.
-3. Register a self-hosted runner and change `runs-on`.
+1. *The `ubuntu-22.04` label is retired.* Switching all five jobs to
+   `ubuntu-latest` changed nothing.
+2. *The repository is private, so Actions bills minutes and none are left.*
+   The repository was made public; jobs still sat queued for six minutes.
 
-Until one of these happens the three workflows are **unverified** — they have
-never executed a single step. `tools/build_apk.sh` exists so builds do not
-depend on resolving this. Affects §8.
+The actual cause was a GitHub-side incident — "Degraded availability for GitHub
+Actions, GitHub Pages and Webhooks", opened 2026-10-19T15:49:25Z, with Actions,
+Pages and Webhooks all reporting `degraded_performance`. The first P0 push was
+at 15:52:55Z, four minutes after that incident opened. Every queued run is
+explained by it.
+
+The lesson worth keeping: when something external will not start at all, check
+the provider's status page *before* changing configuration. Two commits were
+spent on configuration that was never broken, and the repository's visibility
+was changed on a false premise — it can be made private again with no effect on
+CI, since public is not load-bearing for anything except the Pages review build.
+
+The workflows remain **unverified**: they have still never executed a step.
+Re-run them once the incident clears and treat the first green run as the real
+P0 CI gate. Affects §8.
 
 ### The first APK was built locally, not by CI
 
-Because CI cannot run, the P0 APK was exported on a developer machine with
+Because CI could not run during the GitHub incident above, the P0 APK was
+exported on a developer machine with
 Godot 4.3, Android SDK build-tools 34.0.0 and a generated debug keystore —
 the same steps `android.yml` performs. Verified: `apksigner verify` passes
 v1, v2 and v3 schemes; `arm64-v8a` and `armeabi-v7a` both present; portrait
