@@ -559,3 +559,87 @@ arrow or objective on the HUD — a test holds that line.
 Tulu adds one figure and two audio players; the rise from P2 (114 → 141) is
 mostly the camera angle of the measured walk. Frames per second remain a
 device measurement.
+
+## 2026-10-19 — Visual assets: a fountain that reads as one, CC0 models for the dressing
+
+After the P3 acceptance test the owner said the arrival area did not look
+like a fountain and asked for every graphic element — cars, people, the
+street furniture — to be improved with free assets from the internet.
+`docs/BRIEF_AMENDMENT_1.md` §B2 limits that to CC0 (Kenney, Poly Haven,
+ambientCG), entered only through a fetch tool that writes the rights
+register. Affects GDD §4 (Hollow Vale), §10 (look), amendment §B3, §C.
+
+### The fountain (GDD §4: "climbs out of the dry basin of a public fountain")
+
+Was a 14 m square pit with 1.8 m walls and a stub in the middle: a tank, not a
+fountain. Now, in `tools/gen_street.py`: a round sunk basin (radius 5.6 m,
+floor 0.5 m below the street) with a stone lip (a squashed torus, the only
+curved primitive Godot gives us), a tiered column — pedestal, shaft, two dry
+bowls on cone undersides, a spout, a finial — a step of pavement 0.15 m down
+round the lip that fills the square ground gap to its corners so no seam
+shows, rusted cans on the dry floor, and benches facing it east and west.
+The player surfaces beside the column (2.4 m east of it), so due north is
+clear floor up to the lip and the climb out; the climb point and its exit
+marker are unchanged in meaning. The lip is 1.1 m above the basin floor:
+above the step-up (0.36 m), so the climb stays the only way out.
+
+### CC0 models and how they enter
+
+- `tools/fetch_kenney.py` (new): Kenney *Car Kit* (seven cars) and *Nature
+  Kit* (four trees, two bushes) as `.glb`, from kenney.nl's zips, with their
+  `LICENSE.txt` beside them and a row each in `docs/RIGHTS_REGISTER.md`.
+- `tools/fetch_polyhaven.py` now fetches models too: street lamp, modular
+  bench, fire hydrant, covered car, rusted can, plastic crate, manhole cover.
+  A Poly Haven model is a photoscan — the hydrant alone was 86k triangles
+  and 5 MB of maps — so the tool keeps only what the game renders: the
+  albedo at 512 px through the same `stylise()` pass as the textures,
+  normal/roughness/AO maps dropped, the mesh decimated
+  (`fast-simplification`, multi-pass, gentle aggressiveness because the
+  aggressive setting ate the bottom metre of the lamp post) to the budget
+  in `MODEL_TRIANGLES`, written as one `.glb`. Seven models: 840 KB,
+  13k triangles in total. `island_tree_01` (64 MB) was dropped for the
+  Kenney trees. `--check` needs none of the extra libraries.
+- `scripts/street/model_batch.gd` (new): a `.glb` instanced twenty times is
+  twenty sets of draw calls; `ModelBatch` instantiates it once, lifts out its
+  meshes and draws each as a MultiMesh with the placements the generator
+  writes — one draw call per surface for every lamp post, tree, hydrant and
+  can. Moving cars and one-off parked cars are direct instances. Collision
+  stays the generator's business: plain box colliders beside each batch.
+- The vehicles on loops are now Kenney's taxi, van and sedan (scaled 1.6×,
+  turned half round because the kit faces +Z); parked: SUV, hatchback,
+  delivery van outside the shop, a truck on the north road, and Poly Haven's
+  car under a tarp.
+
+Not done, and why: a rigged, animated human. The CC0 packs that have one
+ship FBX or sit behind a download widget; there is no FBX importer or
+editor in the cloud. The steps for the owner are in
+`docs/RIGGED_CHARACTER.md`; the figures stay primitives until then.
+
+### Lighting
+
+Shaded faces went near-black under the HDRI on the phone: the overcast sky
+lights from above and the soil below it gives the undersides nothing.
+Ambient is now a flat grey (0.64, 0.66, 0.70) at 1.3 with 45% sky
+contribution, the sun 0.95 with shadows at 65% opacity, exposure 1.0. A
+first try — sky ambient at 1.35 — washed the whole street white in the
+browser build. Still real-time shadow, still the lightmap waiting for an
+editor bake (amendment §B5).
+
+### Performance in the web build (this change)
+
+| Metric | Limit (amendment §C) | P3 | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 141, max 171 | median 155, max 227 |
+| Primitives per frame | < 150k | median 18.2k, max 19.8k | median 40.8k, max 48.8k |
+| Web `.pck` | — | 27 MB | 30 MB |
+| Models on disk | — | — | 7 Poly Haven 0.8 MB, 13 Kenney 0.4 MB |
+
+Measured on the same walk as P3 (surface, look round, climb out, look
+round) with the parts-per-material join in place; before it the median was
+222. The maximum, 227, is the one angle looking south along the road past
+every car, lamp and flat with their shadow passes — over the budget there,
+inside it elsewhere. Cutting the directional shadow distance from 70 m to
+45 m was tried next and re-measured: median 155, max 224 — no real change,
+because what crowds that angle is within 45 m anyway. Left at 45 m (it
+costs nothing). The remedy for the peak is the lightmap bake (§B5), which
+removes the shadow pass altogether, not fewer props.

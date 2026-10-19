@@ -59,8 +59,8 @@ func test_the_player_steps_up_from_the_road_onto_the_pavement() -> void:
 func test_a_wall_is_still_a_wall() -> void:
 	var street: Node3D = add_child_autofree(STREET.instantiate())
 	var player: CharacterBody3D = street.get_node("%Player")
-	# Inside the basin, walking east into the 1.8 m wall (no climb point there).
-	player.global_position = Vector3(5.0, -1.0, 0.0)
+	# Inside the basin, walking east into the 1.1 m lip (no climb point there).
+	player.global_position = Vector3(4.5, -0.4, 0.0)
 	await wait_frames(10)
 	_hold_forward(street, Vector2(1.0, 0.0))
 	await wait_frames(120)

@@ -38,19 +38,19 @@ func test_walking_at_the_wall_climbs_the_player_out() -> void:
 	var street: Node3D = add_child_autofree(STREET.instantiate())
 	var player: CharacterBody3D = street.get_node("%Player")
 
-	# Stand at the basin's north wall and walk into it.
-	player.global_position = Vector3(0.0, -1.0, -5.1)
+	# Stand at the basin's north lip and walk into it.
+	player.global_position = Vector3(0.0, -0.4, -5.1)
 	player.velocity = Vector3(0.0, 0.0, -2.0)
 	await wait_frames(6)
 
-	assert_true(player.is_climbing() or player.global_position.y > -0.5, "the climb was triggered")
+	assert_true(player.is_climbing() or player.global_position.y > 0.0, "the climb was triggered")
 
 
 func test_brushing_sideways_past_the_wall_does_not_climb() -> void:
 	var street: Node3D = add_child_autofree(STREET.instantiate())
 	var player: CharacterBody3D = street.get_node("%Player")
 
-	player.global_position = Vector3(0.0, -1.0, -5.1)
+	player.global_position = Vector3(0.0, -0.4, -5.1)
 	player.velocity = Vector3(2.5, 0.0, 0.0)
 	await wait_frames(6)
 
@@ -151,7 +151,7 @@ func test_holding_the_stick_forward_eventually_climbs_out_of_the_basin() -> void
 	_hold_stick_forward(street)
 	# Long enough to cross the basin, trigger the ledge and finish the climb.
 	await wait_frames(260)
-	assert_gt(player.global_position.y, -0.5, "the player is out of the basin at street level")
+	assert_gt(player.global_position.y, -0.1, "the player is out of the basin at street level")
 	assert_lt(player.global_position.z, -7.0, "and standing on the street beyond the wall")
 
 
