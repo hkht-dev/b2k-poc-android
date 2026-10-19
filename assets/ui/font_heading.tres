@@ -1,0 +1,13 @@
+[gd_resource type="FontVariation" load_steps=3 format=3]
+
+; Heading font: Noto Serif for Latin extended, falling back to Noto Serif
+; Devanagari for Devanagari. GDD §10 "UI art" asks for one serif for headings;
+; Noto Serif Devanagari carries almost no Latin (5 of 58 ASCII letters), so it
+; cannot be the base font or every heading would silently render as sans.
+
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSerif-Regular.ttf" id="1_base"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSerifDevanagari-Regular.ttf" id="2_dev"]
+
+[resource]
+base_font = ExtResource("1_base")
+fallbacks = Array[Font]([ExtResource("2_dev")])

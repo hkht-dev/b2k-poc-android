@@ -1,0 +1,75 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1_title"]
+[ext_resource type="FontVariation" path="res://assets/ui/font_heading.tres" id="2_heading"]
+[ext_resource type="FontVariation" path="res://assets/ui/font_body.tres" id="3_body"]
+
+[node name="TitleScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_title")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.761, 0.725, 0.631, 1)
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 64.0
+offset_top = 96.0
+offset_right = -64.0
+offset_bottom = -96.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+theme_override_constants/separation = 72
+
+[node name="Title" type="Label" parent="Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.31, 0.208, 1)
+theme_override_fonts/font = ExtResource("2_heading")
+theme_override_font_sizes/font_size = 52
+text = "Journey Back to Krishna"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BeginButton" type="Button" parent="Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+text = "Begin"
+
+[node name="BuildLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -56.0
+offset_right = 200.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.42, 0.31, 0.208, 0.6)
+theme_override_fonts/font = ExtResource("3_body")
+theme_override_font_sizes/font_size = 16
+text = "Build"
+horizontal_alignment = 1

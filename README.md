@@ -1,0 +1,116 @@
+# Journey Back to Krishna — Slice 1 ("The Street")
+
+A 3–4 minute grey-box vertical slice of Act 3 (Hollow Vale) from
+[`docs/GDD.md`](docs/GDD.md), built to answer one question in front of ten
+strangers:
+
+> Does a player follow sound instead of instructions, notice a figure nobody
+> else sees, and make one choice that feels like it matters — without anyone
+> telling them this is a spiritual game?
+
+This is **not** the full game. What is in and out of the slice is listed in
+[`CLAUDE_CODE_BRIEF.md`](CLAUDE_CODE_BRIEF.md) §0, and the build order is in §3.
+
+**Current phase: P0 (scaffold).** The title screen builds, exports and runs on
+device. The street itself arrives in P1.
+
+## Install the build on an Android phone
+
+1. On the phone, open the [latest release][releases], or scan this:
+
+   <img src="docs/assets/qr-latest-release.png" alt="QR code linking to the latest release" width="180">
+
+2. Download the `.apk` asset.
+3. Android will ask whether to allow installs from your browser. Allow it —
+   the build is debug-signed, not a Play Store build, so this prompt is normal.
+4. Open the downloaded file and install.
+5. To remove it: Settings → Apps → *Journey Back to Krishna* → Uninstall.
+
+Every push to `main` publishes a new release tagged `slice1-build-<run>`. The
+same APK is also on the run's page under the **Actions** tab, as an artifact, if
+you would rather pull it from there.
+
+[releases]: https://github.com/hkht-dev/b2k-poc-android/releases/latest
+
+## Play it in a browser
+
+The web build of `main` is at
+<https://hkht-dev.github.io/b2k-poc-android/>, with WASD and the mouse
+standing in for touch.
+
+It exists so the team can look at a change quickly. **Touch feel and
+performance are judged on Android, never here** — the web build runs Godot's
+Compatibility renderer, not the Mobile renderer the phone build uses.
+
+## Test devices
+
+Record frames per second on all three. The slice must hold a steady 30 fps on
+the 2020 mid-range phone (`CLAUDE_CODE_BRIEF.md` §11).
+
+| Class | Device | Android | Build tested | Median fps | Lowest fps | Crashes | Notes |
+|---|---|---|---|---|---|---|---|
+| 2019 low-end | _to be chosen_ | | | | | | the floor |
+| 2020 mid-range | _to be chosen_ (Adreno 610 class) | | | | | | **the target** |
+| Recent flagship | _to be chosen_ | | | | | | headroom |
+
+## Working on it
+
+You need [Godot 4.3](https://godotengine.org/download/archive/#4.3-stable) —
+exactly 4.3, pinned in `project.godot` and in all three workflows.
+
+```sh
+# First open: import twice. GUT's editor plugin loads images and fonts during
+# the first pass, before they have been imported. See docs/DECISIONS.md.
+godot --headless --import --path . || true
+godot --headless --import --path .
+
+# Tests
+godot --headless --path . -s addons/gut/gut_cmdln.gd \
+  -gdir=res://tests -ginclude_subdirs -gprefix=test_ -gsuffix=.gd -gexit
+
+# Format and lint exactly as CI does
+pip install "gdtoolkit==4.3.*"
+gdformat $(git ls-files '*.gd' | grep -v '^addons/')
+gdlint   $(git ls-files '*.gd' | grep -v '^addons/')
+
+# Data files
+python3 tools/check_data.py
+```
+
+Or open the project in the Godot editor and press F5.
+
+### Layout
+
+| Path | What lives there |
+|---|---|
+| `data/` | Every quest, line of dialogue and player-facing string. No text is baked into a scene. |
+| `scenes/`, `scripts/` | Mirror each other; one `.gd` per scene, shared code in `scripts/lib/`. |
+| `assets/` | Grey-box placeholders only. Each carries a `PLACEHOLDER` comment naming its replacement from GDD §10. |
+| `tests/` | GUT tests. |
+| `tools/` | Checked-in scripts CI runs. |
+| `docs/` | The GDD, the slice spec, every decision, the playtest protocol. |
+
+### House rules
+
+The full list is in [`CLAUDE.md`](CLAUDE.md). The two that get broken most:
+
+- **No score, meter, points, badge, map marker, timer or "correct" answer**
+  anywhere — including debug UI wording.
+- **Flags and string ids are data, never literals.** If you are about to write
+  `if path == "compete"`, stop and use a flag.
+
+## Releases and secrets
+
+`main` publishes a debug-signed APK on every push. If the repository secrets
+`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and
+`ANDROID_KEY_PASSWORD` are set, the same workflow also exports a release-signed
+`.aab` for the Play Console. Without them that step is skipped and the APK still
+builds.
+
+Keystores, passwords and export templates are never committed.
+
+## Licensing
+
+Fonts are Noto Sans, Noto Serif and Noto Serif Devanagari under the SIL Open
+Font License; the licence text sits beside them in `assets/fonts/`. The test
+framework in `addons/gut/` is [GUT](https://github.com/bitwes/Gut) 9.3.0, MIT.

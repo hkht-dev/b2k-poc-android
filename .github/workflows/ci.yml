@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned: CLAUDE_CODE_BRIEF.md §1 fixes the engine at Godot 4.3.
+  GODOT_VERSION: 4.3.0
+
+jobs:
+  lint:
+    name: Format, lint and data
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tooling
+        run: pip install "gdtoolkit==4.3.*" "qrcode[pil]==7.4.*"
+
+      # addons/ is vendored third-party code (GUT) and is not ours to format.
+      - name: Collect our GDScript
+        id: files
+        run: |
+          files=$(git ls-files '*.gd' | grep -v '^addons/' | tr '\n' ' ')
+          if [ -z "$files" ]; then
+            echo "No GDScript found — that is never right for this repo." >&2
+            exit 1
+          fi
+          echo "list=$files" >> "$GITHUB_OUTPUT"
+
+      - name: gdformat --check
+        run: gdformat --check ${{ steps.files.outputs.list }}
+
+      - name: gdlint
+        run: gdlint ${{ steps.files.outputs.list }}
+
+      - name: Data files parse
+        run: python3 tools/check_data.py
+
+      - name: README QR code is current
+        run: python3 tools/gen_qr.py --check
+
+  test:
+    name: GUT tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: false
+
+      # Two passes on purpose: GUT ships images and fonts that its editor plugin
+      # loads during the first import, before they exist. The second pass is
+      # clean. See docs/DECISIONS.md.
+      - name: Import project
+        run: |
+          godot --headless --import --path . || true
+          godot --headless --import --path .
+
+      - name: Run tests
+        run: |
+          godot --headless --path . \
+            -s addons/gut/gut_cmdln.gd \
+            -gdir=res://tests -ginclude_subdirs \
+            -gprefix=test_ -gsuffix=.gd -gexit

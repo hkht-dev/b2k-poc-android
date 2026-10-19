@@ -1,0 +1,154 @@
+name: Android
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.3.0
+  APK_NAME: journey-back-to-krishna
+
+jobs:
+  export:
+    name: Export APK (and AAB when signing secrets exist)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install the Android SDK packages Godot 4.3 expects
+        run: |
+          sdkmanager --install \
+            "platform-tools" \
+            "build-tools;34.0.0" \
+            "platforms;android-34" \
+            "cmdline-tools;latest"
+
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      # A debug keystore is not a secret: its alias and password are the
+      # well-known Android defaults, and it only ever signs sideload builds.
+      # The release keystore comes from repository secrets and is never written
+      # anywhere a later step could upload it.
+      - name: Generate a debug keystore
+        run: |
+          keytool -keyalg RSA -genkeypair \
+            -alias androiddebugkey -keypass android \
+            -keystore "$GITHUB_WORKSPACE/debug.keystore" -storepass android \
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -validity 9999 -deststoretype pkcs12
+
+      - name: Point Godot at the SDK and the debug keystore
+        run: |
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.3.tres <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "${ANDROID_HOME}"
+          export/android/java_sdk_path = "${JAVA_HOME}"
+          export/android/debug_keystore = "${GITHUB_WORKSPACE}/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+          {
+            echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=${GITHUB_WORKSPACE}/debug.keystore"
+            echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey"
+            echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android"
+          } >> "$GITHUB_ENV"
+
+      - name: Import project
+        run: |
+          godot --headless --import --path . || true
+          godot --headless --import --path .
+
+      - name: Export debug-signed APK
+        run: |
+          mkdir -p build/android
+          godot --headless --path . --export-debug "Android" \
+            "build/android/${APK_NAME}.apk"
+          ls -la build/android
+
+      - name: Report APK size against the 60 MB slice budget
+        run: |
+          bytes=$(stat -c%s "build/android/${APK_NAME}.apk")
+          mb=$(( bytes / 1024 / 1024 ))
+          echo "APK is ${mb} MB (budget: 60 MB, CLAUDE_CODE_BRIEF.md §1)"
+          echo "### APK ${mb} MB / 60 MB budget" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$mb" -gt 60 ]; then
+            echo "Over the install-size budget." >&2
+            exit 1
+          fi
+
+      - name: Do we have release signing secrets?
+        id: signing
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "No ANDROID_KEYSTORE_BASE64 secret; skipping the release AAB." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Export release-signed AAB
+        if: steps.signing.outputs.available == 'true'
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          export GODOT_ANDROID_KEYSTORE_RELEASE_PATH="$RUNNER_TEMP/release.keystore"
+          export GODOT_ANDROID_KEYSTORE_RELEASE_USER="$KEY_ALIAS"
+          export GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD="$KEY_PASSWORD"
+          godot --headless --path . --install-android-build-template
+          godot --headless --path . --export-release "Android Release (AAB)" \
+            "build/android/${APK_NAME}.aab"
+          rm -f "$RUNNER_TEMP/release.keystore"
+          ls -la build/android
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: slice1-android-${{ github.run_number }}
+          path: build/android/*
+          if-no-files-found: error
+          retention-days: 30
+
+      # The APK is attached to a Release so a tester can install it from a phone
+      # browser without a GitHub login (CLAUDE_CODE_BRIEF.md §8).
+      - name: Attach the APK to a Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: slice1-build-${{ github.run_number }}
+          name: Slice 1 build ${{ github.run_number }}
+          body: |
+            Debug-signed APK for sideloading. Not a Play Store build.
+
+            Commit: ${{ github.sha }}
+
+            Install steps and the fps recording table are in the README.
+          files: build/android/${{ env.APK_NAME }}.apk
+          draft: false
+          prerelease: true

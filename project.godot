@@ -1,0 +1,70 @@
+; Journey Back to Krishna — Slice 1 ("The Street")
+; Engine version is pinned: Godot 4.3 (CLAUDE_CODE_BRIEF.md §1).
+
+config_version=5
+
+[application]
+
+config/name="Journey Back to Krishna"
+config/description="Slice 1 — The Street. A grey-box vertical slice of Act 3 (Hollow Vale)."
+config/version="0.1.0-slice1"
+run/main_scene="res://scenes/core/Main.tscn"
+config/features=PackedStringArray("4.3", "Mobile")
+config/icon="res://assets/ui/icon.svg"
+
+[autoload]
+
+Strings="*res://scripts/core/strings.gd"
+
+[debug]
+
+gdscript/warnings/untyped_declaration=1
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/size/window_width_override=405
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://data/": "teal",
+"res://docs/": "gray",
+"res://scenes/": "blue",
+"res://scripts/": "purple"
+}
+
+[gui]
+
+theme/custom="res://assets/ui/theme.tres"
+theme/default_font_subpixel_positioning=0
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[internationalization]
+
+locale/translation_remaps={}
+
+[rendering]
+
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
+; The Web platform only offers the Compatibility backend; name it rather than
+; relying on a silent fallback. The web build is for review only
+; (CLAUDE_CODE_BRIEF.md §8); touch and performance are judged on Android.
+renderer/rendering_method.web="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+anti_aliasing/quality/msaa_3d=1
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=0
+environment/defaults/default_clear_color=Color(0.76, 0.72, 0.63, 1)

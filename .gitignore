@@ -1,0 +1,39 @@
+# Godot 4 cache and per-machine editor state
+.godot/
+.import/
+export.cfg
+*.translation
+
+# Build output. build/.gdignore is tracked on purpose: without it Godot treats
+# the exported .png and .html files as project assets and reimports them on the
+# next export.
+build/*
+!build/.gdignore
+dist/
+*.apk
+*.aab
+*.idsig
+*.tmp
+
+# Secrets — never commit a keystore (CLAUDE_CODE_BRIEF.md §8)
+*.keystore
+*.jks
+*.p12
+*.keystore.base64
+export_credentials.cfg
+
+# Export templates (fetched by CI, never vendored)
+templates/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Python tooling for tools/
+__pycache__/
+*.pyc
+.venv/
+venv/

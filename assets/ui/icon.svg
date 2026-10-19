@@ -1,0 +1,10 @@
+<!-- PLACEHOLDER: replace with the final app icon from GDD §10 "UI art".
+     The lotus icon is deliberately NOT used here: CLAUDE_CODE_BRIEF.md §6
+     keeps it out of Slice 1. Palette is the Hollow Vale row of GDD §10
+     (ochre, dust, timber brown, flat white) — no peacock blue, no magenta. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#C08A2E"/>
+  <circle cx="512" cy="512" r="340" fill="none" stroke="#6B4F35" stroke-width="56"/>
+  <circle cx="512" cy="512" r="232" fill="#F4ECD8"/>
+  <circle cx="512" cy="512" r="232" fill="none" stroke="#6B4F35" stroke-width="24"/>
+</svg>

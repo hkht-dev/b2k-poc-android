@@ -1,0 +1,53 @@
+# Working rules
+
+Copied from `CLAUDE_CODE_BRIEF.md` §10. These bind every change in this
+repository.
+
+- Read `docs/GDD.md` §1, §3a, §6, §7, §11, §12 before writing any gameplay
+  code. Cite the section in the PR description for every feature.
+- One PR per phase; small commits; conventional commit messages
+  (`feat(street): ...`, `fix(ci): ...`).
+- Every flag, every string id and every quest step is data, never a literal in
+  code. If you find yourself writing `if path == "compete"`, stop: use flags.
+- Never add: a score, a meter, a badge, a checklist quest log, a map marker, a
+  timer, a notification, an ad SDK, analytics, a network call. If a library you
+  want to add does any of these, do not add it.
+- Never add a "correct answer" cue to a card: no icons, no colour difference,
+  no ordering convention.
+- Keep draw calls and triangles in budget; profile in the web build each phase
+  and record numbers in `docs/DECISIONS.md`.
+- Every placeholder asset carries a `PLACEHOLDER` comment naming its final
+  replacement from the GDD.
+- Do not scaffold out-of-scope systems "for later". Keep the data formats
+  forward-compatible instead.
+- When unsure, pick the simpler thing and write it in `docs/DECISIONS.md` with
+  the date and the GDD section it affects.
+
+## The slice
+
+Out of scope for Slice 1, and not to be scaffolded: the Grove, the Pool/Veil
+descent, *The Forgotten Song*, the tower climb, the Veena, Madhuri, the
+embrace, wisdom cards, the Garden, lamps, companions, Circles, any backend,
+analytics, IAP, localization beyond externalized strings, save slots beyond one
+autosave, rooftop running, cows, Tells. GDD §16a is deferred.
+
+The forbidden colours in the Street are **peacock blue and magenta** (GDD §10,
+Hollow Vale row). The single exception is the Glimpse silhouette's backlight
+and the feather it leaves behind.
+
+## Before you push
+
+CI runs exactly this. Run it first.
+
+```sh
+gdformat --check $(git ls-files '*.gd' | grep -v '^addons/')
+gdlint          $(git ls-files '*.gd' | grep -v '^addons/')
+python3 tools/check_data.py
+godot --headless --path . -s addons/gut/gut_cmdln.gd \
+  -gdir=res://tests -ginclude_subdirs -gprefix=test_ -gsuffix=.gd -gexit
+```
+
+`addons/` is vendored third-party code. Do not format, lint or edit it.
+
+Import the project twice after a clean checkout: GUT's editor plugin loads
+images and fonts during the first pass, before they have been imported.

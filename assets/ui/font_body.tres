@@ -1,0 +1,11 @@
+[gd_resource type="FontVariation" load_steps=3 format=3]
+
+; Body font: Noto Sans, with Noto Serif Devanagari as the script fallback.
+; CLAUDE_CODE_BRIEF.md §5: fonts must cover Latin extended and Devanagari.
+
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSans-Regular.ttf" id="1_base"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSerifDevanagari-Regular.ttf" id="2_dev"]
+
+[resource]
+base_font = ExtResource("1_base")
+fallbacks = Array[Font]([ExtResource("2_dev")])
