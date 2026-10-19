@@ -110,11 +110,24 @@ enforces it in practice. Affects §1, §8.
 Every job from the P0 push sat `queued` with no runner pickup. The first guess
 was the `ubuntu-22.04` label; switching all five jobs to `ubuntu-latest` changed
 nothing, so the label was not the cause and that diagnosis was wrong. No runner
-is being allocated at all, which is an account- or repository-level Actions
-condition (minutes exhausted, a spending limit of zero, or Actions restricted
-for the org), not a defect in the workflow files. The workflows are therefore
-unverified: they have never executed a single step. Resolve the Actions
-condition and re-run before trusting them. Affects §8.
+is allocated at all.
+
+The repository is **private**, and Actions on a private repository bills
+minutes against the account. With the included minutes spent, or no payment
+method and a spending limit of zero, runs queue indefinitely rather than
+failing — which is exactly the symptom. This is an account condition, not a
+defect in the workflow files.
+
+Three ways out, in the order they cost least:
+
+1. Make the repository public. Actions is free and unmetered on public repos,
+   and the brief already plans for a public web build on Pages.
+2. Add a payment method and raise the Actions spending limit for `hkht-dev`.
+3. Register a self-hosted runner and change `runs-on`.
+
+Until one of these happens the three workflows are **unverified** — they have
+never executed a single step. `tools/build_apk.sh` exists so builds do not
+depend on resolving this. Affects §8.
 
 ### The first APK was built locally, not by CI
 
