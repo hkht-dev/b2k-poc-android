@@ -94,10 +94,11 @@ tools/build_apk.sh                 # writes build/android/*.apk, verifies the si
 It generates a debug keystore on first run. The keystore is gitignored and only
 ever signs sideload builds.
 
-> **Actions is not running on this repository yet.** Every workflow job queues
-> without a runner because the repo is private and has no Actions minutes
-> available — see `docs/DECISIONS.md`. Until that is resolved, the three
-> workflows are unverified and this script is how builds get made.
+> **The three workflows are still unverified.** They have never executed a
+> step: a GitHub-wide Actions incident on 2026-10-19 held every run in the
+> queue. See `docs/DECISIONS.md`. This script is how builds get made meanwhile,
+> and it is worth keeping regardless — it is the fastest way to get an APK onto
+> a phone without waiting on CI.
 
 ### Layout
 
