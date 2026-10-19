@@ -79,6 +79,26 @@ python3 tools/check_data.py
 
 Or open the project in the Godot editor and press F5.
 
+### Building an APK yourself
+
+`tools/build_apk.sh` does what `.github/workflows/android.yml` does, on your
+machine. You need Godot 4.3, a JDK 17 or newer, and an Android SDK with
+`build-tools;34.0.0` and `platforms;android-34`.
+
+```sh
+export ANDROID_HOME=/path/to/android-sdk
+export GODOT=/path/to/godot        # if it is not on PATH as `godot`
+tools/build_apk.sh                 # writes build/android/*.apk, verifies the signature
+```
+
+It generates a debug keystore on first run. The keystore is gitignored and only
+ever signs sideload builds.
+
+> **Actions is not running on this repository yet.** Every workflow job queues
+> without a runner because the repo is private and has no Actions minutes
+> available — see `docs/DECISIONS.md`. Until that is resolved, the three
+> workflows are unverified and this script is how builds get made.
+
 ### Layout
 
 | Path | What lives there |
