@@ -57,31 +57,62 @@ theme/default_font_subpixel_positioning=0
 ; input and goes through the on-screen controls, not the input map.
 move_forward={
 "deadzone": 0.2,
-"events": [Object(InputEventKey,"keycode":87,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+"events": [Object(InputEventJoypadMotion,"axis":1,"axis_value":-1.0,"script":null)
+, Object(InputEventKey,"keycode":87,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
 , Object(InputEventKey,"keycode":4194320,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
 move_back={
 "deadzone": 0.2,
-"events": [Object(InputEventKey,"keycode":83,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+"events": [Object(InputEventJoypadMotion,"axis":1,"axis_value":1.0,"script":null)
+, Object(InputEventKey,"keycode":83,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
 , Object(InputEventKey,"keycode":4194322,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
 move_left={
 "deadzone": 0.2,
-"events": [Object(InputEventKey,"keycode":65,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+"events": [Object(InputEventJoypadMotion,"axis":0,"axis_value":-1.0,"script":null)
+, Object(InputEventKey,"keycode":65,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
 , Object(InputEventKey,"keycode":4194319,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
 move_right={
 "deadzone": 0.2,
-"events": [Object(InputEventKey,"keycode":68,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+"events": [Object(InputEventJoypadMotion,"axis":0,"axis_value":1.0,"script":null)
+, Object(InputEventKey,"keycode":68,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
 , Object(InputEventKey,"keycode":4194321,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
 contextual={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"keycode":69,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"button_index":0,"pressure":0.0,"pressed":true,"script":null)
+]
+}
+pause={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"keycode":4194305,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"button_index":6,"pressure":0.0,"pressed":true,"script":null)
+]
+}
+look_left={
+"deadzone": 0.15,
+"events": [Object(InputEventJoypadMotion,"axis":2,"axis_value":-1.0,"script":null)
+]
+}
+look_right={
+"deadzone": 0.15,
+"events": [Object(InputEventJoypadMotion,"axis":2,"axis_value":1.0,"script":null)
+]
+}
+look_up={
+"deadzone": 0.15,
+"events": [Object(InputEventJoypadMotion,"axis":3,"axis_value":-1.0,"script":null)
+]
+}
+look_down={
+"deadzone": 0.15,
+"events": [Object(InputEventJoypadMotion,"axis":3,"axis_value":1.0,"script":null)
 ]
 }
 

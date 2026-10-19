@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+; Shop signs in an invented script (docs/BRIEF_AMENDMENT_1.md §B3), from
+; tools/gen_textures.py. Not triplanar: the sign board is a single quad.
+
+[ext_resource type="Texture2D" path="res://assets/textures/sign_glyphs.png" id="1_tex"]
+
+[resource]
+resource_name = "sign"
+albedo_texture = ExtResource("1_tex")
+roughness = 0.9
+specular_mode = 1

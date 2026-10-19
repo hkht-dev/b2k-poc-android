@@ -90,13 +90,16 @@ jobs:
             "build/android/${APK_NAME}.apk"
           ls -la build/android
 
-      # The 60 MB budget of CLAUDE_CODE_BRIEF.md §1 was lifted by the owner on
-      # 2026-10-19 (docs/DECISIONS.md). The size is still reported.
-      - name: Report APK size
+      # docs/BRIEF_AMENDMENT_1.md §C: the install limit for Slice 1 is 250 MB.
+      - name: Check APK size against the 250 MB limit
         run: |
           bytes=$(stat -c%s "build/android/${APK_NAME}.apk")
           mb=$(( bytes / 1024 / 1024 ))
-          echo "### APK ${mb} MB" >> "$GITHUB_STEP_SUMMARY"
+          echo "### APK ${mb} MB / 250 MB limit" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$mb" -gt 250 ]; then
+            echo "Over the 250 MB limit of amendment 1 §C." >&2
+            exit 1
+          fi
 
       - name: Do we have release signing secrets?
         id: signing

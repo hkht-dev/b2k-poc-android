@@ -207,7 +207,12 @@ func test_begin_shows_the_controls_card_on_a_fresh_journey() -> void:
 	await wait_frames(1)
 	assert_true(main.current_screen().has_signal("dismissed"), "the card, not the street")
 	var hint: Control = main.current_screen()
-	assert_eq(hint.get_node("%Climb").text, Strings.t("controls.climb"), "its words are data")
+	var scheme: String = hint.current_scheme()
+	assert_true(["touch", "desktop", "gamepad"].has(scheme), "a known scheme: %s" % scheme)
+	var lines: VBoxContainer = hint.get_node("%Lines")
+	await wait_frames(1)
+	assert_eq(lines.get_child_count(), 5, "move, look, walk there, use, hum")
+	assert_eq(lines.get_child(0).text, Strings.t("controls.%s.move" % scheme), "its words are data")
 
 
 func test_got_it_opens_the_street_and_the_card_never_comes_back() -> void:

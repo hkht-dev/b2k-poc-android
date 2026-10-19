@@ -1,37 +1,126 @@
-## Hollow Vale, the Street. Wires the touch controls to the player and camera.
+## Hollow Vale, the Street. Wires input to the player and camera, and owns
+## pause.
 ##
-## GDD §3 Act 3 "Arrival" and CLAUDE_CODE_BRIEF.md §4.1. The player surfaces in
-## the dry fountain's basin and climbs out into the block.
+## GDD §3 Act 3 "Arrival", CLAUDE_CODE_BRIEF.md §4.1, docs/BRIEF_AMENDMENT_1.md
+## §A. This script owns no gameplay rules: it is the seam between input and
+## the two things that consume it.
 ##
-## This script owns no gameplay rules: it is the seam between input and the
-## two things that consume it, so the player and the camera stay testable on
-## their own.
-##
-## All pointing input arrives as screen touches. On desktop the mouse is
-## emulated into touches (project.godot), so a right-half mouse drag orbits
-## exactly as a thumb would. There is deliberately no second, mouse-motion
-## path: Android emulates mouse events *from* touches too, and a second path
-## made every thumb on the joystick swing the camera.
+## All pointing input arrives as screen touches (mouse emulated into them on
+## desktop); there is deliberately no second mouse-motion path, because
+## Android emulates mouse events from touches too and a second path made
+## every thumb on the joystick swing the camera.
 extends Node3D
+
+const PAUSE_MENU := preload("res://scenes/ui/PauseMenu.tscn")
+const CONTROLS_HINT := preload("res://scenes/ui/ControlsHint.tscn")
+## §A4: touch sensitivity is half the desktop default.
+const TOUCH_SENSITIVITY := 0.5
+const DESKTOP_SENSITIVITY := 1.0
+
+var _pause_menu: Control = null
+var _controls_overlay: Control = null
 
 @onready var _player: CharacterBody3D = %Player
 @onready var _camera_rig: Node3D = %CameraRig
 @onready var _controls: Control = %TouchControls
+@onready var _ui: CanvasLayer = $UI
 
 
 func _ready() -> void:
-	# The rig's target is set in the scene, not here: a child's _ready runs
-	# before its parent's, so assigning it now would leave the camera at the
-	# world origin for one frame before it snapped to the player.
+	_apply_settings()
 	_controls.camera_dragged.connect(_on_camera_dragged)
+	_controls.tapped.connect(_on_tapped)
+	_controls.pause_pressed.connect(pause)
+	_controls.minimap().bind(self, _player)
+	_player.moved_first_time.connect(func() -> void: _controls.joystick().dismiss_hint())
+	_ui.process_mode = Node.PROCESS_MODE_ALWAYS
 
 
 func _physics_process(_delta: float) -> void:
 	if _player.is_climbing():
-		_player.set_move_input(Vector2.ZERO)
+		_player.set_move_input(Vector2.ZERO, 0.0)
 		return
-	_player.set_move_input(_camera_rig.stick_to_world(_controls.move_vector()))
+	_player.set_move_input(
+		_camera_rig.stick_to_world(_controls.move_vector()), _controls.move_deflection()
+	)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("pause"):
+		if is_paused():
+			resume()
+		else:
+			pause()
+		get_viewport().set_input_as_handled()
+
+
+## §A6: settings live in the journey. Defaults differ by device.
+func _apply_settings() -> void:
+	var settings: Dictionary = GameState.settings
+	var touch := DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
+	var default_sensitivity := TOUCH_SENSITIVITY if touch else DESKTOP_SENSITIVITY
+	_camera_rig.sensitivity = float(settings.get("camera_sensitivity", default_sensitivity))
+	_camera_rig.invert_y = bool(settings.get("camera_invert_y", false))
+	var stick: Control = _controls.joystick()
+	stick.side = str(settings.get("joystick_side", "left"))
+	stick.radius = float(settings.get("joystick_size", stick.radius))
+	stick.max_opacity = float(settings.get("joystick_opacity", stick.max_opacity))
+
+
+func tap_to_walk_enabled() -> bool:
+	return bool(GameState.settings.get("tap_to_walk", true))
+
+
+func is_paused() -> bool:
+	return _pause_menu != null
+
+
+func pause() -> void:
+	if _pause_menu != null:
+		return
+	_pause_menu = PAUSE_MENU.instantiate()
+	_pause_menu.resumed.connect(resume)
+	_pause_menu.controls_requested.connect(_show_controls)
+	_pause_menu.map_toggled.connect(
+		func(_on: bool) -> void: _controls.minimap().refresh_visibility()
+	)
+	_ui.add_child(_pause_menu)
+	get_tree().paused = true
+
+
+func resume() -> void:
+	if _pause_menu == null:
+		return
+	_ui.remove_child(_pause_menu)
+	_pause_menu.queue_free()
+	_pause_menu = null
+	get_tree().paused = false
+
+
+func _show_controls() -> void:
+	if _controls_overlay != null:
+		return
+	_controls_overlay = CONTROLS_HINT.instantiate()
+	_controls_overlay.from_pause = true
+	_controls_overlay.dismissed.connect(
+		func() -> void:
+			_ui.remove_child(_controls_overlay)
+			_controls_overlay.queue_free()
+			_controls_overlay = null
+	)
+	_ui.add_child(_controls_overlay)
 
 
 func _on_camera_dragged(delta: Vector2) -> void:
+	if is_paused():
+		return
 	_camera_rig.orbit(delta)
+
+
+## §A3: a tap on the right zone walks the player to that point on the ground.
+func _on_tapped(screen: Vector2) -> void:
+	if is_paused() or not tap_to_walk_enabled() or _player.is_climbing():
+		return
+	var point: Variant = _camera_rig.ground_point(screen)
+	if point != null:
+		_player.walk_to(point)

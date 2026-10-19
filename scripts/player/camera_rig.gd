@@ -1,39 +1,43 @@
-## Soft-follow third-person camera, orbited by the right thumb.
+## Third-person camera: lags the player by ~0.15 s, orbits by thumb, stick or
+## mouse, widens at a run, bobs a little, and eases back behind the player
+## after a sustained run with no drag.
 ##
-## GDD §6 "Movement and camera": soft-follow third person at 3.5 m, right-thumb
-## drag to orbit. The rig chases the player rather than parenting to it, so the
-## camera keeps its own easing while the body turns underneath.
+## GDD §6 and docs/BRIEF_AMENDMENT_1.md §A4, §B6. The rig chases the player
+## rather than parenting to it, so it keeps its own easing while the body
+## turns underneath.
 extends Node3D
 
-const FOLLOW_SPEED := 7.0
-## GDD §6: "soft-follow third person at 3.5 m".
+## Seconds the rig trails the player (§B6: ~0.15 s).
+const FOLLOW_LAG := 0.15
 const DISTANCE := 3.5
-## Keeps the near plane out of the surface the camera backed into.
 const COLLISION_MARGIN := 0.35
 const MIN_DISTANCE := 0.6
 const DISTANCE_LERP := 10.0
-## Collision layer 1 is the world. The player is on layer 2 so the camera
-## never pulls in on the body it is following.
 const WORLD_LAYER := 1
 const PITCH_MIN := -0.52
 const PITCH_MAX := 0.42
-## Radians of orbit per pixel of drag, before the sensitivity setting.
 const DRAG_TO_RADIANS := 0.0042
-## Height above the player's origin that the camera looks at.
 const SHOULDER_HEIGHT := 1.15
-## Field of view at a walk and at a run. The widening is the camera telling
-## the body it is moving faster; it eases so it never pops.
-const WALK_FOV := 62.0
-const RUN_FOV := 70.0
+## §B6: 65 at a walk, 72 at a run.
+const WALK_FOV := 65.0
+const RUN_FOV := 72.0
 const FOV_SPEED := 4.0
+## Head-bob at a run: amplitude in metres and cycles per second.
+const BOB_AMPLITUDE := 0.035
+const BOB_HZ := 2.4
+## §A4: running this long without a drag eases the camera back behind.
+const AUTO_ALIGN_AFTER := 1.5
+const AUTO_ALIGN_SPEED := 2.2
 
 @export var target_path: NodePath
-@export_range(0.25, 3.0, 0.05) var sensitivity := 1.0
+@export_range(0.1, 3.0, 0.05) var sensitivity := 1.0
 @export var invert_y := false
 
 var _yaw := 0.0
 var _pitch := -0.18
 var _distance := DISTANCE
+var _bob_phase := 0.0
+var _since_drag := 1000.0
 
 @onready var _yaw_pivot: Node3D = $YawPivot
 @onready var _pitch_pivot: Node3D = $YawPivot/PitchPivot
@@ -52,17 +56,27 @@ func _physics_process(delta: float) -> void:
 	var target := _target()
 	if target == null:
 		return
-	var wanted := target.global_position + Vector3.UP * SHOULDER_HEIGHT
-	global_position = global_position.lerp(wanted, minf(1.0, FOLLOW_SPEED * delta))
-	_pull_in_from_walls(delta)
+	_since_drag += delta
 	var running: bool = target.has_method("is_running") and target.is_running()
+
+	var bob := 0.0
+	if running:
+		_bob_phase = fmod(_bob_phase + delta * BOB_HZ * TAU, TAU)
+		bob = sin(_bob_phase) * BOB_AMPLITUDE
+	var wanted := target.global_position + Vector3.UP * (SHOULDER_HEIGHT + bob)
+	var follow := 1.0 - exp(-delta / FOLLOW_LAG)
+	global_position = global_position.lerp(wanted, follow)
+
+	if running and target.has_method("run_time") and target.run_time() > AUTO_ALIGN_AFTER:
+		if _since_drag > AUTO_ALIGN_AFTER:
+			_yaw = lerp_angle(_yaw, target.rotation.y, minf(1.0, AUTO_ALIGN_SPEED * delta))
+			_yaw_pivot.rotation.y = _yaw
+
+	_pull_in_from_walls(delta)
 	var fov := RUN_FOV if running else WALK_FOV
 	_camera.fov = lerpf(_camera.fov, fov, minf(1.0, FOV_SPEED * delta))
 
 
-## Shortens the arm when a wall is between the pivot and the camera, so the
-## view never ends up inside the fountain basin or a shopfront. Without this
-## the opening shot renders from inside the basin wall.
 func _pull_in_from_walls(delta: float) -> void:
 	var pivot := _pitch_pivot.global_transform
 	var query := PhysicsRayQueryParameters3D.create(
@@ -72,8 +86,6 @@ func _pull_in_from_walls(delta: float) -> void:
 	var wanted := DISTANCE
 	if not hit.is_empty():
 		wanted = maxf(MIN_DISTANCE, pivot.origin.distance_to(hit.position) - COLLISION_MARGIN)
-	# Snap in immediately, ease back out: popping into a wall reads as a bug,
-	# easing out of one reads as the camera breathing.
 	if wanted < _distance:
 		_distance = wanted
 	else:
@@ -85,9 +97,9 @@ func camera_distance() -> float:
 	return _distance
 
 
-## Orbits by a drag delta in pixels. Pitch is clamped so the camera can never
-## look straight down the player's head or up into the sky.
+## Orbits by a drag delta in pixels and resets the auto-align timer.
 func orbit(drag: Vector2) -> void:
+	_since_drag = 0.0
 	_yaw -= drag.x * DRAG_TO_RADIANS * sensitivity
 	var vertical := drag.y * DRAG_TO_RADIANS * sensitivity
 	_pitch += vertical if invert_y else -vertical
@@ -96,11 +108,19 @@ func orbit(drag: Vector2) -> void:
 	_pitch_pivot.rotation.x = _pitch
 
 
-## Rotates a screen-space stick vector into world space, so "up" on the stick
-## is always away from the camera. Returns (x, z) for a world-space
-## [Vector3](x, 0, z): screen-up becomes -Z, which is forward in Godot.
 func stick_to_world(stick: Vector2) -> Vector2:
 	return Vector2(stick.x, -stick.y).rotated(-_yaw)
+
+
+## World point under a screen position on the ground, or null.
+func ground_point(screen: Vector2) -> Variant:
+	var from := _camera.project_ray_origin(screen)
+	var to := from + _camera.project_ray_normal(screen) * 200.0
+	var query := PhysicsRayQueryParameters3D.create(from, to, WORLD_LAYER)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return null
+	return hit.position
 
 
 func get_yaw() -> float:
@@ -109,6 +129,10 @@ func get_yaw() -> float:
 
 func get_pitch() -> float:
 	return _pitch
+
+
+func camera() -> Camera3D:
+	return _camera
 
 
 func _target() -> Node3D:

@@ -57,14 +57,13 @@ func test_brushing_sideways_past_the_wall_does_not_climb() -> void:
 	assert_false(player.is_climbing(), "walking along the wall is not a climb")
 
 
-func test_the_ambience_never_touches_the_player() -> void:
+func test_the_ambience_is_on_loops_not_a_simulation() -> void:
 	var street: Node3D = add_child_autofree(STREET.instantiate())
 	var ambience: Node3D = street.get_node("Ambience")
 	assert_gt(ambience.get_child_count(), 6, "there are pedestrians and vehicles")
 	for mover: Node in ambience.get_children():
-		assert_false(
-			mover is PhysicsBody3D, "%s is set dressing: nothing is simulated (§4.1)" % mover.name
-		)
+		assert_false(mover is PhysicsBody3D, "%s moves on a loop, not by physics" % mover.name)
+		assert_gt(mover.points.size(), 1, "%s has a loop to follow" % mover.name)
 
 
 func test_a_path_mover_loops_back_to_where_it_started() -> void:

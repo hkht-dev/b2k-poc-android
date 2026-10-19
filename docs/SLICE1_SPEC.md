@@ -45,12 +45,15 @@ dust, timber brown, flat white; rust red on fences and the tower. **Peacock
 blue and magenta are forbidden in this scene**, with one exception: the Glimpse
 silhouette's backlight and the feather it leaves.
 
-## 2. Player and controls — P1
+## 2. Player and controls — P1, amended by `BRIEF_AMENDMENT_1.md` §A
 
-- Left-thumb virtual joystick, fading in on touch. Side, size and opacity
-  adjustable in settings.
-- Right-thumb drag orbits the camera. Soft-follow third person at 3.5 m.
-- Auto-run after 0.5 s of full tilt. No jump button; approach a ledge → climb.
+- Floating left-thumb joystick in the left 45%; 12% dead zone, cubic
+  response; auto-run at 85% deflection after 0.5 s. Side, size and opacity
+  from settings.
+- Right 55%: drag orbits the camera (soft-follow at 3.5 m, 0.15 s lag, FOV
+  65→72 at a run, auto-align after 1.5 s of running); a tap walks there.
+- No jump button; approach a ledge → climb; kerbs and low steps are walked
+  over. Pause top-left: Controls, Map (off by default).
 - One contextual button, lower right, appearing only near something usable and
   labelled with the verb: *Talk*, *Pick up*, *Place*, *Look*, *Listen*, *Sit*.
 - **Call**: hold the contextual button with nothing nearby and the character

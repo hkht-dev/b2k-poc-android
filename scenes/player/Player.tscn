@@ -1,33 +1,31 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=10 format=3]
 
-; PLACEHOLDER: a capsule body and a sphere head with procedural cloth and
-; skin. Replaced by the traveler form of GDD §10 "Characters" — elongated
-; proportions, hand-painted cloth, no emissive rim (the Grove glow is gone).
+; PLACEHOLDER: a low-poly humanoid of primitives with a procedural walk
+; (docs/BRIEF_AMENDMENT_1.md §B4). Replaced by the traveler form of GDD §10
+; "Characters" — elongated proportions, hand-painted cloth, no emissive rim.
+; Limb pivots sit at the shoulder and hip; the animator swings them in X.
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
-[ext_resource type="Material" path="res://assets/materials/coat.tres" id="2_coat"]
-[ext_resource type="Material" path="res://assets/materials/skin.tres" id="3_skin"]
-[ext_resource type="Material" path="res://assets/materials/timber.tres" id="4_hair"]
+[ext_resource type="Script" path="res://scripts/player/figure_animator.gd" id="2_anim"]
+[ext_resource type="Material" path="res://assets/materials/coat.tres" id="3_coat"]
+[ext_resource type="Material" path="res://assets/materials/skin.tres" id="4_skin"]
+[ext_resource type="Material" path="res://assets/materials/timber.tres" id="5_hair"]
+[ext_resource type="Material" path="res://assets/materials/tyre.tres" id="6_trouser"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.34
 height = 1.72
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
-material = ExtResource("2_coat")
-radius = 0.32
-height = 1.3
-radial_segments = 14
-rings = 5
+[sub_resource type="BoxMesh" id="BoxMesh_unit"]
+size = Vector3(1, 1, 1)
 
-[sub_resource type="SphereMesh" id="SphereMesh_head"]
-material = ExtResource("3_skin")
-radius = 0.19
-height = 0.38
+[sub_resource type="SphereMesh" id="SphereMesh_unit"]
+radius = 0.5
+height = 1.0
 radial_segments = 14
 rings = 7
 
-[node name="Player" type="CharacterBody3D"]
+[node name="Player" type="CharacterBody3D" groups=["player"]]
 collision_layer = 2
 collision_mask = 1
 floor_snap_length = 0.4
@@ -37,20 +35,85 @@ script = ExtResource("1_player")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)
 shape = SubResource("CapsuleShape3D_body")
 
-; Everything visible hangs off Mesh so the run lean can tilt it as one piece.
 [node name="Mesh" type="Node3D" parent="."]
 unique_name_in_owner = true
+script = ExtResource("2_anim")
 
-[node name="Body" type="MeshInstance3D" parent="Mesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78, 0)
-mesh = SubResource("CapsuleMesh_body")
+[node name="Torso" type="Node3D" parent="Mesh"]
 
-[node name="Head" type="MeshInstance3D" parent="Mesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
-mesh = SubResource("SphereMesh_head")
+[node name="Chest" type="MeshInstance3D" parent="Mesh/Torso"]
+transform = Transform3D(0.46, 0, 0, 0, 0.62, 0, 0, 0, 0.26, 0, 1.2, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("3_coat")
 
-; A cap of hair on the -Z-facing side reads as a face without modelling one.
-[node name="Hair" type="MeshInstance3D" parent="Mesh"]
-transform = Transform3D(1.1, 0, 0, 0, 0.62, 0, 0, 0, 1.1, 0, 1.7, 0.03)
-mesh = SubResource("SphereMesh_head")
-surface_material_override/0 = ExtResource("4_hair")
+[node name="Hips" type="MeshInstance3D" parent="Mesh/Torso"]
+transform = Transform3D(0.4, 0, 0, 0, 0.22, 0, 0, 0, 0.26, 0, 0.8, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("6_trouser")
+
+[node name="Head" type="MeshInstance3D" parent="Mesh/Torso"]
+transform = Transform3D(0.34, 0, 0, 0, 0.36, 0, 0, 0, 0.34, 0, 1.72, 0)
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = ExtResource("4_skin")
+
+[node name="Hair" type="MeshInstance3D" parent="Mesh/Torso"]
+transform = Transform3D(0.37, 0, 0, 0, 0.2, 0, 0, 0, 0.37, 0, 1.82, 0.02)
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = ExtResource("5_hair")
+
+[node name="Neck" type="MeshInstance3D" parent="Mesh/Torso"]
+transform = Transform3D(0.12, 0, 0, 0, 0.12, 0, 0, 0, 0.12, 0, 1.53, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("4_skin")
+
+[node name="LeftArm" type="Node3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 1.46, 0)
+
+[node name="Upper" type="MeshInstance3D" parent="Mesh/LeftArm"]
+transform = Transform3D(0.12, 0, 0, 0, 0.6, 0, 0, 0, 0.12, 0, -0.3, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("3_coat")
+
+[node name="Hand" type="MeshInstance3D" parent="Mesh/LeftArm"]
+transform = Transform3D(0.11, 0, 0, 0, 0.11, 0, 0, 0, 0.11, 0, -0.64, 0)
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = ExtResource("4_skin")
+
+[node name="RightArm" type="Node3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 1.46, 0)
+
+[node name="Upper" type="MeshInstance3D" parent="Mesh/RightArm"]
+transform = Transform3D(0.12, 0, 0, 0, 0.6, 0, 0, 0, 0.12, 0, -0.3, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("3_coat")
+
+[node name="Hand" type="MeshInstance3D" parent="Mesh/RightArm"]
+transform = Transform3D(0.11, 0, 0, 0, 0.11, 0, 0, 0, 0.11, 0, -0.64, 0)
+mesh = SubResource("SphereMesh_unit")
+surface_material_override/0 = ExtResource("4_skin")
+
+[node name="LeftLeg" type="Node3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11, 0.7, 0)
+
+[node name="Thigh" type="MeshInstance3D" parent="Mesh/LeftLeg"]
+transform = Transform3D(0.16, 0, 0, 0, 0.7, 0, 0, 0, 0.18, 0, -0.35, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("6_trouser")
+
+[node name="Foot" type="MeshInstance3D" parent="Mesh/LeftLeg"]
+transform = Transform3D(0.17, 0, 0, 0, 0.08, 0, 0, 0, 0.28, 0, -0.68, -0.05)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("5_hair")
+
+[node name="RightLeg" type="Node3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.11, 0.7, 0)
+
+[node name="Thigh" type="MeshInstance3D" parent="Mesh/RightLeg"]
+transform = Transform3D(0.16, 0, 0, 0, 0.7, 0, 0, 0, 0.18, 0, -0.35, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("6_trouser")
+
+[node name="Foot" type="MeshInstance3D" parent="Mesh/RightLeg"]
+transform = Transform3D(0.17, 0, 0, 0, 0.08, 0, 0, 0, 0.28, 0, -0.68, -0.05)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("5_hair")
