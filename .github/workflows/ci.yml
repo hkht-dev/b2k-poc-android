@@ -59,6 +59,9 @@ jobs:
       - name: Generated street scene is current
         run: python3 tools/gen_street.py --check
 
+      - name: Third-party assets are present and registered
+        run: python3 tools/fetch_polyhaven.py --check
+
   test:
     name: GUT tests
     runs-on: ubuntu-latest

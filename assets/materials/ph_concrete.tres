@@ -1,0 +1,16 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+; CC0 from Poly Haven via tools/fetch_polyhaven.py (docs/RIGHTS_REGISTER.md),
+; 1K diffuse through the painted-look pass. Triplanar. Kerbs, pavements and the fountain stone.
+
+[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/concrete_wall_001.png" id="1_tex"]
+
+[resource]
+resource_name = "ph_concrete"
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("1_tex")
+roughness = 0.93
+specular_mode = 1
+uv1_triplanar = true
+uv1_scale = Vector3(0.3, 0.3, 0.3)
+uv1_triplanar_sharpness = 4.0

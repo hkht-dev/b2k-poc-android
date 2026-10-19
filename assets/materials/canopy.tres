@@ -1,0 +1,16 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+; Tree canopies: the pale cloth texture tinted to a dusty, in-palette green.
+; GDD §10 forbids peacock blue and magenta here, not green; the Vale is dusty,
+; so the green stays grey.
+
+[ext_resource type="Texture2D" path="res://assets/textures/cloth_pale.png" id="1_tex"]
+
+[resource]
+resource_name = "canopy"
+albedo_color = Color(0.46, 0.52, 0.34, 1)
+albedo_texture = ExtResource("1_tex")
+roughness = 1.0
+specular_mode = 1
+uv1_triplanar = true
+uv1_scale = Vector3(0.8, 0.8, 0.8)

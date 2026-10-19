@@ -398,3 +398,79 @@ Once GitHub's incident cleared, the first runs that actually executed showed:
   not enabled on the repository. Set `enablement: true` so the action asks
   for it; if the token may not, it is one setting by hand.
 Affects §8.
+
+---
+
+## Amendment 1 — controls and visuals (2026-10-19)
+
+Applied from `docs/BRIEF_AMENDMENT_1.md` §A, §B and §C in one feature PR
+(§D's CI changes went separately).
+
+### §A controls, as built
+
+- **Zones** 45 / 55 by touch index; the joystick floats under the first
+  left-zone finger. A touch on the contextual or pause button never reaches
+  a zone.
+- **Dead zone 12%, cubic response, auto-run at 85% raw deflection after
+  0.5 s.** The run timer reads the raw deflection, not the curved vector, or
+  the cube would hide a full push from it.
+- **Tap-to-walk**: under 200 ms and 10 px on the right zone; raycast through
+  the camera to the world; the stick cancels it. On desktop a click is a tap.
+- **Camera auto-align** after 1.5 s of running with no drag; touch
+  sensitivity defaults to half of desktop; follow lag 0.15 s; FOV 65→72;
+  head-bob at a run.
+- **Controls card** by scheme (touch / desktop / gamepad, gamepad winning when
+  one is connected) with a drawn diagram, on first *Begin* and always from the
+  pause menu. A pulsing "drag here to walk" sits in the left zone until the
+  first move, at most 60 s.
+- **Settings** (joystick side/size/opacity, sensitivity, inversion,
+  tap-to-walk) are read from `GameState.settings` with device defaults; the
+  screen that edits them is still P6.
+- **Not done:** §A's acceptance test ("two people, 60 seconds, no
+  instruction") needs people. Owner, please run it with the APK.
+
+### §B visuals, as built
+
+- 1024 px procedural textures with a painted pass (`stylise()` in
+  `tools/gen_textures.py`); CC0 Poly Haven textures through the same pass via
+  `tools/fetch_polyhaven.py`, each with a row in `docs/RIGHTS_REGISTER.md`;
+  the `overcast_soil_puresky` HDRI as the sky. Nothing from any other source.
+- Density: kerbs, markings, lamp posts, barred windows, tanks, AC units,
+  awning and shop signs in an invented script, cables, six trees, two parked
+  cars. Repeated props as MultiMeshes.
+- Characters: a jointed low-poly humanoid of primitives with a procedural
+  walk/idle (`figure_animator.gd`) for the player and pedestrians. A **CC0
+  rigged model was tried and not landed**: Quaternius's packs are CC0 but ship
+  FBX/OBJ/Blend behind an itch.io download widget, and this environment has
+  no FBX importer; Kenney's pages were not reachable by slug. Revisit with a
+  GLB source or by converting once on a workstation.
+- **Lighting: real-time shadow as a stand-in.** §B5 wants baked LightmapGI;
+  Godot 4.3 cannot bake headless, so the `LightmapGI` node is in the scene
+  ready to bake in the editor and `REALTIME_SHADOW_STANDIN` in the generator
+  keeps one directional shadow until then. First thing to flip if a phone
+  stutters.
+
+### §C budget, as measured in the web build
+
+| Metric | Limit | Measured |
+|---|---|---|
+| Draw calls per frame | < 200 | median 114, max 140 |
+| Primitives per frame | < 150k | median 16.5k, max 17.9k |
+| APK | 250 MB | 61 MB |
+
+`tools/` carries a `.gdignore` so generators never ship.
+
+### Fixes from the P2 phone playtest
+
+- **Stuck at the kerb.** A `CharacterBody3D` has no step-up; the 16 cm kerb
+  was a wall. `_step_up()` sweeps ahead, up and ahead-again with `test_move`
+  and lifts the body over anything under 0.36 m. Walls stay walls (tested).
+- **People and cars walked through the player.** Brief §4.1 made ambience
+  non-reactive; in play it read as broken. Movers now carry a collision body
+  and **yield**: a pedestrian stops 1.6 m short of a player in its lane, a
+  vehicle 9 m, both go on when the lane clears. They still never speak,
+  follow or notice the player otherwise. Affects §4.1.
+- **Minimap, off by default.** Owner request. GDD §6 rules out a map with
+  markers; this one has none — the block's footprints and the player's dot,
+  built from the scene at runtime — and is toggled from the pause menu, which
+  also lists the controls. A pause button sits top-left (GDD §11).

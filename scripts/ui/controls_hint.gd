@@ -1,45 +1,65 @@
-## One card, shown once per journey before the street, saying how to move.
+## The controls card: one screen, by device, with a diagram.
 ##
-## Playtest feedback: on a phone the controls were not discoverable. GDD §11
-## lists a first-launch note among the screens; this is that note, reduced to
-## the three things a player needs. It picks its words by device — a thumb
-## reads differently from a mouse — and never comes back until *Play again*.
-## It still tells the player nothing about where to go (CLAUDE_CODE_BRIEF.md
-## §4.3): only how to walk, look and climb.
+## docs/BRIEF_AMENDMENT_1.md §A5. Shown on first launch (until *Play again*)
+## and always available from the pause menu. The scheme follows the platform —
+## mobile, web, desktop — and switches to the gamepad scheme when one is
+## connected. It says how to move, look, walk-there, use and hum, and nothing
+## about where to go (CLAUDE_CODE_BRIEF.md §4.3).
 extends Control
 
 signal dismissed
 
 const SETTING_SEEN := "controls_seen"
 
+## Opened from the pause menu: the button says Close and nothing is recorded.
+var from_pause := false
+
 @onready var _title: Label = %Title
-@onready var _move: Label = %Move
-@onready var _look: Label = %Look
-@onready var _climb: Label = %Climb
+@onready var _diagram: Control = %Diagram
+@onready var _lines: VBoxContainer = %Lines
 @onready var _button: Button = %GotItButton
 
 
 func _ready() -> void:
-	var touch := is_touch_device()
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	var scheme := detect_scheme()
 	_title.text = Strings.t("controls.title")
-	_move.text = Strings.t("controls.move.touch" if touch else "controls.move.desktop")
-	_look.text = Strings.t("controls.look.touch" if touch else "controls.look.desktop")
-	_climb.text = Strings.t("controls.climb")
-	_button.text = Strings.t("controls.got_it")
-	_button.pressed.connect(_on_got_it)
+	for child in _lines.get_children():
+		child.queue_free()
+	for key in ["move", "look", "walk_there", "use", "hum"]:
+		var label := Label.new()
+		label.text = Strings.t("controls.%s.%s" % [scheme, key])
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.add_theme_font_size_override("font_size", 24)
+		_lines.add_child(label)
+	_diagram.scheme = scheme
+	_diagram.queue_redraw()
+	_button.text = Strings.t("controls.close" if from_pause else "controls.got_it")
+	_button.pressed.connect(_on_button)
 	_button.grab_focus()
 
 
-## Whether this journey has already seen the card.
+## "touch", "desktop" or "gamepad" (§A5).
+static func detect_scheme() -> String:
+	if not Input.get_connected_joypads().is_empty():
+		return "gamepad"
+	if OS.has_feature("mobile"):
+		return "touch"
+	if OS.has_feature("web") and DisplayServer.is_touchscreen_available():
+		return "touch"
+	return "desktop"
+
+
 static func already_seen() -> bool:
 	return GameState.settings.get(SETTING_SEEN, false) == true
 
 
-static func is_touch_device() -> bool:
-	return DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
+func current_scheme() -> String:
+	return _diagram.scheme
 
 
-func _on_got_it() -> void:
-	GameState.settings[SETTING_SEEN] = true
-	GameState.save()
+func _on_button() -> void:
+	if not from_pause:
+		GameState.settings[SETTING_SEEN] = true
+		GameState.save()
 	dismissed.emit()

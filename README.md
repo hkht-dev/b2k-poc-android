@@ -21,15 +21,18 @@ arrive in P3.
 On a phone, the first time you press *Begin* a card tells you this; after that
 it stays out of the way:
 
-| | Phone | Desktop |
-|---|---|---|
-| Walk | Left thumb, anywhere on the left half | W A S D / arrows |
-| Run | Hold a full push for half a second | Keep holding |
-| Look | Right thumb, anywhere on the right half | Drag the mouse, right half |
-| Climb | Walk into a ledge | Walk into a ledge |
-| Use | The one button, lower right, when something is near | E |
+| | Phone | Desktop | Gamepad |
+|---|---|---|---|
+| Walk | Left thumb, anywhere on the left 45% | W A S D / arrows | Left stick |
+| Run | Hold a full push for half a second | Keep holding | Push all the way, hold |
+| Look | Right thumb, drag | Drag the mouse (either button) | Right stick |
+| Walk there | Tap a spot on the right | Click the ground | — |
+| Climb | Walk into a ledge | Walk into a ledge | Walk into a ledge |
+| Use | The one button, lower right, when something is near | E | A |
+| Pause | Button top-left | Esc | Start |
 
-There is no jump button and nothing else on screen while you play.
+There is no jump button. The pause menu has *Controls* (this card, with a
+diagram) and *Map*, a plain minimap that is off until you turn it on.
 
 ## Install the build on an Android phone
 
@@ -151,7 +154,7 @@ ever signs sideload builds.
 |---|---|
 | `data/` | Every quest, line of dialogue and player-facing string. No text is baked into a scene. |
 | `scenes/`, `scripts/` | Mirror each other; one `.gd` per scene, shared code in `scripts/lib/`. |
-| `assets/` | Placeholders: procedural textures from `tools/gen_textures.py`, primitive meshes. Each carries a `PLACEHOLDER` comment naming its replacement from GDD §10. |
+| `assets/` | Procedural textures from `tools/gen_textures.py`; CC0 Poly Haven files under `assets/thirdparty/` fetched by `tools/fetch_polyhaven.py` and listed in `docs/RIGHTS_REGISTER.md`; primitive meshes. Each carries a `PLACEHOLDER` comment naming its replacement from GDD §10. |
 | `tests/` | GUT tests. |
 | `tools/` | Checked-in scripts CI runs. |
 | `docs/` | The GDD, the slice spec, every decision, the playtest protocol. |

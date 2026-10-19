@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Generate the street's tileable textures procedurally and write them as PNGs.
 
-Owner decision (docs/DECISIONS.md, 2026-10-19): the slice is textured, not
-grey-box, and the 60 MB install budget no longer binds. CLAUDE_CODE_BRIEF.md
-§6 still holds in one respect — no asset is pulled from the internet — so every
-surface here is made by this script, in the Hollow Vale palette of GDD §10
-(ochre, dust, timber brown, flat overcast white, rust red), tileable in both
-axes, and replaceable 1:1 by painted textures later.
+docs/BRIEF_AMENDMENT_1.md §B: textures are required on every surface, with a
+stylized, hand-painted look; procedural generation is the preferred source for
+tiling surfaces. Every surface here is made by this script in the Hollow Vale
+palette of GDD §10 (ochre, dust, timber brown, flat overcast white, rust red),
+tileable in both axes, and replaceable 1:1 by painted textures later.
+
+`stylise()` is also the albedo-only pass that tools/fetch_polyhaven.py applies
+to CC0 photographic textures so they sit in the same painted register.
 
     python3 tools/gen_textures.py            # writes assets/textures/*.png
     python3 tools/gen_textures.py --check    # fails if any PNG is stale
@@ -26,7 +28,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "textures"
-SIZE = 512
+SIZE = 1024  # docs/BRIEF_AMENDMENT_1.md §B1: 1024 or 2048
 SEED = 108  # fixed, so the output is reproducible and --check is meaningful
 
 
@@ -67,6 +69,35 @@ def to_rgb(base: tuple, lum: np.ndarray, tint: np.ndarray | None = None) -> np.n
     img *= lum[..., None]
     if tint is not None:
         img *= tint
+    return np.clip(img, 0, 1)
+
+
+def stylise(img: np.ndarray, strength: float = 1.0) -> np.ndarray:
+    """The painted look, applied to any albedo (ours or a CC0 photo).
+
+    Softens fine photographic detail, flattens the luminance into a few broad
+    bands so surfaces read as brushwork rather than grain, nudges saturation
+    up, and lays a faint grime mask into the low bands. Albedo only: normals,
+    roughness and height are never touched, because the game ships none.
+    """
+    h, w = img.shape[:2]
+    # 1. soften: a periodic blur so tiling survives
+    soft = np.stack([periodic_blur(img[..., c], 2) for c in range(3)], axis=-1)
+    img = img * (1 - 0.55 * strength) + soft * (0.55 * strength)
+    # 2. luminance bands
+    lum = img.mean(axis=-1, keepdims=True)
+    bands = 7
+    banded = np.floor(lum * bands + 0.5) / bands
+    lum_mix = lum * (1 - 0.6 * strength) + banded * (0.6 * strength)
+    img = img * (lum_mix / np.maximum(lum, 1e-4))
+    # 3. saturation
+    mean = img.mean(axis=-1, keepdims=True)
+    img = mean + (img - mean) * (1 + 0.18 * strength)
+    # 4. grime in the low frequencies
+    g = np.random.default_rng(SEED).random((h, w))
+    grime = periodic_blur(periodic_blur(g, 12), 12)
+    grime = (grime - grime.min()) / max(grime.max() - grime.min(), 1e-6)
+    img = img * (1 - 0.12 * strength * grime)[..., None]
     return np.clip(img, 0, 1)
 
 
@@ -187,7 +218,45 @@ def skin(name: str, base=(176, 124, 92)) -> np.ndarray:
     return to_rgb(base, 0.92 + 0.12 * n)
 
 
+def sign_glyphs(name: str) -> np.ndarray:
+    """A shop sign in an invented script: timber strokes on cream.
+
+    §B3 asks for signs "in an invented script" — readable as writing, not as
+    any language. Glyphs are clusters of short strokes on a baseline, so the
+    board reads as lettering from across the street and as nothing up close.
+    """
+    g = rng(name)
+    h, w = 256, 1024
+    img = np.ones((h, w, 3)) * np.array((226, 206, 160)) / 255.0
+    ink = np.array((78, 54, 34)) / 255.0
+    x = 40
+    while x < w - 60:
+        glyph_w = int(g.integers(28, 52))
+        strokes = int(g.integers(2, 5))
+        for _ in range(strokes):
+            kind = g.integers(0, 3)
+            if kind == 0:  # vertical
+                sx = x + int(g.integers(0, glyph_w - 6))
+                y0, y1 = int(g.integers(70, 110)), int(g.integers(150, 200))
+                img[y0:y1, sx : sx + 7] = ink
+            elif kind == 1:  # horizontal
+                sy = int(g.integers(80, 190))
+                img[sy : sy + 7, x : x + glyph_w] = ink
+            else:  # diagonal
+                for t in range(glyph_w):
+                    yy = int(90 + (t / glyph_w) * 90)
+                    img[yy : yy + 7, x + t : x + t + 6] = ink
+        # a headline bar over most glyphs, as in several Indic scripts
+        if g.random() < 0.8:
+            img[72:79, x - 2 : x + glyph_w + 2] = ink
+        x += glyph_w + int(g.integers(14, 34))
+    noise_small = np.random.default_rng(SEED + 7).random((h, w))
+    img *= (0.92 + 0.08 * noise_small)[..., None]
+    return np.clip(img, 0, 1)
+
+
 TEXTURES = {
+    "sign_glyphs": lambda: sign_glyphs("sign"),
     "plaster_ochre": lambda: plaster("ochre", (214, 160, 72)),
     "plaster_white": lambda: plaster("white", (232, 226, 214)),
     "plaster_cream": lambda: plaster("cream", (226, 206, 160)),
@@ -211,7 +280,7 @@ def main() -> int:
     stale = []
     for name, make in TEXTURES.items():
         path = OUT / f"{name}.png"
-        fresh = save(name, make())
+        fresh = save(name, stylise(make(), strength=0.5))
         if args.check:
             if not path.exists() or path.read_bytes() != fresh:
                 stale.append(name)

@@ -1,10 +1,11 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="1_hint"]
-[ext_resource type="FontVariation" path="res://assets/ui/font_heading.tres" id="2_heading"]
-[ext_resource type="FontVariation" path="res://assets/ui/font_body.tres" id="3_body"]
+[ext_resource type="Script" path="res://scripts/ui/controls_diagram.gd" id="2_diagram"]
+[ext_resource type="FontVariation" path="res://assets/ui/font_heading.tres" id="3_heading"]
 
 [node name="ControlsHint" type="Control"]
+process_mode = 3
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -29,55 +30,42 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -460.0
-offset_top = -420.0
-offset_right = 460.0
-offset_bottom = 420.0
+offset_left = -470.0
+offset_top = -620.0
+offset_right = 470.0
+offset_bottom = 620.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 56
-theme_override_constants/margin_top = 56
-theme_override_constants/margin_right = 56
-theme_override_constants/margin_bottom = 56
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 48
 
 [node name="Layout" type="VBoxContainer" parent="Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 40
+theme_override_constants/separation = 28
 
 [node name="Title" type="Label" parent="Panel/Margin/Layout"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_heading")
+theme_override_fonts/font = ExtResource("3_heading")
 theme_override_font_sizes/font_size = 40
 text = "How to play"
 horizontal_alignment = 1
 
-[node name="Move" type="Label" parent="Panel/Margin/Layout"]
+[node name="Diagram" type="Control" parent="Panel/Margin/Layout"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 360)
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_body")
-theme_override_font_sizes/font_size = 26
-text = "Move"
-autowrap_mode = 3
+script = ExtResource("2_diagram")
 
-[node name="Look" type="Label" parent="Panel/Margin/Layout"]
+[node name="Lines" type="VBoxContainer" parent="Panel/Margin/Layout"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_body")
-theme_override_font_sizes/font_size = 26
-text = "Look"
-autowrap_mode = 3
-
-[node name="Climb" type="Label" parent="Panel/Margin/Layout"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_fonts/font = ExtResource("3_body")
-theme_override_font_sizes/font_size = 26
-text = "Climb"
-autowrap_mode = 3
+theme_override_constants/separation = 18
 
 [node name="Spacer" type="Control" parent="Panel/Margin/Layout"]
 layout_mode = 2

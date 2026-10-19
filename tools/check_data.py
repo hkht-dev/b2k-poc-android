@@ -41,12 +41,20 @@ REQUIRED_STRING_IDS = [
     "debug.quest_ended",
     "debug.empty",
     "controls.title",
-    "controls.move.touch",
-    "controls.look.touch",
-    "controls.move.desktop",
-    "controls.look.desktop",
-    "controls.climb",
     "controls.got_it",
+    "controls.close",
+    "controls.hint.walk",
+    *[f"controls.diagram.{k}" for k in ("move", "look", "tap", "use")],
+    *[
+        f"controls.{scheme}.{k}"
+        for scheme in ("touch", "desktop", "gamepad")
+        for k in ("move", "look", "walk_there", "use", "hum")
+    ],
+    "pause.title",
+    "pause.resume",
+    "pause.controls",
+    "pause.map_on",
+    "pause.map_off",
 ]
 
 QUEST_REQUIRED = ["id", "giver", "start_condition", "steps", "end_condition"]
