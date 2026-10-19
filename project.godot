@@ -14,7 +14,10 @@ config/icon="res://assets/ui/icon.svg"
 
 [autoload]
 
+; Order matters: GameState reads files through Strings; Content binds to both.
 Strings="*res://scripts/core/strings.gd"
+GameState="*res://scripts/core/game_state.gd"
+Content="*res://scripts/core/content.gd"
 
 [debug]
 
@@ -100,5 +103,9 @@ renderer/rendering_method.mobile="mobile"
 renderer/rendering_method.web="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_3d=1
-lights_and_shadows/directional_shadow/soft_shadow_filter_quality=0
+; One 2048 orthogonal shadow map: enough for a 70 m block on a 2020 phone.
+lights_and_shadows/directional_shadow/size=2048
+lights_and_shadows/directional_shadow/size.mobile=2048
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=1
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality.mobile=0
 environment/defaults/default_clear_color=Color(0.76, 0.72, 0.63, 1)

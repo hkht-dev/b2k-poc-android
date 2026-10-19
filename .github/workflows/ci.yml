@@ -51,6 +51,14 @@ jobs:
       - name: README QR code is current
         run: python3 tools/gen_qr.py --check
 
+      - name: Generated textures are current
+        run: |
+          pip install numpy pillow
+          python3 tools/gen_textures.py --check
+
+      - name: Generated street scene is current
+        run: python3 tools/gen_street.py --check
+
   test:
     name: GUT tests
     runs-on: ubuntu-latest

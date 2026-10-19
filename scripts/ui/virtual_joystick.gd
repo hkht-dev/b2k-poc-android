@@ -9,8 +9,11 @@ signal moved(vector: Vector2)
 
 const FADE_SPEED := 6.0
 
-@export_range(48.0, 220.0, 1.0) var radius := 120.0
-@export_range(0.1, 1.0, 0.05) var max_opacity := 0.35
+@export_range(48.0, 220.0, 1.0) var radius := 140.0
+@export_range(0.1, 1.0, 0.05) var max_opacity := 0.4
+## Seconds the resting ring stays faintly visible after the street opens, so
+## a first-time player knows where their thumb goes. Then the HUD empties.
+@export_range(0.0, 20.0, 0.5) var resting_hint_seconds := 8.0
 ## Which thumb owns this control. Mirrors the whole layout when set to right.
 @export_enum("left", "right") var side := "left"
 
@@ -19,26 +22,44 @@ var _origin := Vector2.ZERO
 var _knob := Vector2.ZERO
 var _vector := Vector2.ZERO
 var _shown := 0.0
+var _hint_left := 0.0
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_FULL_RECT)
+	_hint_left = resting_hint_seconds
 
 
 func _process(delta: float) -> void:
 	var wanted := 1.0 if _touch_index != -1 else 0.0
 	_shown = move_toward(_shown, wanted, FADE_SPEED * delta)
+	if _touch_index != -1:
+		_hint_left = 0.0
+	elif _hint_left > 0.0:
+		_hint_left = maxf(0.0, _hint_left - delta)
 	queue_redraw()
 
 
 func _draw() -> void:
+	if _hint_left > 0.0 and _shown <= 0.01:
+		var fade := minf(1.0, _hint_left / 2.0)
+		var hint := Color(0.42, 0.31, 0.208, 0.14 * fade)
+		draw_arc(resting_position(), radius, 0.0, TAU, 48, hint, 3.0, true)
+		draw_circle(resting_position(), radius * 0.32, hint)
+		return
 	if _shown <= 0.01:
 		return
 	var base := Color(0.42, 0.31, 0.208, max_opacity * _shown)
 	var knob := Color(0.957, 0.925, 0.847, max_opacity * 2.0 * _shown)
 	draw_arc(_origin, radius, 0.0, TAU, 48, base, 3.0, true)
 	draw_circle(_knob, radius * 0.32, knob)
+
+
+## Where the resting ring sits: low in the thumb's corner.
+func resting_position() -> Vector2:
+	var x := radius + 90.0 if side == "left" else size.x - radius - 90.0
+	return Vector2(x, size.y - radius - 220.0)
 
 
 ## Returns the current stick vector: x right, y forward (already negated so

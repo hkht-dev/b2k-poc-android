@@ -1,0 +1,197 @@
+## The one object that is the player's journey: beat, flags, events, choices,
+## journey lines and settings. Saved whole, loaded whole, wiped whole.
+##
+## GDD §12 "Game state": "A single serializable JourneyState ... One object to
+## save, one to inspect, one to reset." CLAUDE_CODE_BRIEF.md §5: autosave on
+## every flag change and beat change to user://journey.json, one slot, and
+## *Play again* wipes it.
+##
+## Registered as the autoload `GameState`.
+extends Node
+
+signal flag_changed(flag: String, is_set: bool)
+signal event_fired(event: String)
+signal beat_changed(beat: String)
+signal journey_line_added(line_id: String)
+signal wiped
+
+const SAVE_PATH := "user://journey.json"
+const SAVE_VERSION := 1
+
+## Beats are an ordered list of ids in data (GDD §12). The slice has one.
+var beat: String = ""
+var flags := FlagStore.new()
+## World events that have happened: a can placed, a feather picked up. Kept
+## apart from flags because a quest step waits on what the world did, and a
+## card sets what the player chose; the debug panel shows them separately.
+var events := FlagStore.new()
+var choice_history: Array[Dictionary] = []
+var journey_lines: Array[String] = []
+var settings: Dictionary = {}
+## Where the one slot lives. Tests point this at a scratch file.
+var save_path: String = SAVE_PATH
+
+var _autosave := true
+
+
+func _init() -> void:
+	# Wired here, not in _ready, so a bare instance in a test still emits.
+	flags.changed.connect(_on_flag_changed)
+
+
+func _ready() -> void:
+	load_journey()
+
+
+# -- flags --------------------------------------------------------------------
+
+
+func set_flag(flag: String) -> bool:
+	return flags.set_flag(flag)
+
+
+func clear_flag(flag: String) -> bool:
+	return flags.clear_flag(flag)
+
+
+func has_flag(flag: String) -> bool:
+	return flags.has(flag)
+
+
+# -- events -------------------------------------------------------------------
+
+
+## Records that something happened in the world. Returns false if it had
+## already happened; an event fires once.
+func fire_event(event: String) -> bool:
+	if not events.set_flag(event):
+		return false
+	event_fired.emit(event)
+	_save_if_enabled()
+	return true
+
+
+func has_event(event: String) -> bool:
+	return events.has(event)
+
+
+# -- beat, choices, journey ---------------------------------------------------
+
+
+func set_beat(new_beat: String) -> void:
+	if new_beat == beat:
+		return
+	beat = new_beat
+	beat_changed.emit(beat)
+	_save_if_enabled()
+
+
+## Records a card the player chose. Kept as ids, never text, so the record is
+## stable across locales and rewrites.
+func record_choice(line_id: String, card_index: int, sets: PackedStringArray) -> void:
+	choice_history.append({"line": line_id, "card": card_index, "sets": Array(sets)})
+	_save_if_enabled()
+
+
+## Adds a line to *Your journey* (GDD §6 "Choice"). Duplicates are ignored so
+## a quest that ends twice on reload does not say so twice.
+func add_journey_line(line_id: String) -> bool:
+	if line_id.is_empty() or journey_lines.has(line_id):
+		return false
+	journey_lines.append(line_id)
+	journey_line_added.emit(line_id)
+	_save_if_enabled()
+	return true
+
+
+# -- persistence --------------------------------------------------------------
+
+
+func to_dict() -> Dictionary:
+	return {
+		"version": SAVE_VERSION,
+		"beat": beat,
+		"flags": Array(flags.all()),
+		"events": Array(events.all()),
+		"choice_history": choice_history.duplicate(true),
+		"journey_lines": journey_lines.duplicate(),
+		"settings": settings.duplicate(true),
+	}
+
+
+## Replaces the whole state from a saved dictionary. Emits nothing per flag:
+## loading is restoring what already was, not a change.
+func from_dict(data: Dictionary) -> void:
+	beat = str(data.get("beat", ""))
+	flags.replace_all(_string_array(data.get("flags", [])))
+	events.replace_all(_string_array(data.get("events", [])))
+	choice_history.clear()
+	for entry in data.get("choice_history", []):
+		if entry is Dictionary:
+			choice_history.append(entry)
+	journey_lines.clear()
+	for line in _string_array(data.get("journey_lines", [])):
+		journey_lines.append(line)
+	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
+
+
+func save() -> bool:
+	var file := FileAccess.open(save_path, FileAccess.WRITE)
+	if file == null:
+		push_error("GameState: cannot write %s (%s)" % [save_path, FileAccess.get_open_error()])
+		return false
+	file.store_string(JSON.stringify(to_dict(), "  "))
+	return true
+
+
+## Loads the one slot if it exists. A missing file is a new journey, not an
+## error; a corrupt one is reported and ignored rather than crashing the title.
+func load_journey() -> bool:
+	if not FileAccess.file_exists(save_path):
+		return false
+	var parsed: Variant = Strings.read_json_file(save_path)
+	if not parsed is Dictionary:
+		push_error("GameState: %s is not a journey file; starting fresh" % save_path)
+		return false
+	_autosave = false
+	from_dict(parsed)
+	_autosave = true
+	return true
+
+
+## *Play again*: wipes everything and the file behind it.
+func wipe() -> void:
+	_autosave = false
+	beat = ""
+	flags.clear_all()
+	events.clear_all()
+	choice_history.clear()
+	journey_lines.clear()
+	settings = {}
+	_autosave = true
+	if FileAccess.file_exists(save_path):
+		DirAccess.remove_absolute(save_path)
+	wiped.emit()
+
+
+## Tests turn this off so they never touch the real journey file.
+func set_autosave(enabled: bool) -> void:
+	_autosave = enabled
+
+
+func _on_flag_changed(flag: String, is_set: bool) -> void:
+	flag_changed.emit(flag, is_set)
+	_save_if_enabled()
+
+
+func _save_if_enabled() -> void:
+	if _autosave:
+		save()
+
+
+static func _string_array(value: Variant) -> PackedStringArray:
+	var out := PackedStringArray()
+	if value is Array:
+		for item in value:
+			out.append(str(item))
+	return out

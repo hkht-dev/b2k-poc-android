@@ -9,10 +9,15 @@ extends Node
 
 const TITLE_SCREEN := "res://scenes/ui/TitleScreen.tscn"
 const FIRST_PLAY_SCREEN := "res://scenes/street/Street.tscn"
+const CONTROLS_HINT := "res://scenes/ui/ControlsHint.tscn"
+const DEBUG_PANEL := preload("res://scenes/core/DebugPanel.tscn")
+const CONTROLS_HINT_SCRIPT := preload("res://scripts/ui/controls_hint.gd")
 
 var _current: Node = null
+var _debug_panel: Control = null
 
 @onready var _screen_root: Node = $ScreenRoot
+@onready var _overlay: CanvasLayer = $Overlay
 
 
 func _ready() -> void:
@@ -53,9 +58,41 @@ func _connect_screen(screen: Node) -> void:
 		screen.connect("begin_pressed", _on_begin_pressed)
 	if screen.has_signal("back_pressed"):
 		screen.connect("back_pressed", _on_back_pressed)
+	if screen.has_signal("debug_requested"):
+		screen.connect("debug_requested", open_debug_panel)
+	if screen.has_signal("dismissed"):
+		screen.connect("dismissed", _on_hint_dismissed)
+
+
+## Shows the tester's panel over whatever is on screen. One at a time.
+func open_debug_panel() -> void:
+	if _debug_panel != null:
+		return
+	_debug_panel = DEBUG_PANEL.instantiate()
+	_debug_panel.closed.connect(close_debug_panel)
+	_overlay.add_child(_debug_panel)
+
+
+func close_debug_panel() -> void:
+	if _debug_panel == null:
+		return
+	_overlay.remove_child(_debug_panel)
+	_debug_panel.queue_free()
+	_debug_panel = null
+
+
+func debug_panel() -> Control:
+	return _debug_panel
 
 
 func _on_begin_pressed() -> void:
+	if CONTROLS_HINT_SCRIPT.already_seen():
+		show_screen(FIRST_PLAY_SCREEN)
+	else:
+		show_screen(CONTROLS_HINT)
+
+
+func _on_hint_dismissed() -> void:
 	show_screen(FIRST_PLAY_SCREEN)
 
 

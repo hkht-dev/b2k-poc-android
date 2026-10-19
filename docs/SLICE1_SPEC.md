@@ -9,7 +9,7 @@ Status key: **built** · *in progress* · planned.
 |---|---|---|
 | P0 | Scaffold, export presets, three workflows, GUT, title screen | **built** |
 | P1 | Grey-box street, player, joystick, orbit camera, climb | **built** (fps unverified on device) |
-| P2 | `FlagStore`, `GameState`, JSON loaders, choice cards, debug panel | planned |
+| P2 | `FlagStore`, `GameState`, JSON loaders, choice cards, debug panel | **built** |
 | P3 | Tulu, the hum, the `Listen` verb | planned |
 | P4 | The Dry Fountain, all three outcomes | planned |
 | P5 | The Glimpse and the feather | planned |
@@ -19,9 +19,10 @@ Status key: **built** · *in progress* · planned.
 
 ## 1. The street block (grey-box) — P1
 
-One block, roughly 120 × 80 m playable, built from primitives and
-`CSGBox3D`/`MeshInstance3D` with flat coloured materials. No textures, no
-licensed packs. The fountain is central; the tower is visible from everywhere.
+One block, roughly 120 × 80 m playable, built from primitives by
+`tools/gen_street.py`. **Owner decision 2026-10-19: textured, not grey-box** —
+procedural tileable textures from `tools/gen_textures.py`, no licensed packs,
+nothing from the internet. See `DECISIONS.md`. The fountain is central; the tower is visible from everywhere.
 
 Landmarks that must exist:
 
@@ -157,6 +158,11 @@ GDD §8).
 
 **Strings JSON** — every player-facing string keyed by id. No text baked into a
 scene. *(Built in P0: `data/strings/en.json` and the `Strings` autoload.)*
+
+*(All of §7 is built in P2: `scripts/core/quest.gd`, `dialogue.gd`,
+`game_state.gd`, `content.gd`; the condition language is in
+`scripts/lib/condition.gd`; `data/quests/dry_fountain.json` and
+`data/dialogue/en.json` hold The Dry Fountain, review_status `draft`.)*
 
 **GameState** — one object: `beat`, `flags: Array[String]`, `choice_history`,
 `journey_lines`, `settings`. Autosaved to `user://journey.json` on every flag

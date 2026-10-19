@@ -23,6 +23,16 @@ repository.
 - When unsure, pick the simpler thing and write it in `docs/DECISIONS.md` with
   the date and the GDD section it affects.
 
+## Owner overrides (2026-10-19)
+
+The repository owner lifted two of the brief's rules after playing P1; see
+`docs/DECISIONS.md` "P2 — Owner overrides". The slice is **textured** (not
+grey-box) and the **60 MB install budget no longer binds**. Everything else in
+the brief still holds, in particular: no asset is pulled from the internet.
+Textures come from `tools/gen_textures.py`; the street scene comes from
+`tools/gen_street.py`. Edit the generators, not their output, and run them
+before committing — CI checks both with `--check`.
+
 ## The slice
 
 Out of scope for Slice 1, and not to be scaffolded: the Grove, the Pool/Veil

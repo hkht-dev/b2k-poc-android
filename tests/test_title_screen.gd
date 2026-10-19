@@ -62,5 +62,5 @@ func test_main_refuses_a_resource_that_is_not_a_scene() -> void:
 	# this reached instantiate() and took the whole screen down.
 	var main: Node = add_child_autofree(MAIN.instantiate())
 	var before: Node = main.current_screen()
-	assert_null(main.show_screen("res://assets/materials/ochre.tres"))
+	assert_null(main.show_screen("res://assets/materials/plaster_ochre.tres"))
 	assert_eq(main.current_screen(), before, "a non-scene resource changes nothing")

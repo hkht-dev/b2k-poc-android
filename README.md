@@ -11,8 +11,25 @@ strangers:
 This is **not** the full game. What is in and out of the slice is listed in
 [`CLAUDE_CODE_BRIEF.md`](CLAUDE_CODE_BRIEF.md) §0, and the build order is in §3.
 
-**Current phase: P0 (scaffold).** The title screen builds, exports and runs on
-device. The street itself arrives in P1.
+**Current phase: P2 (flags and data).** The street is walkable and textured;
+flags, the journey save, quests and dialogue load from `data/`; the debug
+panel (five taps on the title) lists and sets every flag. Tulu and *Listen*
+arrive in P3.
+
+## Controls
+
+On a phone, the first time you press *Begin* a card tells you this; after that
+it stays out of the way:
+
+| | Phone | Desktop |
+|---|---|---|
+| Walk | Left thumb, anywhere on the left half | W A S D / arrows |
+| Run | Hold a full push for half a second | Keep holding |
+| Look | Right thumb, anywhere on the right half | Drag the mouse, right half |
+| Climb | Walk into a ledge | Walk into a ledge |
+| Use | The one button, lower right, when something is near | E |
+
+There is no jump button and nothing else on screen while you play.
 
 ## Install the build on an Android phone
 
@@ -31,6 +48,35 @@ same APK is also on the run's page under the **Actions** tab, as an artifact, if
 you would rather pull it from there.
 
 [releases]: https://github.com/hkht-dev/b2k-poc-android/releases/latest
+
+## Testing on a desktop
+
+Three ways, easiest first.
+
+**1. The Windows build.** Each hand-built release includes
+`journey-back-to-krishna-windows.zip`. Unzip it anywhere and run
+`journey-back-to-krishna.exe`. Windows SmartScreen will warn that the
+publisher is unknown — *More info → Run anyway*. Controls: **W A S D** or the
+arrow keys to walk, **drag the mouse on the right half** of the window to look
+around, **E** for the contextual button. The game is portrait on purpose; the
+window is tall.
+
+**2. The Godot editor** (any OS). Install
+[Godot 4.3](https://godotengine.org/download/archive/#4.3-stable) — exactly
+4.3 — then *Import* this folder's `project.godot` and press **F5**. Import it
+twice the first time (see below). Same controls as above, and you can edit
+anything.
+
+**3. A local web build.** With Godot 4.3 and its export templates installed:
+
+```sh
+mkdir -p build/web
+godot --headless --path . --export-release "Web" build/web/index.html
+python3 -m http.server 8000 --directory build/web
+```
+
+Then open <http://localhost:8000> in Chrome or Firefox. It must be served over
+HTTP like this — opening `index.html` straight from the disk will not run.
 
 ## Play it in a browser
 
@@ -105,7 +151,7 @@ ever signs sideload builds.
 |---|---|
 | `data/` | Every quest, line of dialogue and player-facing string. No text is baked into a scene. |
 | `scenes/`, `scripts/` | Mirror each other; one `.gd` per scene, shared code in `scripts/lib/`. |
-| `assets/` | Grey-box placeholders only. Each carries a `PLACEHOLDER` comment naming its replacement from GDD §10. |
+| `assets/` | Placeholders: procedural textures from `tools/gen_textures.py`, primitive meshes. Each carries a `PLACEHOLDER` comment naming its replacement from GDD §10. |
 | `tests/` | GUT tests. |
 | `tools/` | Checked-in scripts CI runs. |
 | `docs/` | The GDD, the slice spec, every decision, the playtest protocol. |

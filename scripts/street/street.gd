@@ -6,11 +6,13 @@
 ## This script owns no gameplay rules: it is the seam between input and the
 ## two things that consume it, so the player and the camera stay testable on
 ## their own.
+##
+## All pointing input arrives as screen touches. On desktop the mouse is
+## emulated into touches (project.godot), so a right-half mouse drag orbits
+## exactly as a thumb would. There is deliberately no second, mouse-motion
+## path: Android emulates mouse events *from* touches too, and a second path
+## made every thumb on the joystick swing the camera.
 extends Node3D
-
-## Mouse drag is the desktop stand-in for a right-thumb orbit
-## (CLAUDE_CODE_BRIEF.md §4.2).
-const MOUSE_DRAG_SCALE := 1.0
 
 @onready var _player: CharacterBody3D = %Player
 @onready var _camera_rig: Node3D = %CameraRig
@@ -29,15 +31,6 @@ func _physics_process(_delta: float) -> void:
 		_player.set_move_input(Vector2.ZERO)
 		return
 	_player.set_move_input(_camera_rig.stick_to_world(_controls.move_vector()))
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	var motion := event as InputEventMouseMotion
-	if motion == null:
-		return
-	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		return
-	_camera_rig.orbit(motion.relative * MOUSE_DRAG_SCALE)
 
 
 func _on_camera_dragged(delta: Vector2) -> void:
