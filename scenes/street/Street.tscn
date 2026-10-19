@@ -279,7 +279,7 @@ script = ExtResource("1_street")
 environment = SubResource("Environment_vale")
 
 ; Overcast, but with a sun low enough to throw soft shadows: depth reads far
-; better once surfaces have texture. Orthogonal shadow, 70 m, one cascade.
+; better once surfaces have texture. Orthogonal shadow, 45 m, one cascade.
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866, -0.35, 0.357, 0, 0.714, 0.7, -0.5, -0.606, 0.618, 0, 24, 0)
 light_energy = 0.95
@@ -290,7 +290,7 @@ shadow_opacity = 0.65
 shadow_bias = 0.06
 shadow_normal_bias = 1.5
 directional_shadow_mode = 0
-directional_shadow_max_distance = 70.0
+directional_shadow_max_distance = 45.0
 directional_shadow_fade_start = 0.85
 
 ; §B5: baked lighting. Baking needs the editor and a GPU (there is no headless

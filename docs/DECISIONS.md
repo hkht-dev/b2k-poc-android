@@ -627,4 +627,18 @@ editor bake (amendment §B5).
 
 ### Performance in the web build (this change)
 
-PERF_TABLE_PLACEHOLDER
+| Metric | Limit (amendment §C) | P3 | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 141, max 171 | median 155, max 227 |
+| Primitives per frame | < 150k | median 18.2k, max 19.8k | median 40.8k, max 48.8k |
+| Web `.pck` | — | 27 MB | 30 MB |
+| Models on disk | — | — | 7 Poly Haven 0.8 MB, 13 Kenney 0.4 MB |
+
+Measured on the same walk as P3 (surface, look round, climb out, look
+round) with the parts-per-material join in place; before it the median was
+222. The maximum, 227, is the one angle looking south along the road past
+every car, lamp and flat with their shadow passes — over the budget there,
+inside it elsewhere. Done since the measurement, not yet re-measured: the
+directional shadow distance cut from 70 m to 45 m, which drops the far
+objects from the shadow pass. If the next measurement still peaks over 200
+the lightmap bake (§B5) is the remedy, not fewer props.
