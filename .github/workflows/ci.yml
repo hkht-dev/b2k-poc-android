@@ -63,6 +63,8 @@ jobs:
 
       - name: Third-party assets are present and registered
         run: python3 tools/fetch_polyhaven.py --check
+      - name: Kenney kits are present (tools/fetch_kenney.py)
+        run: python3 tools/fetch_kenney.py --check
 
       - name: Generated audio is present
         run: python3 tools/gen_audio.py --check

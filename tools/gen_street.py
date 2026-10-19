@@ -9,10 +9,13 @@ editing it; the .tscn it writes is an ordinary Godot scene and is committed.
     python3 tools/gen_street.py --check   # fails if the committed scene is stale
 
 Layout: X east, Z south, Y up. The fountain is at the origin; the ground is
-four slabs whose gap is exactly the fountain's footprint. Repeated props (lamp
-posts, road dashes, window bars, fence rails, rooftop tanks, cables, trees) are
-MultiMeshes: one draw call each, however many there are. Budget (amendment
-§C): under 200 draw calls and 150k triangles per frame.
+four slabs whose gap is exactly the fountain's footprint. Repeated primitives
+(road dashes, window bars, fence rails, rooftop tanks, cables) are MultiMeshes:
+one draw call each, however many there are. Repeated models (lamp posts,
+trees, hydrants, litter — CC0 .glb files fetched by tools/fetch_kenney.py and
+tools/fetch_polyhaven.py, see docs/RIGHTS_REGISTER.md) go through
+scripts/street/model_batch.gd, which does the same for an imported scene.
+Budget (amendment §C): under 200 draw calls and 150k triangles per frame.
 """
 
 from __future__ import annotations
@@ -37,6 +40,33 @@ MATS = [
 # editor (docs/BRIEF_AMENDMENT_1.md §B5 asks for baked; see docs/DECISIONS.md).
 REALTIME_SHADOW_STANDIN = True
 MAT_ID = {m: f"{i + 10}_{m}" for i, m in enumerate(MATS)}
+
+# CC0 models under assets/thirdparty/, each with a row in docs/RIGHTS_REGISTER.md.
+# PLACEHOLDER: stand-ins for the painted stylised props of GDD §10.
+MODELS = {
+    "sedan": "kenney/car-kit/sedan.glb",
+    "taxi": "kenney/car-kit/taxi.glb",
+    "van": "kenney/car-kit/van.glb",
+    "truck": "kenney/car-kit/truck.glb",
+    "suv": "kenney/car-kit/suv.glb",
+    "delivery": "kenney/car-kit/delivery.glb",
+    "hatchback": "kenney/car-kit/hatchback-sports.glb",
+    "tree_default": "kenney/nature-kit/tree_default.glb",
+    "tree_oak": "kenney/nature-kit/tree_oak.glb",
+    "tree_tall": "kenney/nature-kit/tree_tall.glb",
+    "bush": "kenney/nature-kit/plant_bushLarge.glb",
+    "lamp": "polyhaven/models/street_lamp_01/street_lamp_01.glb",
+    "bench": "polyhaven/models/modular_street_seating/modular_street_seating.glb",
+    "hydrant": "polyhaven/models/fire_hydrant/fire_hydrant.glb",
+    "covered_car": "polyhaven/models/covered_car/covered_car.glb",
+    "can": "polyhaven/models/can_rusted/can_rusted.glb",
+    "crate": "polyhaven/models/plastic_crate_01/plastic_crate_01.glb",
+    "manhole": "polyhaven/models/water_manhole_cover/water_manhole_cover.glb",
+}
+MODEL_ID = {m: f"model_{m}" for m in MODELS}
+# Kenney's cars are 1.5 m wide and face +Z; at this scale they are a car's
+# size, and movers face -Z, so a moving car is turned half round.
+CAR_SCALE = 1.6
 
 nodes: list[str] = []
 shapes: dict[tuple, str] = {}
@@ -129,6 +159,50 @@ def multimesh(name, parent, mesh_id, mat, instances, shadows=True) -> None:
     )
 
 
+def instance_floats(instances) -> str:
+    floats = []
+    for pos, yaw, scale in instances:
+        c, s = math.cos(yaw), math.sin(yaw)
+        sx, sy, sz = scale
+        floats += [c * sx, 0, s * sz, pos[0], 0, sy, 0, pos[1], -s * sx, 0, c * sz, pos[2]]
+    return ", ".join(f"{f:g}" for f in floats)
+
+
+def batch(name, parent, model, instances, shadows=True) -> None:
+    """Many copies of a CC0 model, drawn by ModelBatch: one draw call per
+    surface. Each instance is (pos, yaw, scale)."""
+    cast = "" if shadows else "cast_shadow = false\n"
+    nodes.append(
+        f'[node name="{name}" type="Node3D" parent="{parent}"]\n'
+        f'script = ExtResource("batch")\n'
+        f'scene = ExtResource("{MODEL_ID[model]}")\n'
+        f"transforms = PackedFloat32Array({instance_floats(instances)})\n{cast}\n"
+    )
+
+
+def model(name, parent, which, pos, yaw=0.0, scale=1.0) -> None:
+    """One copy of a CC0 model, instanced directly (things that move, one-offs)."""
+    nodes.append(
+        f'[node name="{name}" parent="{parent}" instance=ExtResource("{MODEL_ID[which]}")]\n'
+        f"transform = {xf(pos, yaw, (scale, scale, scale))}\n\n"
+    )
+
+
+def collider(name, parent, size, placements) -> None:
+    """Collision with no mesh: one StaticBody3D with a box per placement
+    (pos, yaw), for props whose look comes from a model or a MultiMesh."""
+    nodes.append(
+        f'[node name="{name}" type="StaticBody3D" parent="{parent}"]\n'
+        f"collision_layer = 1\ncollision_mask = 0\n\n"
+    )
+    for i, (pos, yaw) in enumerate(placements):
+        nodes.append(
+            f'[node name="Shape{i}" type="CollisionShape3D" parent="{parent}/{name}"]\n'
+            f"transform = {xf(pos, yaw)}\n"
+            f'shape = SubResource("{shape_id(size)}")\n\n'
+        )
+
+
 def figure(name, parent, mat, pos=(0, 0, 0), script_props="", scale=1.0) -> None:
     """A low-poly humanoid with the procedural walk (§B4). Pedestrians use it;
     the player's is hand-built in Player.tscn to the same proportions."""
@@ -188,21 +262,78 @@ multimesh(
     "DashesNS", "Ground", "BoxMesh_unit", "road_paint",
     [((30, 0.025, z), 0.0, (0.14, 0.02, 2.2)) for z in range(-42, 45, 5)], shadows=False,
 )
+batch("Manholes", "Ground", "manhole",
+      [((x, 0.05, z), yaw, (1, 1, 1)) for x, z, yaw in ((-22, 18.6, 0.3), (12, 13.4, 1.9), (27.4, -24, 0.9), (32.6, 30, 2.5))],
+      shadows=False)
 
 # --- the dry fountain --------------------------------------------------------
+# A round public fountain, dry (GDD §4 Hollow Vale): a sunk basin the player
+# surfaces in, a stone lip round it, a tiered column in the middle, a shallow
+# step of pavement round the outside. The ground gap is the 14 m square; the
+# step boxes fill its corners up to the lip so no seam shows.
 group("Fountain")
+BASIN_R, LIP_R, FLOOR_Y, STEP_Y = 5.6, 7.0, -0.5, -0.15
 solid("Floor", "Fountain", (0, -1.25, 0), (14, 0.3, 14), "concrete_dust")
-solid("WallNorth", "Fountain", (0, -0.2, -6.65), (14, 1.8, 0.7), "ph_concrete")
-solid("WallSouth", "Fountain", (0, -0.2, 6.65), (14, 1.8, 0.7), "ph_concrete")
-solid("WallWest", "Fountain", (-6.65, -0.2, 0), (0.7, 1.8, 12.6), "ph_concrete")
-solid("WallEast", "Fountain", (6.65, -0.2, 0), (0.7, 1.8, 12.6), "ph_concrete")
-# A coping stone along the rim.
-for z in (-6.65, 6.65):
-    solid(f"Coping{z:g}", "Fountain", (0, 0.76, z), (14.3, 0.12, 1.0), "concrete_dust", collide=False)
-for x in (-6.65, 6.65):
-    solid(f"CopingX{x:g}", "Fountain", (x, 0.76, 0), (1.0, 0.12, 14.3), "concrete_dust", collide=False)
-cyl("Spout", "Fountain", (0, -0.55, 0), 0.45, 1.1, "plaster_white")
-cyl("SpoutBase", "Fountain", (0, -1.05, 0), 1.1, 0.14, "concrete_dust")
+cyl("Basin", "Fountain", (0, (FLOOR_Y - 1.25) / 2, 0), LIP_R, FLOOR_Y + 1.25, "ph_concrete")
+nodes.append(
+    '[node name="BasinBody" type="StaticBody3D" parent="Fountain"]\n'
+    "collision_layer = 1\ncollision_mask = 0\n\n"
+    '[node name="Shape" type="CollisionShape3D" parent="Fountain/BasinBody"]\n'
+    f"transform = {xf((0, (FLOOR_Y - 1.25) / 2, 0))}\n"
+    'shape = SubResource("CylinderShape3D_basin")\n\n'
+)
+# The lip: a torus, squashed a little taller than round, sitting in the floor.
+nodes.append(
+    '[node name="Lip" type="MeshInstance3D" parent="Fountain"]\n'
+    f"transform = {xf((0, -0.1, 0), 0.0, (1, 1.1, 1))}\n"
+    'mesh = SubResource("TorusMesh_lip")\n'
+    f'surface_material_override/0 = ExtResource("{MAT_ID["concrete_dust"]}")\n\n'
+)
+LIP_SEGMENTS = 24
+collider(
+    "LipBody", "Fountain", (1.9, 1.1, LIP_R - BASIN_R - 0.1),
+    [((6.35 * math.sin(a), 0.05, 6.35 * math.cos(a)), a)
+     for a in (i * 2 * math.pi / LIP_SEGMENTS for i in range(LIP_SEGMENTS))],
+)
+# The step: 0.15 m down from the pavement, round the lip, out to the gap's edge.
+for name, pos, size in (
+    ("StepN", (0, (STEP_Y - 1.1) / 2, -6.3), (8.2, 1.1 + STEP_Y, 1.4)),
+    ("StepS", (0, (STEP_Y - 1.1) / 2, 6.3), (8.2, 1.1 + STEP_Y, 1.4)),
+    ("StepW", (-6.3, (STEP_Y - 1.1) / 2, 0), (1.4, 1.1 + STEP_Y, 8.2)),
+    ("StepE", (6.3, (STEP_Y - 1.1) / 2, 0), (1.4, 1.1 + STEP_Y, 8.2)),
+    ("StepNE", (5.55, (STEP_Y - 1.1) / 2, -5.55), (2.9, 1.1 + STEP_Y, 2.9)),
+    ("StepNW", (-5.55, (STEP_Y - 1.1) / 2, -5.55), (2.9, 1.1 + STEP_Y, 2.9)),
+    ("StepSE", (5.55, (STEP_Y - 1.1) / 2, 5.55), (2.9, 1.1 + STEP_Y, 2.9)),
+    ("StepSW", (-5.55, (STEP_Y - 1.1) / 2, 5.55), (2.9, 1.1 + STEP_Y, 2.9)),
+):
+    solid(name, "Fountain", pos, size, "ph_concrete")
+# The column: pedestal, shaft, two dry bowls, a spout that gives nothing.
+cyl("Pedestal", "Fountain", (0, FLOOR_Y + 0.15, 0), 1.3, 0.3, "ph_concrete")
+cyl("Shaft", "Fountain", (0, 1.0, 0), 0.32, 2.4, "plaster_white")
+for name, y, radius, height in (("LowerBowlUnder", 1.3, 1.9, 0.5), ("UpperBowlUnder", 2.35, 1.1, 0.3)):
+    nodes.append(
+        f'[node name="{name}" type="MeshInstance3D" parent="Fountain"]\n'
+        f"transform = {xf((0, y, 0), 0.0, (radius * 2, height, radius * 2))}\n"
+        'mesh = SubResource("ConeMesh_unit")\n'
+        f'surface_material_override/0 = ExtResource("{MAT_ID["plaster_white"]}")\n\n'
+    )
+cyl("LowerBowl", "Fountain", (0, 1.64, 0), 1.9, 0.18, "plaster_white")
+cyl("LowerBowlFloor", "Fountain", (0, 1.75, 0), 1.72, 0.04, "concrete_dust")
+cyl("UpperBowl", "Fountain", (0, 2.57, 0), 1.1, 0.14, "plaster_white")
+cyl("UpperBowlFloor", "Fountain", (0, 2.66, 0), 0.95, 0.04, "concrete_dust")
+cyl("Spout", "Fountain", (0, 2.9, 0), 0.08, 0.5, "rust_metal")
+nodes.append(
+    '[node name="Finial" type="MeshInstance3D" parent="Fountain"]\n'
+    f"transform = {xf((0, 3.3, 0), 0.0, (0.5, 0.5, 0.5))}\n"
+    'mesh = SubResource("SphereMesh_unit")\n'
+    f'surface_material_override/0 = ExtResource("{MAT_ID["plaster_white"]}")\n\n'
+)
+collider("ColumnBody", "Fountain", (2.6, 2.2, 2.6), [((0, FLOOR_Y + 1.1, 0), 0.0)])
+# Dry for long enough to collect litter.
+batch("Litter", "Fountain", "can",
+      [((1.8, FLOOR_Y, -1.2), 0.4, (1.4, 1.4, 1.4)), ((-2.6, FLOOR_Y, 2.1), 2.0, (1.4, 1.4, 1.4)),
+       ((3.9, FLOOR_Y, 2.8), 1.1, (1.4, 1.4, 1.4)), ((-4.1, FLOOR_Y, -1.6), 2.9, (1.4, 1.4, 1.4))],
+      shadows=False)
 
 # --- Gopal Seth's shop -------------------------------------------------------
 group("Shop")
@@ -218,6 +349,13 @@ solid("SignFrame", "Shop", (-14, 4.6, 2.22), (7.3, 1.1, 0.06), "timber", collide
 for i in range(12):
     col, row = i % 4, i // 4
     cyl(f"Can{i}", "Shop", (-17.2 + col * 2.1, 0.35, -2.6 + row * 1.1), 0.33, 0.7, "rust_metal")
+# Delivery crates stacked by the counter's end.
+CRATE = 1.5  # the model is 0.3 x 0.26 x 0.41 m; a crate, at this scale
+batch("Crates", "Shop", "crate",
+      [((-18.6, 0, 3.1), 0.1, (CRATE,) * 3), ((-18.6, 0.39, 3.1), 0.5, (CRATE,) * 3),
+       ((-17.9, 0, 3.4), -0.2, (CRATE,) * 3), ((-18.6, 0.78, 3.1), -0.3, (CRATE,) * 3),
+       ((-9.4, 0, 3.0), 1.4, (CRATE,) * 3), ((-9.4, 0.39, 3.0), 1.7, (CRATE,) * 3)])
+collider("CrateBody", "Shop", (1.3, 1.2, 0.9), [((-18.3, 0.6, 3.2), 0.0), ((-9.4, 0.6, 3.0), 0.0)])
 
 # --- the chai stall ----------------------------------------------------------
 group("ChaiStall")
@@ -295,14 +433,14 @@ solid("Padlock", "Fences", (-31.1, 0.95, 7.5), (0.22, 0.3, 0.12), "timber", coll
 
 # --- the bus stop ------------------------------------------------------------
 group("BusStop")
-solid("Bench", "BusStop", (9, 0.45, 20.5), (3.4, 0.18, 0.7), "timber")
-solid("BenchBack", "BusStop", (9, 0.85, 20.85), (3.4, 0.5, 0.08), "timber", collide=False)
-solid("BenchLegL", "BusStop", (7.6, 0.22, 20.5), (0.16, 0.45, 0.6), "rust_metal", collide=False)
-solid("BenchLegR", "BusStop", (10.4, 0.22, 20.5), (0.16, 0.45, 0.6), "rust_metal", collide=False)
-solid("Shelter", "BusStop", (9, 2.6, 20.8), (4.4, 0.16, 2.4), "corrugated", collide=False)
-solid("ShelterPostL", "BusStop", (7.1, 1.3, 21.7), (0.16, 2.6, 0.16), "rust_metal")
-solid("ShelterPostR", "BusStop", (10.9, 1.3, 21.7), (0.16, 2.6, 0.16), "rust_metal")
-solid("StopSign", "BusStop", (11.6, 2.0, 21.9), (0.7, 0.9, 0.06), "road_paint", collide=False)
+# The seating model is 4.35 m of modular bench, its origin 0.2 m off centre.
+BENCHES = [((9.2, 0.16, 21.0), math.pi), ((-9.8, 0, 0.0), -math.pi / 2), ((9.8, 0, 0.0), math.pi / 2)]
+batch("Benches", "BusStop", "bench", [(pos, yaw, (1, 1, 1)) for pos, yaw in BENCHES])
+collider("BenchBody", "BusStop", (4.4, 0.9, 0.8), [((x - 0.2 * math.cos(yaw), y + 0.45, z + 0.2 * math.sin(yaw)), yaw) for (x, y, z), yaw in BENCHES])
+solid("Shelter", "BusStop", (9, 2.6, 20.8), (5.2, 0.16, 2.6), "corrugated", collide=False)
+solid("ShelterPostL", "BusStop", (6.7, 1.3, 21.9), (0.16, 2.6, 0.16), "rust_metal")
+solid("ShelterPostR", "BusStop", (11.3, 1.3, 21.9), (0.16, 2.6, 0.16), "rust_metal")
+solid("StopSign", "BusStop", (11.9, 2.0, 21.9), (0.7, 0.9, 0.06), "road_paint", collide=False)
 
 # --- cables between the flats, trees, parked cars (§B3) -----------------------
 group("Dressing")
@@ -319,33 +457,45 @@ for i in range(5):
     cables.append((((x0 + x1) / 2, 6.3, (z0 + z1) / 2 + 0.4), yaw, (0.03, 0.03, length)))
 multimesh("Cables", "Dressing", "BoxMesh_unit", "tyre", cables, shadows=False)
 
-tree_spots = [(-30, 0.1, 25.5), (-6, 0.1, 25.5), (24, 0.1, 25.5), (50, 0.1, 6.5), (-50, 0.1, 6.5), (40, 0.1, -8.5)]
-multimesh("Trunks", "Dressing", "CylinderMesh_unit", "timber",
-          [((x, y + 1.6, z), 0.0, (0.3, 3.2, 0.3)) for x, y, z in tree_spots])
-multimesh("Canopies", "Dressing", "SphereMesh_unit", "canopy",
-          [((x, y + 4.2, z), 0.0, (3.4, 2.6, 3.4)) for x, y, z in tree_spots])
-multimesh("CanopiesTop", "Dressing", "SphereMesh_unit", "canopy",
-          [((x + 0.6, y + 5.2, z - 0.4), 0.0, (2.2, 1.8, 2.2)) for x, y, z in tree_spots])
+# Trees (Kenney nature kit, 1.7 m tall at scale 1) in two kinds, with a
+# trunk collider each; bushes along the fence and under the flats.
+tree_spots = [(-30, 25.5), (-6, 25.5), (24, 25.5), (50, 6.5), (-50, 6.5), (40, -8.5), (-62, 25.5), (54, 25.5), (-40, 6.8), (20, -30)]
+TREE_SCALE = {"tree_default": 4.2, "tree_oak": 5.2}
+for kind, picks in (("tree_default", tree_spots[0::2]), ("tree_oak", tree_spots[1::2])):
+    sc = TREE_SCALE[kind]
+    batch(f"Trees_{kind}", "Dressing", kind,
+          [((x, 0.0, z), (x * 0.7 + z * 0.3) % 6.28, (sc, sc, sc)) for x, z in picks])
+collider("TreeTrunks", "Dressing", (0.6, 4.0, 0.6), [((x, 2.0, z), 0.0) for x, z in tree_spots])
+bush_spots = [(-42, 6.3), (-36, 6.3), (-26, 6.3), (-60, 25.6), (-14, 25.6), (34, 25.6), (46, 25.6), (38.5, -16), (38.5, -28)]
+batch("Bushes", "Dressing", "bush",
+      [((x, 0.0, z), (x * 1.3) % 6.28, (4.0, 3.6, 4.0)) for x, z in bush_spots], shadows=False)
 
-for i, (px, pz, yaw, body) in enumerate(((-24, 11.2, 0.0, "plaster_cream"), (40, 20.8, math.pi, "rust_metal"))):
-    group(f"ParkedCar{i}", "Dressing")
-    v = f"Dressing/ParkedCar{i}"
-    nodes[-1] = f'[node name="ParkedCar{i}" type="Node3D" parent="Dressing"]\ntransform = {xf((px, 0, pz), yaw)}\n\n'
-    solid("Body", v, (0, 0.75, 0), (1.9, 0.9, 4.2), body)
-    solid("Cabin", v, (0, 1.45, -0.3), (1.7, 0.6, 2.2), "tyre", collide=False)
-    for j, (dx, dz) in enumerate(((-0.95, 1.3), (0.95, 1.3), (-0.95, -1.3), (0.95, -1.3))):
-        cyl(f"Wheel{j}", v, (dx, 0.34, dz), 0.34, 0.26, "tyre", lay=True)
+# Parked at the kerb: Kenney cars, and Poly Haven's car under a tarp.
+PARKED = [("suv", (-24, 0, 11.3), math.pi / 2), ("hatchback", (40, 0, 20.7), -math.pi / 2),
+          ("delivery", (-12, 0, 11.4), math.pi / 2), ("truck", (34.2, 0, -20), 0.0)]
+for i, (kind, pos, yaw) in enumerate(PARKED):
+    model(f"ParkedCar{i}", "Dressing", kind, pos, yaw, CAR_SCALE)
+model("CoveredCar", "Dressing", "covered_car", (52, 0, 11.3), math.pi / 2)
+collider("ParkedBody", "Dressing", (2.4, 1.7, 4.4),
+         [((x, 0.85, z), yaw) for _, (x, _, z), yaw in PARKED] + [((52, 0.85, 11.3), math.pi / 2)])
+
+# Pavement furniture and litter.
+batch("Hydrants", "Dressing", "hydrant", [((-20, 0.16, 8.0), 0.3, (1, 1, 1)), ((37.8, 0.16, -30), 1.8, (1, 1, 1))])
+collider("HydrantBody", "Dressing", (0.5, 0.9, 0.5), [((-20, 0.6, 8.0), 0.0), ((37.8, 0.6, -30), 0.0)])
+batch("Cans", "Dressing", "can",
+      [((x, y, z), (x * 0.9) % 6.28, (1.4, 1.4, 1.4))
+       for x, y, z in ((-33, 0.16, 8.6), (3, 0.16, 9.8), (18, 0.16, 22.4), (-10, 0, 26.2), (36.2, 0.16, -2), (-5, 0, -9.4))],
+      shadows=False)
 
 # --- lamp posts along the pavements ------------------------------------------
 group("Lamps")
 lamp_positions = [((x, 2.75, 8.2), 0.0, (0.16, 5.5, 0.16)) for x in range(-56, 60, 14)]
 lamp_positions += [((x, 2.75, 23.8), 0.0, (0.16, 5.5, 0.16)) for x in range(-49, 60, 14)]
 lamp_positions += [((22.2, 2.75, z), 0.0, (0.16, 5.5, 0.16)) for z in range(-38, 2, 14)]
-multimesh("LampPosts", "Lamps", "CylinderMesh_unit", "rust_metal", lamp_positions)
-multimesh(
-    "LampHeads", "Lamps", "BoxMesh_unit", "road_paint",
-    [((p[0], 5.55, p[2]), 0.0, (0.7, 0.22, 0.4)) for p, _, _ in lamp_positions], shadows=False,
-)
+# Poly Haven's street_lamp_01 is 3.9 m tall; at this scale, a street lamp.
+LAMP_SCALE = 1.35
+batch("LampPosts", "Lamps", "lamp", [((p[0], 0.16, p[2]), 0.0, (LAMP_SCALE,) * 3) for p, _, _ in lamp_positions])
+collider("LampBody", "Lamps", (0.4, 5.2, 0.4), [((p[0], 2.6, p[2]), 0.0) for p, _, _ in lamp_positions])
 
 # --- ambience: pedestrians and vehicles on loops (§4.1) ----------------------
 group("Ambience")
@@ -376,11 +526,11 @@ for i, (pts, spd) in enumerate(PED_PATHS):
     )
 
 VEH_PATHS = [
-    ([(-60, 0, 17.5), (60, 0, 17.5)], 7.5, "plaster_white"),
-    ([(60, 0, 14.5), (-60, 0, 14.5)], 6.2, "rust_metal"),
-    ([(30, 0, -40), (30, 0, 44)], 8.0, "plaster_cream"),
+    ([(-60, 0, 17.5), (60, 0, 17.5)], 7.5, "taxi"),
+    ([(60, 0, 14.5), (-60, 0, 14.5)], 6.2, "van"),
+    ([(30, 0, -40), (30, 0, 44)], 8.0, "sedan"),
 ]
-for i, (pts, spd, body) in enumerate(VEH_PATHS):
+for i, (pts, spd, kind) in enumerate(VEH_PATHS):
     pts_s = ", ".join(f"{c:g}" for p in pts for c in p)
     nodes.append(
         f'[node name="Vehicle{i}" type="Node3D" parent="Ambience"]\n'
@@ -390,10 +540,8 @@ for i, (pts, spd, body) in enumerate(VEH_PATHS):
         f"yield_distance = 9.0\nyield_width = 2.2\n\n"
     )
     v = f"Ambience/Vehicle{i}"
-    solid("Body", v, (0, 0.75, 0), (1.9, 0.9, 4.2), body, collide=True)
-    solid("Cabin", v, (0, 1.45, -0.3), (1.7, 0.6, 2.2), "tyre", collide=False)
-    for j, (dx, dz) in enumerate(((-0.95, 1.3), (0.95, 1.3), (-0.95, -1.3), (0.95, -1.3))):
-        cyl(f"Wheel{j}", v, (dx, 0.34, dz), 0.34, 0.26, "tyre", lay=True)
+    model("Model", v, kind, (0, 0, 0), math.pi, CAR_SCALE)
+    collider("Body", v, (2.4, 1.7, 4.4), [((0, 0.85, 0), 0.0)])
 
 # ================================================================ assembly
 
@@ -402,8 +550,9 @@ header = (
     "; Hollow Vale — the Street. GENERATED by tools/gen_street.py; edit that, not\n"
     "; this. CLAUDE_CODE_BRIEF.md §4.1 with the owner's 2026-10-19 decision to\n"
     "; texture the slice (docs/DECISIONS.md).\n;\n"
-    "; PLACEHOLDER: every mesh is a primitive with a procedural texture.\n"
-    "; Replaced by the painted stylized 3D of GDD §10.\n;\n"
+    "; PLACEHOLDER: primitives with procedural textures, and CC0 stand-in models\n"
+    "; (Kenney, Poly Haven; docs/RIGHTS_REGISTER.md). Replaced by the painted\n"
+    "; stylized 3D of GDD §10.\n;\n"
     "; Palette: GDD §10, Hollow Vale row. Peacock blue and magenta are forbidden\n"
     "; here; the only exception in the slice is the Glimpse and its feather (P5).\n\n"
     '[ext_resource type="Script" path="res://scripts/street/street.gd" id="1_street"]\n'
@@ -415,6 +564,11 @@ header = (
     '[ext_resource type="Script" path="res://scripts/player/figure_animator.gd" id="7_animator"]\n'
     '[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/overcast_soil_puresky.hdr" id="8_sky"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Tulu.tscn" id="9_tulu"]\n'
+    '[ext_resource type="Script" path="res://scripts/street/model_batch.gd" id="batch"]\n'
+    + "".join(
+        f'[ext_resource type="PackedScene" path="res://assets/thirdparty/{path}" id="{MODEL_ID[m]}"]\n'
+        for m, path in MODELS.items()
+    )
     + "".join(
         f'[ext_resource type="Material" path="res://assets/materials/{m}.tres" id="{MAT_ID[m]}"]\n'
         for m in MATS
@@ -430,8 +584,25 @@ height = 1.0
 radial_segments = 12
 rings = 0
 
+[sub_resource type="CylinderMesh" id="ConeMesh_unit"]
+top_radius = 0.5
+bottom_radius = 0.12
+height = 1.0
+radial_segments = 16
+rings = 0
+
+[sub_resource type="TorusMesh" id="TorusMesh_lip"]
+inner_radius = 5.6
+outer_radius = 7.0
+rings = 48
+ring_segments = 10
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_basin"]
+radius = 7.0
+height = 0.75
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_climb"]
-size = Vector3(7, 1.8, 2.2)
+size = Vector3(7, 1.8, 2.4)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ped"]
 radius = 0.3
@@ -455,12 +626,13 @@ rings = 6
 [sub_resource type="Environment" id="Environment_vale"]
 background_mode = 2
 sky = SubResource("Sky_flat")
-ambient_light_source = 2
-ambient_light_sky_contribution = 1.0
-ambient_light_energy = 0.85
+ambient_light_source = 1
+ambient_light_color = Color(0.64, 0.66, 0.7, 1)
+ambient_light_sky_contribution = 0.45
+ambient_light_energy = 1.1
 reflected_light_source = 2
 tonemap_mode = 2
-tonemap_exposure = 1.05
+tonemap_exposure = 1.0
 fog_enabled = true
 fog_light_color = Color(0.86, 0.83, 0.77, 1)
 fog_density = 0.0014
@@ -479,10 +651,11 @@ environment = SubResource("Environment_vale")
 ; better once surfaces have texture. Orthogonal shadow, 70 m, one cascade.
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866, -0.35, 0.357, 0, 0.714, 0.7, -0.5, -0.606, 0.618, 0, 24, 0)
-light_energy = 1.15
+light_energy = 0.95
 light_color = Color(1, 0.98, 0.94, 1)
 light_bake_mode = 2
 shadow_enabled = SHADOW_STANDIN
+shadow_opacity = 0.72
 shadow_bias = 0.06
 shadow_normal_bias = 1.5
 directional_shadow_mode = 0
@@ -501,9 +674,11 @@ environment_mode = 1
 
 """
 
-footer = f"""[node name="Player" parent="." instance=ExtResource("4_player")]
+footer = f"""; The player surfaces beside the column, not behind it: due north from here
+; is clear floor up to the lip and the climb out.
+[node name="Player" parent="." instance=ExtResource("4_player")]
 unique_name_in_owner = true
-transform = {xf((0, -1.0, 2.0))}
+transform = {xf((2.4, -0.4, 2.0))}
 
 [node name="CameraRig" parent="." instance=ExtResource("5_rig")]
 unique_name_in_owner = true
@@ -512,7 +687,7 @@ target_path = NodePath("../Player")
 ; Walking into the north wall from inside the basin climbs the player out.
 ; No button: GDD §6, "approach a ledge or ladder and the character climbs".
 [node name="ClimbOut" type="Area3D" parent="."]
-transform = {xf((0, -0.35, -5.2))}
+transform = {xf((0, 0.0, -5.5))}
 collision_layer = 0
 collision_mask = 2
 monitorable = false

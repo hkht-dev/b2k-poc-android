@@ -35,7 +35,7 @@ before committing — CI checks both with `--check`.
 
 `docs/BRIEF_AMENDMENT_1.md` wins over the brief where they conflict. Third-
 party assets are **CC0 only** (Kenney, Poly Haven, ambientCG) and enter the
-repository only through `tools/fetch_polyhaven.py` (or a sibling tool), which
+repository only through `tools/fetch_polyhaven.py` or `tools/fetch_kenney.py` (or a sibling tool), which
 writes their row in `docs/RIGHTS_REGISTER.md`. Never add a file under
 `assets/thirdparty/` by hand.
 

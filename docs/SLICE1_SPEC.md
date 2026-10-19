@@ -20,7 +20,7 @@ Status key: **built** · *in progress* · planned.
 ## 1. The street block (grey-box) — P1
 
 One block, roughly 120 × 80 m playable, built from primitives by
-`tools/gen_street.py`. **Owner decision 2026-10-19: textured, not grey-box** —
+`tools/gen_street.py`, dressed with CC0 models (Kenney cars and trees, Poly Haven street furniture) through `tools/fetch_kenney.py`, `tools/fetch_polyhaven.py` and `scripts/street/model_batch.gd`. **Owner decision 2026-10-19: textured, not grey-box** —
 procedural tileable textures from `tools/gen_textures.py`, no licensed packs,
 nothing from the internet. See `DECISIONS.md`. The fountain is central; the tower is visible from everywhere.
 
