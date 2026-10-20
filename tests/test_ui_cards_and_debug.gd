@@ -211,6 +211,7 @@ func test_begin_shows_the_controls_card_on_a_fresh_journey() -> void:
 	assert_true(["touch", "desktop", "gamepad"].has(scheme), "a known scheme: %s" % scheme)
 	var lines: VBoxContainer = hint.get_node("%Lines")
 	await wait_frames(1)
+	assert_eq(hint.LINE_KEYS.size(), 7, "the amendment's six lines and the car's")
 	assert_eq(lines.get_child_count(), hint.LINE_KEYS.size(), "a line per key")
 	assert_eq(lines.get_child(0).text, Strings.t("controls.%s.move" % scheme), "its words are data")
 

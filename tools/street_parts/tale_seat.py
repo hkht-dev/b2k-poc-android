@@ -15,13 +15,15 @@ from scenegen import xf
 
 EXT = '[ext_resource type="PackedScene" path="res://scenes/quest/TaleSeat.tscn" id="tale_seat"]\n'
 
-# The south-east corner of the step round the fountain (gen_street.py
-# StepSE), where the step shows between the lip's torus and the pavement.
+# The north-west corner of the step round the fountain (gen_street.py
+# StepNW), where the step shows between the lip's torus and the pavement.
 # docs/DECISIONS.md: (0, -0.15, 6.9) lies inside the lip, so the seat moved
-# round to the corner at the same height.
-SEAT = (-5.4, -0.15, 5.4)  # the south-west step; the south-east one is Act 4's
-# The sign faces the pavement corner the player arrives from (+X, +Z).
-SIGN_YAW = math.pi / 4
+# round to a corner at the same height; the south-east one is Act 4's and
+# the south-west one is where Bhima Lal waits (their reaches overlapped,
+# and the one button read Sit and Talk by turns on the same patch).
+SEAT = (-5.4, -0.15, -5.4)
+# The sign faces the pavement corner the player arrives from (-X, -Z).
+SIGN_YAW = math.pi / 4 + math.pi
 
 
 def build(b) -> None:

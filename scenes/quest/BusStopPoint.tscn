@@ -1,12 +1,18 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 ; The end of the slice at the bus stop bench (scripts/quest/bus_stop.gd).
+; Arrive covers the whole stop; Sit only the bench's middle, between Rukma
+; asleep at its west end and the Counting Man at its east, whose own Sit and
+; Talk the nearest-wins rule would otherwise lose to this one after 90 s.
 
 [ext_resource type="Script" path="res://scripts/quest/bus_stop.gd" id="1_stop"]
 [ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_stop"]
 size = Vector3(7.0, 2.4, 4.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sit"]
+size = Vector3(1.6, 2.4, 2.6)
 
 [node name="BusStopPoint" type="Node3D"]
 script = ExtResource("1_stop")
@@ -27,5 +33,5 @@ script = ExtResource("2_interact")
 verb_id = "verb.sit"
 
 [node name="Shape" type="CollisionShape3D" parent="Sit"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
-shape = SubResource("BoxShape3D_stop")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 1.2, 0)
+shape = SubResource("BoxShape3D_sit")

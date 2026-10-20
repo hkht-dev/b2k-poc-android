@@ -3280,8 +3280,8 @@ entry records how the branches were joined and what the joining changed.
   same closing lines on both sides); a scan of every agent's additions
   against the merged tree, and the suite, caught them.
 - Things that landed on the same spot were moved apart, not deleted: the
-  tale seat went to the fountain's south-west step (Act 4's *Hum here* and
-  the way Home have the south-east one); Rukma sleeps at the bus-stop
+  tale seat went to the fountain's north-west step (Act 4's *Hum here* and
+  the way Home have the south-east one, Bhima Lal the south-west); Rukma sleeps at the bus-stop
   bench's west end (the Counting Man has the east); the cow-shadow Tell's
   doorway moved six metres west along the tower's foot (Nanda's door is at
   its east end). The nearest-interactable rule decides the button where
@@ -3377,6 +3377,42 @@ done about each, in the order it was found. Affects GDD §5, §6, §9, §9a.
   `PLACEHOLDER` lines naming the prints of GDD §7 and §4.
 - The Grove named grass as its own material after the world assets had made
   it the street's, so `Grove.tscn` declared `mat_grass` twice. Once now.
+
+### Where two reaches met, and what the tests did not test
+
+The tests reader walked the Street for verbs that could be read by turns
+on one patch of pavement, and for assertions that could not fail.
+
+- The tale seat on the south-west step and Bhima Lal's Talk overlapped by
+  centimetres; the seat is on the north-west step now, which nothing else
+  claims. The first dawn stranger's spot overlapped the wet footprints' Look
+  and the seat; it is east of the footprints on the south pavement.
+- The bus stop's ending Sit (P6) was a seven-metre box over the whole bench,
+  and after ninety seconds of play it won the button from the Counting
+  Man's Sit and Talk and from Rukma: pressing *Sit* beside him ended the
+  slice. The ending Sit is the bench's middle, between the two of them.
+- Nanda had two doors: a look-only one in the tower's face, where he
+  stands, and the real one standing free in the alley four metres south,
+  with the stairwell Glimpse's jasmine lying on its spawn point. The real
+  door is in the tower's face now, with his sign over it; the look-only one
+  and its hollow test are gone (its thought, `nanda_door_look`, stays in
+  the table for a door that can carry it).
+- Tests that could not fail were made to: the main quest's line is now
+  tested with a side quest still active; "every card drawn the same"
+  compares the style and the colour, not the class every card shares; the
+  controls card is pinned to the amendment's lines and the car's, each
+  scheme worded; a texture fails on any peacock-blue or magenta sample, not
+  on its average; and `tests/test_street_colours.gd` walks the Street's
+  materials, lights, signs and fog as the Grove's test walks the Grove,
+  with the Glimpse and its feather excepted.
+- The walk's bands are the texture test's (peacock blue 0.50 to 0.63 on
+  the HSV wheel, magenta 0.78 to 0.93). The nature kit's large bush is
+  aquamarine (hue 0.48) and sits just outside; it is the Vale's one cool
+  green and the painted pass may yet warm it.
+- Not changed: two of Kenney's skins worn on the Street (humanMaleA,
+  skaterMaleA) carry a blue-teal band on about a tenth of their pixels. The
+  skins are the slice's placeholders (GDD §10 "Licensed base"); the painted
+  characters replace them, and no test measures a skin for it.
 
 ### Budget after the expansion
 

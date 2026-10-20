@@ -335,10 +335,10 @@ func test_dhanpal_cards_carry_no_cue_and_lines_stay_short() -> void:
 
 
 func test_the_pause_menu_shows_the_current_objective() -> void:
-	# The Dry Fountain starts at once and sorts first; settle it so the main
-	# quest's step is the one the menu reads (see the report for the order).
-	GameState.fire_event("can_taken_from_shop")
+	# The Dry Fountain starts at once and sorts first; it stays active here,
+	# so the line is the main quest's only because "main" wins (quest.gd).
 	GameState.set_flag("heard_tulu")
+	assert_eq(Content.quest("dry_fountain").status(), Quest.Status.ACTIVE, "a side quest competes")
 	assert_eq(PAUSE_MENU_SCRIPT.now_line(), Strings.t("quest.forgotten_song.hear_of_it"))
 	GameState.set_flag("met_dhanpal")
 	assert_eq(PAUSE_MENU_SCRIPT.now_line(), Strings.t("quest.forgotten_song.the_tower_waits"))

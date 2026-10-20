@@ -30,7 +30,6 @@ from scenegen import Builder, xf
 
 EXT = (
     '[ext_resource type="PackedScene" path="res://scenes/npc/Shopkeeper.tscn" id="competitor"]\n'
-    '[ext_resource type="Script" path="res://scripts/quest/look_line.gd" id="look_line"]\n'
 )
 
 GROUP = "Competitors"
@@ -50,8 +49,7 @@ BHIMA_POS = (-7.6, 0.0, 6.0)
 BHIMA_YAW = -1.2
 BHIMA_HEIGHT = 1.95  # the gentle giant; everyone else stands 1.75
 # The tower block's south face is at z = -18.5 (gen_street.py "Tower").
-TOWER_FACE_Z = -18.5
-DOOR_X = -29.0
+TOWER_FACE_Z = -18.5  # nanda_door.py puts his door in it at x = -29
 NANDA_POS = (-27.3, 0.0, -17.4)
 
 # name, skin, position, yaw (0 faces -Z, north), entry lines in the order
@@ -87,31 +85,7 @@ def competitor(b: Builder, name: str, skin: str, pos, yaw: float, lines: list[st
     )
 
 
-def nanda_door(b: Builder) -> None:
-    """A plain door in the tower block's south face, a step, his name over
-    it, and a *Look* in front that opens one line (GDD §7
-    micro-interactions: no giver, no reward). Not a Door: it leads nowhere
-    in this slice."""
-    face = TOWER_FACE_Z
-    b.detail("NandaDoorFrame", GROUP, (DOOR_X, 1.15, face + 0.04), (1.4, 2.3, 0.08), "rust_metal")
-    b.detail("NandaDoor", GROUP, (DOOR_X, 1.1, face + 0.07), (1.1, 2.2, 0.14), "timber")
-    b.solid("NandaStep", GROUP, (DOOR_X, 0.08, face + 0.4), (1.6, 0.16, 0.7), "ph_concrete")
-    b.label("NandaSign", GROUP, "sign.nanda", (DOOR_X, 2.6, face + 0.12), 0.0, size=40)
-    b.nodes.append(
-        f'[node name="NandaDoorLook" type="Area3D" parent="{GROUP}"]\n'
-        "unique_name_in_owner = true\n"
-        f"transform = {xf((DOOR_X, 0.0, face + 0.9))}\n"
-        'script = ExtResource("look_line")\n'
-        'verb_id = "verb.look"\n'
-        'line_id = "nanda_door_look"\n\n'
-        f'[node name="Shape" type="CollisionShape3D" parent="{GROUP}/NandaDoorLook"]\n'
-        f"transform = {xf((0, 1.1, 0))}\n"
-        f'shape = SubResource("{b.shape_id((1.8, 2.2, 1.6))}")\n\n'
-    )
-
-
 def build(b: Builder) -> None:
     b.group(GROUP)
     for name, skin, pos, yaw, lines, figure in COMPETITORS:
         competitor(b, name, skin, pos, yaw, lines, figure)
-    nanda_door(b)

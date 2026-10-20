@@ -14,7 +14,7 @@ const SCRATCH := "user://test_competitors_journey.json"
 const RUKMA_SPOT := Vector3(7.3, 0.3, 19.8)
 const BHIMA_SPOT := Vector3(-6.6, 0.1, 5.4)
 const NANDA_SPOT := Vector3(-27.3, 0.1, -16.0)
-const DOOR_SPOT := Vector3(-29.0, 0.1, -17.3)
+const DOOR_SPOT := Vector3(-29.0, 0.1, -17.5)
 
 var _real_path := ""
 
@@ -261,21 +261,17 @@ func test_the_back_stairs_card_needs_accepted_contest() -> void:
 	dialogue.dismiss()
 
 
-func test_looking_at_his_door_opens_one_thought_under_his_sign() -> void:
+func test_nandas_door_is_in_the_tower_face_and_leads_into_his_flat() -> void:
 	var street := _street()
-	var sign: Label3D = street.get_node("Competitors/NandaSign")
-	assert_eq(sign.text, Strings.t("sign.nanda"), "the sign reads from the string table")
+	var sign: Label3D = street.get_node("NandaDoor/NandaSign")
+	assert_eq(sign.text, Strings.t("sign.nanda"), "his name over the door")
+	var door: Door = street.get_node("NandaDoor/Door")
+	assert_eq(door.place_id, "nanda_flat", "one door, and it leads into his flat")
+	var nanda: Node3D = street.get_node("%Nanda")
+	assert_lt(door.global_position.distance_to(nanda.global_position), 2.5, "he stands beside it")
 	await _put(street, DOOR_SPOT)
-	assert_eq(_button(street).current_verb(), "verb.look", "the door offers Look, not Talk")
-	await _press(street)
-	assert_eq(Content.dialogue.current_line_id(), "nanda_door_look")
-	assert_eq(street.cards().card_count(), 0, "one thought, no cards")
-	assert_true(street.cards().visible)
-	Content.dialogue.dismiss()
-	assert_false(street.cards().visible)
-	assert_null(
-		street.get_node_or_null("Competitors/NandaDoor/Use"), "not a Door: it leads nowhere"
-	)
+	assert_eq(_button(street).current_verb(), "verb.enter", "the door offers Go in, not Talk")
+	assert_null(street.get_node_or_null("Competitors/NandaDoorLook"), "no second, look-only door")
 
 
 func test_no_card_is_marked_and_no_line_runs_long() -> void:

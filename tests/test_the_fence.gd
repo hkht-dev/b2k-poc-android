@@ -96,11 +96,13 @@ func test_vasanti_offers_talk_at_the_gate_and_her_cards_carry_no_cue() -> void:
 	assert_true(cards.visible)
 	assert_eq(cards.card_count(), 3, "three full-sentence cards")
 	for i: int in cards.card_count():
+		var card: PanelContainer = cards.card_button(i)
+		var first: PanelContainer = cards.card_button(0)
 		assert_eq(
-			cards.card_button(i).get_class(),
-			cards.card_button(0).get_class(),
-			"every card drawn the same"
+			card.theme_type_variation, first.theme_type_variation, "every card the same style"
 		)
+		assert_eq(card.modulate, first.modulate, "and the same colour")
+		assert_eq(card.self_modulate, first.self_modulate)
 
 
 func test_mend_is_not_offered_before_talking_to_her() -> void:

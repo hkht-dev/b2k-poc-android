@@ -11,11 +11,11 @@ const NANDA_FLAT := preload("res://scenes/places/NandaFlat.tscn")
 const SCRATCH := "user://test_tales_journey.json"
 ## Where the player stands to be offered the street's seat: the pavement
 ## corner beside the cushion on the fountain's south-east step.
-const BESIDE_SEAT := Vector3(-6.3, 0.0, 6.3)
+const BESIDE_SEAT := Vector3(-6.3, 0.0, -6.3)
 ## The mat at Sarang's right hand (tools/street_parts/sarang.py TALE_MAT) and
 ## the mat under Nanda's photograph (tools/interiors/nanda_flat.py TALE_SEAT).
 const PRAHLADA_MAT := Vector3(18.57, 0.0, -11.21)
-const DHRUVA_MAT := Vector3(-0.9, 0.0, 1.0)
+const DHRUVA_MAT := Vector3(1.0, 0.0, 1.5)
 const MAX_PANEL_WORDS := 40
 
 var _real_path := ""
@@ -29,6 +29,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Input.action_release("move_forward")
 	get_tree().paused = false
 	GameState.wipe()
 	GameState.save_path = _real_path
@@ -136,7 +137,7 @@ func test_sitting_opens_the_scroll_on_sitting_one_panel_one_with_the_table_text(
 	assert_eq(scroll.get_node("%Title").text, Strings.t("tale.puranjana.title"))
 	assert_eq(scroll.get_node("%Source").text, Strings.t("tale.puranjana.source"))
 	assert_eq(_rig(street).state(), "pose", "the player sits")
-	assert_false(street.get_node("%Player").is_physics_processing(), "and cannot walk off")
+	assert_true(street.get_node("%Player").is_held_still(), "and cannot walk off")
 	assert_true(street.get_node("%CameraRig").is_drifting(), "the camera drifts")
 	assert_eq(scroll.get_parent(), street.get_node("UI"), "over the HUD")
 	await wait_frames(8)
@@ -361,10 +362,11 @@ func test_sitting_holds_the_body_still_and_silences_the_feet() -> void:
 	var player: CharacterBody3D = street.get_node("%Player")
 	player.global_position = BESIDE_SEAT
 	await wait_frames(8)
-	player.set_move_input(Vector2(0.0, -1.0), 1.0)
+	Input.action_press("move_forward")
 	await wait_frames(6)
 	assert_true(player.is_footsteps_playing(), "walking up to it")
 	_button(street).pressed.emit()
+	Input.action_release("move_forward")
 	await wait_frames(2)
 	assert_not_null(_seat(street).scroll(), "sat")
 	assert_true(player.is_held_still(), "held on the seat")

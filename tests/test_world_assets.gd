@@ -80,7 +80,17 @@ func test_loops_loop_and_one_shots_do_not() -> void:
 		assert_true(stream != null and not stream.loop, "%s plays once" % name)
 
 
-func test_no_texture_averages_peacock_blue_or_magenta() -> void:
+func _is_forbidden(c: Color) -> bool:
+	if c.v < 0.2 or c.s < SATURATION_FLOOR:
+		return false
+	var blue := c.h >= PEACOCK_BLUE.x and c.h <= PEACOCK_BLUE.y
+	var magenta := c.h >= MAGENTA.x and c.h <= MAGENTA.y
+	return blue or magenta
+
+
+func test_no_texture_has_a_peacock_blue_or_magenta_pixel() -> void:
+	# The rule is that the colour is absent, not that it is a minority: a
+	# band of either on an ochre ground would average to brown and pass.
 	for name in TEXTURES:
 		var image := Image.load_from_file(
 			ProjectSettings.globalize_path("res://assets/textures/%s.png" % name)
@@ -88,21 +98,17 @@ func test_no_texture_averages_peacock_blue_or_magenta() -> void:
 		assert_not_null(image, "%s can be read back" % name)
 		if image == null:
 			continue
-		var sum := Color(0.0, 0.0, 0.0, 0.0)
-		var count := 0
+		var forbidden := 0
+		var first := Color.BLACK
 		for y in range(0, image.get_height(), SAMPLE_STRIDE):
 			for x in range(0, image.get_width(), SAMPLE_STRIDE):
-				sum += image.get_pixel(x, y)
-				count += 1
-		var average := sum / float(count)
-		var blue := average.h >= PEACOCK_BLUE.x and average.h <= PEACOCK_BLUE.y
-		var magenta := average.h >= MAGENTA.x and average.h <= MAGENTA.y
-		assert_false(
-			average.s >= SATURATION_FLOOR and (blue or magenta),
-			(
-				"%s averages hue %.2f, saturation %.2f: not peacock blue, not magenta"
-				% [name, average.h, average.s]
-			)
+				var pixel := image.get_pixel(x, y)
+				if _is_forbidden(pixel):
+					if forbidden == 0:
+						first = pixel
+					forbidden += 1
+		assert_eq(
+			forbidden, 0, "%s has no peacock blue or magenta sample (first: %s)" % [name, first]
 		)
 
 

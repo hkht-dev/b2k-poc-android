@@ -60,20 +60,21 @@ def build(b: Builder) -> None:
     b.collider("StoolBody", "SarangCorner", (0.5, 0.4, 0.45), [((stool[0], 0.2, stool[2]), YAW)])
 
     # The instrument on the ground at his right hand, turned a little toward
+    # him (nodes, not batched details: the strings are counted by name).
     # him: a timber body with its long axis to the right, a peg head, a
     # bridge, three strings and the gap where the fourth was.
     inst_yaw = YAW + 0.35
     body = _place(0.75, 0.55, 0.05)
-    b.detail("InstrumentBody", "SarangCorner", body, (0.95, 0.1, 0.24), "timber", inst_yaw)
-    b.detail("InstrumentHead", "SarangCorner", _place(0.0, -0.53, 0.02, body, inst_yaw),
-            (0.14, 0.09, 0.26), "timber", inst_yaw)
-    b.detail("Bridge", "SarangCorner", _place(0.0, 0.3, 0.07, body, inst_yaw),
-            (0.02, 0.04, 0.2), "rust_metal", inst_yaw)
+    b.solid("InstrumentBody", "SarangCorner", body, (0.95, 0.1, 0.24), "timber", inst_yaw, collide=False)
+    b.solid("InstrumentHead", "SarangCorner", _place(0.0, -0.53, 0.02, body, inst_yaw),
+            (0.14, 0.09, 0.26), "timber", inst_yaw, collide=False)
+    b.solid("Bridge", "SarangCorner", _place(0.0, 0.3, 0.07, body, inst_yaw),
+            (0.02, 0.04, 0.2), "rust_metal", inst_yaw, collide=False)
     for slot, across in enumerate((-0.075, -0.025, 0.025, 0.075)):
         if slot == 2:
             continue  # the missing string (GDD §7 Mediate step 3)
-        b.detail(f"String{slot}", "SarangCorner", _place(across, -0.07, 0.06, body, inst_yaw),
-                (0.86, 0.006, 0.006), "rust_metal", inst_yaw)
+        b.solid(f"String{slot}", "SarangCorner", _place(across, -0.07, 0.06, body, inst_yaw),
+                (0.86, 0.006, 0.006), "rust_metal", inst_yaw, collide=False)
     # The fourth string, hidden until the player brings it from Nanda's flat:
     # Sarang shows it when `sarang_string_given` is set.
     b.nodes.append(

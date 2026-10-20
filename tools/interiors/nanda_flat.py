@@ -27,10 +27,10 @@ F = "Fittings"
 STRING_EXT = '[ext_resource type="PackedScene" path="res://scenes/quest/StringPickup.tscn" id="string_pickup"]\n'
 TALE_EXT = '[ext_resource type="PackedScene" path="res://scenes/quest/TaleSeat.tscn" id="tale_seat"]\n'
 # Where the player sits for Dhruva's tale (GDD §9a: "Nanda, on the stairs,
-# about his brother"): a mat on the floor between the shelf and the bed,
-# under his brother's photograph, clear of the string, the photograph's
-# *Look* and the door.
-TALE_SEAT = (-0.9, 0.0, 1.0)
+# about his brother"): a mat on the floor by the bed's foot, facing his
+# brother's photograph, clear of the string's reach (1.4 m round the shelf),
+# the photograph's *Look* and the door, so the one button never has to choose.
+TALE_SEAT = (1.0, 0.0, 1.5)
 # The room is dim (the brief): the one lamp is amber and the ambient light is
 # half the shops'. assemble() writes the shops' value; it is replaced below.
 AMBIENT_SHOPS = "ambient_light_energy = 0.9"

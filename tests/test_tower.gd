@@ -173,9 +173,11 @@ func test_playing_it_for_the_street_is_recorded_and_the_stand_offers_nothing_mor
 	await _open_dawn_choice(street)
 	var cards: Control = street.cards()
 	for i: int in cards.card_count():
-		assert_eq(
-			cards.card_button(i).get_class(), cards.card_button(0).get_class(), "no card is marked"
-		)
+		var card: PanelContainer = cards.card_button(i)
+		var first: PanelContainer = cards.card_button(0)
+		assert_eq(card.theme_type_variation, first.theme_type_variation, "no card is marked")
+		assert_eq(card.modulate, first.modulate, "nor coloured apart")
+		assert_eq(card.self_modulate, first.self_modulate)
 	Content.dialogue.choose(0)
 	assert_true(GameState.has_flag("played_for_others"))
 	assert_false(GameState.has_flag("kept_veena"))
