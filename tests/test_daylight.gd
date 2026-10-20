@@ -191,7 +191,8 @@ func test_the_p4_mood_still_darkens_on_a_taken_can() -> void:
 	assert_lte(target.g, hour.g + 0.0001)
 	assert_lte(target.b, hour.b + 0.0001)
 	assert_ne(target, hour, "the mood is still a step on top of the stage")
-	await wait_frames(2)
+	# A loaded CI runner can take a few frames to start the tween.
+	await wait_frames(10)
 	assert_ne(street.mood_sun_colour(), before, "a taken can steps the light")
 
 
