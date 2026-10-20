@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3]
+
+; The broken instrument's missing string, coiled: in a hand, or on Nanda's
+; shelf (GDD §7 "Mediate", step 3: "bring him the broken instrument's missing
+; string (found at Nanda's flat)").
+; PLACEHOLDER: three thin rings in the street's dull metal; replaced by the
+; wound string of GDD §10 "Props". Not peacock blue: GDD §10 lets that colour
+; appear first on the Veena's strings at dawn, and this is only a string.
+
+[ext_resource type="Material" path="res://assets/materials/rust_metal.tres" id="1_metal"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_coil"]
+inner_radius = 0.05
+outer_radius = 0.062
+rings = 24
+ring_segments = 6
+
+[node name="InstrumentString" type="Node3D"]
+
+[node name="Coil0" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.006, 0.12)
+mesh = SubResource("TorusMesh_coil")
+surface_material_override/0 = ExtResource("1_metal")
+cast_shadow = 0
+
+[node name="Coil1" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.995, 0.0998, 0, -0.0998, 0.995, 0, 0, 0, 1, 0.006, 0.018, 0.126)
+mesh = SubResource("TorusMesh_coil")
+surface_material_override/0 = ExtResource("1_metal")
+cast_shadow = 0
+
+[node name="Coil2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.995, 0.0998, 0, -0.0998, 0.995, -0.005, 0.03, 0.114)
+mesh = SubResource("TorusMesh_coil")
+surface_material_override/0 = ExtResource("1_metal")
+cast_shadow = 0

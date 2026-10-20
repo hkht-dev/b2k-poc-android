@@ -10,5 +10,13 @@
   "store": {
     "scene": "res://scenes/places/Store.tscn",
     "name_id": "place.store"
+  },
+  "office": {
+    "scene": "res://scenes/places/Office.tscn",
+    "name_id": "place.office"
+  },
+  "nanda_flat": {
+    "scene": "res://scenes/places/NandaFlat.tscn",
+    "name_id": "place.nanda_flat"
   }
 }

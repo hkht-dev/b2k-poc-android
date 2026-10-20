@@ -171,5 +171,57 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "office_photo_1": {
+    "speaker": "thought",
+    "text_id": "line.office_photo_1",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_photo_2": {
+    "speaker": "thought",
+    "text_id": "line.office_photo_2",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_photo_3": {
+    "speaker": "thought",
+    "text_id": "line.office_photo_3",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_camera_look": {
+    "speaker": "thought",
+    "text_id": "line.office_camera_look",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_lock_look": {
+    "speaker": "thought",
+    "text_id": "line.office_lock_look",
+    "sets": [
+      "noticed_office_lock"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_photo_look": {
+    "speaker": "thought",
+    "text_id": "line.nanda_photo_look",
+    "sets": [
+      "saw_brothers_photo"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
   }
 }
