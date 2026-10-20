@@ -29,6 +29,7 @@ func _ready() -> void:
 	GameState.journey_line_added.connect(func(_l: String) -> void: _refresh_later())
 	GameState.wiped.connect(_refresh_later)
 	refresh()
+	_close.grab_focus()
 
 
 func _exit_tree() -> void:

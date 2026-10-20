@@ -1040,3 +1040,81 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — The interface on every device
+
+Owner request ("Make the UI intuitive, very easy for the users on all
+devices"); GDD §11 "Controls" and "Accessibility"; docs/BRIEF_AMENDMENT_1.md
+§A5. Affects §11 only. Touch, desktop web, desktop and gamepad.
+
+### One theme does the sizing
+
+- `assets/ui/theme.tres` is the one place a button's size, states and focus
+  come from. Every `Button` is at least 72 px tall from the theme alone; with
+  the body font chain (Noto Sans, Noto Serif Devanagari as fallback) the line
+  box at the 20 px button size is 60 px, so the 16 px margins make a plain
+  button 92 px, the height the pause menu was laid out for. The theme adds a
+  focus ring (a 4 px dark warm-ink border drawn over the button, 3 px outside
+  it), a darker hover, a darker pressed with a thicker border, a faded
+  disabled, and 10 px corners. `CheckButton` gets its own transparent style
+  with margins that make it 56 px, and the same ring; `HSlider` gets a 10 px
+  track and a 28 px grabber drawn as a radial `GradientTexture2D`, so no
+  image ships for it (PLACEHOLDER for the lotus mark of GDD §10 "UI art").
+- A test holds every `Button` in every UI scene at 56 px or more and that each
+  resolves the theme's focus stylebox, so nothing interactive on touch is
+  under a thumb (the pause button was already 88; the contextual button 96).
+
+### Focus is visible and starts somewhere sensible
+
+- Title, controls card, pause menu, settings and the debug panel grab the
+  focus on their first control when they open (the end screen when *Play
+  again* has faded in). Settings now starts on the first row's control, not
+  on *Back*, and chains `focus_neighbor_bottom`/`top` from row to row down to
+  *Back* and round again, so a gamepad or keyboard reaches every setting.
+  The debug panel's *Close* became focusable for the same reason.
+- Choice cards take focus like buttons and draw the theme's ring themselves
+  (`ChoiceCard` is a `PanelContainer`). On a gamepad the first card has the
+  focus as soon as a line appears: the ring is the cursor and has to be
+  somewhere, and every card draws it the same way, in the data's order, so it
+  is not a cue. On desktop nothing is focused until an arrow or Tab asks, so
+  a card is never picked out by default; the number keys 1–3 (and the keypad)
+  choose in order and Esc dismisses a line that has no cards. These are raw
+  keycodes read by the cards, not input-map actions: `project.godot` is the
+  integrator's, and a phone with a keyboard is unaffected. With cards up, Esc
+  is left alone, so it still pauses.
+- Up and down between cards wrap; the accept action (`ui_accept`: Enter,
+  Space, the gamepad's face button) presses the focused card.
+
+### The HUD on a phone with a notch, upright or on its side
+
+- `TouchControls.layout()` places the pause button (top-left), the compass
+  (top-centre), the contextual button (bottom-right), the subtitle above it
+  and the minimap (below the compass, right) from the edges of
+  `DisplayServer.get_display_safe_area()` plus a 16 px gutter, and re-runs on
+  every resize. Only a mobile build asks the display: a desktop window
+  already sits inside the usable screen and a browser keeps its own bars out
+  of the page. Tests inject a fake rect through the static
+  `safe_area_override`.
+- In portrait the subtitle takes 90 % of the width; in landscape it is an
+  880 px column. The joystick keeps the left zone either way. Tests resize the
+  control directly (as the controls tests do) rather than the window: the
+  headless viewport does not follow a window resize.
+- Off touch, the contextual button wears a small key badge in its corner:
+  `controls.key.desktop_use` ("E") or `controls.key.gamepad_use` ("A"),
+  from the string table, set by `apply_scheme`. Never on touch.
+
+### Where am I
+
+- Arriving through a door (`GameState.spawn` set and found in the place), the
+  place's name (`Places.name_id_of`) is the first subtitle for 2.5 s. It is
+  the subtitle channel GDD §11 already allows, not a toast or a notification;
+  a fresh journey shows nothing.
+
+### Not done
+
+- `Viewport.push_input` in Godot 4.3 does not reach `_unhandled_input` from a
+  test; the tests call `_unhandled_input` directly where the engine's own
+  dispatch is not under test, and go through `Input.parse_input_event` for
+  one real keypress each way.
+- No budget numbers: nothing here touches the 3D scene.

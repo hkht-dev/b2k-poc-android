@@ -29,6 +29,9 @@ const TOUCH_SENSITIVITY := 0.5
 const DESKTOP_SENSITIVITY := 1.0
 ## Through a door the view goes black over this long, and comes back as long.
 const DOOR_FADE_SECONDS := 0.45
+## Arriving through a door, the place's name is the first subtitle, this long
+## (GDD §11 allows subtitles; owner request 2026-10-20 "where am I").
+const PLACE_NAME_SECONDS := 2.5
 
 ## This place's id in data/places.json.
 @export var place_id := "street"
@@ -66,6 +69,8 @@ func _ready() -> void:
 	_cards = CHOICE_CARDS.instantiate()
 	_ui.add_child(_cards)
 	_cards.bind(Content.dialogue)
+	_cards.apply_scheme(_controls.scheme())
+	_controls.scheme_changed.connect(_cards.apply_scheme)
 	_fade = ColorRect.new()
 	_fade.color = Color(0, 0, 0, 0)
 	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -74,9 +79,13 @@ func _ready() -> void:
 	for node in get_tree().get_nodes_in_group(Door.GROUP):
 		(node as Door).used_door.connect(_on_door_used)
 	if _place_at_spawn():
-		# Arrived through a door: the view comes back from black.
+		# Arrived through a door: the view comes back from black, and the
+		# place says its name once.
 		_fade.color.a = 1.0
 		create_tween().tween_property(_fade, "color:a", 0.0, DOOR_FADE_SECONDS)
+		var name_id := Places.name_id_of(place_id)
+		if not name_id.is_empty():
+			_controls.subtitle(name_id, PLACE_NAME_SECONDS)
 
 
 func _physics_process(delta: float) -> void:
