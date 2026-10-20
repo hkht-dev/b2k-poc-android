@@ -2195,3 +2195,67 @@ UI only, no web build exported for this change (the machine is shared).
 The lotus is one Control: hidden, it draws nothing; showing, it is six
 polygons and two circles for eight seconds. The card is a panel of labels
 that exists only while open.
+
+
+## 2026-10-20 — Three competitors on the Street: Rukma, Bhima Lal, Old Nanda
+
+GDD §4 (the competitors), §7 main quest table (the Compete and Mediate steps
+that happen on the Street), §8 (voice). Sarang is the music agent's; Dhanpal
+the hall's; the dawn climb reads the flags set here and is not built here.
+
+### Where they are, and how
+
+- `tools/street_parts/competitors.py` places three `Shopkeeper.tscn`
+  instances under `Competitors`: Rukma on the bus stop bench facing the
+  road (skaterFemaleA), Bhima Lal on the pavement at the east end of
+  Gopal's shop looking at the dry fountain (survivorMaleB, 1.95 m against
+  everyone's 1.75), Old Nanda at a door in the tower block's south face
+  (humanMaleA). The brief's "west alley at x ≈ -29" is where the tower
+  block now stands, so Nanda's flat is at its foot, which is also why he
+  knows the back stairs. Nothing new in code: skins, heights, the idle clip
+  and the lines each tries are properties on the instanced nodes.
+- Rukma asleep is the library's `Sitting_Idle` on `idle_animation` (as the
+  Glimpse sits), her origin 0.59 m below the seat because the rig keeps
+  rotation tracks only and the shared body's hips rest at 0.59 m (measured).
+  PLACEHOLDER: a sleeping clip replaces the sitting one.
+- Nanda's door is a slab, a frame, a step and a `Label3D` sign (`sign.nanda`)
+  with a *Look* in front: `scripts/quest/look_line.gd`, an `Interactable`
+  whose verb opens the one dialogue line named on the node (a micro-
+  interaction, GDD §7: no giver, no reward). It is not a `Door`: it leads
+  nowhere in this slice, and the stairwell Glimpse point (GDD §6) is not
+  built.
+
+### The lines are the quest
+
+- Dialogue only; no quest file. The steps of GDD §7 that touch these three
+  are each a flag a card or a line sets: `rukma_heard`, `rukma_key_taken`,
+  `rukma_key_traded`, `bhima_asked`, `bhima_medicine_given`,
+  `nanda_listened`, `nanda_told_shortcut`. Nothing is cleared: the trade
+  leaves `carrying_can` set (the brief says flags only set); whoever builds
+  the dawn climb decides what the can becomes.
+- "Not already taken" and "needs a can" are expressed with the one tool the
+  dialogue has, positive `requires` on lines plus the order of
+  `entry_lines`, exactly as Gopal's after-lines work: `rukma_after_key`
+  (requires the key) is tried before `rukma_greet`, so the greeting with the
+  take card never opens again; `rukma_greet_can` (requires `carrying_can`)
+  is tried before the greeting, so the trade card appears only with water in
+  hand. No negated requirement was added to the format.
+- Taking the key is a card ("Her bag is open. Take the roof key.") on the
+  line where she talks in her sleep, as the task asked. GDD §3a prefers an
+  approach "chosen by what you do next, never by menu": a *Take* verb on her
+  bag would be the stricter reading, and swapping to it later is a scene
+  change, not a data change. Recorded, not done.
+- Every mix of paths stays open (GDD §7 "Approaches can mix"): after the
+  key is taken or traded she can still be woken and heard; after Nanda has
+  told the shortcut he still offers the sitting; the stairs card is on the
+  competitor's greeting (`requires accepted_contest`), so a listener who
+  later accepts still finds it.
+- `speaker.thought` ("") is the empty speaker label for the player's own
+  one-line thoughts (the key in the hand, the door), as `speaker.fountain`
+  is for the fountain.
+
+### Budget
+
+Three more skinned bodies and a dozen primitives; not measured in the web
+build here (shared machine, per the agents' brief). The integrator's walk
+should carry the numbers.
