@@ -187,6 +187,8 @@ func grant_vignette_day(date: String) -> bool:
 	if date.is_empty() or vignette_days.has(date):
 		return false
 	vignette_days.append(date)
+	_save_if_enabled()
+	return true
 
 
 ## Records that the player looked at a Tell. Returns false if it was already
