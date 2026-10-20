@@ -3254,3 +3254,55 @@ Treads, landing, lips, cables, platform and awning are primitives in the
 street's materials; PLACEHOLDER for the painted rooftops and cables of GDD
 §10, Hollow Vale row. No peacock blue or magenta: concrete, rust, tyre
 grey and the olive canopy.
+
+## 2026-10-20 — The expansion, integrated: twenty-seven branches on one base
+
+The owner asked for the macro design to be built by twenty or more agents at
+once. Twenty-seven ran, each in its own worktree cut from the E1 base, each
+owning one section of docs/GDD.md and a disjoint set of files (the brief
+each read is kept at the session's scratchpad; its rules are CLAUDE.md's).
+Their sections above, in the order they landed, say what each built. This
+entry records how the branches were joined and what the joining changed.
+
+- Generated scenes were never merged by hand: every conflict in
+  `scenes/street/Street.tscn` and the interiors was resolved by re-running
+  the generators over the union of parts, which is what the parts mechanism
+  was for. Hand-made scenes (`Player.tscn`) kept both sides' additions
+  (carryables now: can, feather, jasmine, string, fruit, veena, pot).
+- JSON data files were merged three-way at the key level (base, ours,
+  theirs), so a line added by one agent beside a line added by another never
+  corrupted the file; `data/strings/en.json` is re-sorted after every merge.
+- Scripts that several agents extended (`game_state.gd`, `place.gd`,
+  `player.gd`, `pause_menu.gd`, `path_mover.gd`, `street.gd`) were merged by
+  top-level block (function, variable, constant); where two agents changed
+  the inside of the same function, the second's lines were carried over by
+  hand and the result re-read. Two merges dropped a function's tail (the
+  same closing lines on both sides); a scan of every agent's additions
+  against the merged tree, and the suite, caught them.
+- Things that landed on the same spot were moved apart, not deleted: the
+  tale seat went to the fountain's south-west step (Act 4's *Hum here* and
+  the way Home have the south-east one); Rukma sleeps at the bus-stop
+  bench's west end (the Counting Man has the east); the cow-shadow Tell's
+  doorway moved six metres west along the tower's foot (Nanda's door is at
+  its east end). The nearest-interactable rule decides the button where
+  areas still overlap.
+- `Door` keeps a gate set on its `%Use` child by a scene (the way Home) and
+  only overrides it when its own `requires` says something (the Grove's
+  door), so both agents' doors work.
+- The main quest's line wins the pause menu's one line over side quests
+  (`"main": true` in the quest file).
+- GameState grew beyond gdlint's default of twenty public methods: it is the
+  one journey object by design (GDD §12), so `.gdlintrc` lifts the cap.
+- Agents noted, independently, that `scenegen.xf(pos, yaw)` writes a yaw
+  Godot reads as `rotation.y = -yaw`, and that `gen_interiors.py` places the
+  inside signs facing the wall. Both are recorded here for the next pass;
+  neither changes play.
+- The daylight stage made the street's ambient light real
+  (`ambient_light_source` had been disabled); the base street is a little
+  brighter than before. If the owner prefers the old contrast, the one-line
+  revert is in the daylight section above.
+- Not built, by the rules: anything with a backend (companions, Circles,
+  lamps seen by others), analytics, IAP. Not measured here: the web-build
+  budget for the whole expansion, which the next profile run records below
+  the next phase's table; the three-device run (GDD §13's gate) is the
+  owner's from the release APK.

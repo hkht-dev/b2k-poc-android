@@ -21,9 +21,9 @@ world grows":
 | Stage | Deliverable | Status |
 |---|---|---|
 | E1 | Places behind doors (two shop interiors), the saved place, the heading compass, shop fronts and signs | **built** |
-| E2 | A car to enter and drive | *in progress* |
-| E3 | The showroom wardrobe: try on outfits | *in progress* |
-| E4+ | The macro design in parallel: shrine, main quest, competitors, The Fence, The Counting Man, Tells, Glimpse points, wisdom cards, the Garden, lamps, daylight, rooftops, cows, the Song, the tower, the Grove, the Veil, tales, vignettes, path card, assets, UI polish, more interiors, Act 4/5, Tulu's lead | *in progress* |
+| E2 | A car to enter and drive | **built** |
+| E3 | The showroom wardrobe: try on outfits | **built** |
+| E4 | The macro design, built in parallel by 27 agents and merged on one branch: the shrine room and Madhuri, *The Forgotten Song* with Dhanpal, Rukma, Bhima Lal and Old Nanda, *The Fence*, *The Counting Man*, Tells and the Noticed list, four more Glimpse points, wisdom cards, the Garden, lamps, daylight stages and street lamps, rooftop running, stray cows, the Song and Sarang, the tower climb and the dawn choice, the Grove, the Pool descent and ascent, tales on a scroll, dawn vignettes, the path card, world textures and sounds, the interface on every device, Dhanpal's office and Nanda's flat, Remembrance and Home, Tulu at the door and the chai stall | **built** (device run pending) |
 
 ---
 
