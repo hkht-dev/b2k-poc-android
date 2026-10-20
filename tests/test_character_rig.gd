@@ -135,9 +135,13 @@ func test_the_street_dresses_its_people_differently() -> void:
 	# the player and Tulu now wear seven different skins between them.
 	var street: Node3D = add_child_autofree(STREET.instantiate())
 	var skins := {}
-	for i: int in 6:
-		var rig: CharacterRig = street.get_node("Ambience/Pedestrian%d/Figure" % i)
-		skins[rig.skin.resource_path] = true
+	var pedestrians := 0
+	for node: Node in street.get_node("Ambience").get_children():
+		var rig := node.get_node_or_null("Figure") as CharacterRig
+		if rig != null:
+			pedestrians += 1
+			skins[rig.skin.resource_path] = true
+	assert_gte(pedestrians, 5, "the loops carry people")
 	skins[(street.get_node("%Player/Mesh") as CharacterRig).skin.resource_path] = true
 	skins[(street.get_node("%Tulu/Figure") as CharacterRig).skin.resource_path] = true
 	assert_gte(skins.size(), 6, "at least six different outfits on the street")

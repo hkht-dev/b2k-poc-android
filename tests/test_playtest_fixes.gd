@@ -25,6 +25,7 @@ func after_each() -> void:
 
 func _hold_forward(street: Node3D, screen_dir: Vector2) -> void:
 	var controls: Control = street.get_node("%TouchControls")
+	controls.apply_scheme("touch")
 	var stick: Control = controls.joystick()
 	controls.size = Vector2(1080, 1920)
 	stick.size = controls.size
@@ -107,6 +108,7 @@ func test_the_minimap_is_off_by_default_and_the_pause_menu_turns_it_on() -> void
 func test_the_corner_button_pauses() -> void:
 	var street: Node3D = add_child_autofree(STREET.instantiate())
 	var controls: Control = street.get_node("%TouchControls")
+	controls.apply_scheme("touch")
 	controls.pause_button().pressed.emit()
 	assert_true(street.is_paused())
 	street.resume()

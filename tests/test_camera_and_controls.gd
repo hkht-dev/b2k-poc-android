@@ -43,6 +43,7 @@ func test_pitch_is_clamped_at_both_ends() -> void:
 
 func test_the_joystick_only_claims_its_own_half_of_the_screen() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	controls.size = Vector2(1080, 1920)
 	var stick: Control = controls.joystick()
 	stick.size = controls.size
@@ -53,6 +54,7 @@ func test_the_joystick_only_claims_its_own_half_of_the_screen() -> void:
 
 func test_dragging_the_joystick_up_reads_as_forward() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	controls.size = Vector2(1080, 1920)
 	var stick: Control = controls.joystick()
 	stick.size = controls.size
@@ -65,6 +67,7 @@ func test_dragging_the_joystick_up_reads_as_forward() -> void:
 
 func test_the_joystick_vector_never_exceeds_one() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	controls.size = Vector2(1080, 1920)
 	var stick: Control = controls.joystick()
 	stick.size = controls.size
@@ -76,6 +79,7 @@ func test_the_joystick_vector_never_exceeds_one() -> void:
 
 func test_releasing_the_joystick_zeroes_it() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	controls.size = Vector2(1080, 1920)
 	var stick: Control = controls.joystick()
 	stick.size = controls.size
@@ -89,6 +93,7 @@ func test_releasing_the_joystick_zeroes_it() -> void:
 
 func test_a_second_finger_cannot_steal_the_joystick() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	controls.size = Vector2(1080, 1920)
 	var stick: Control = controls.joystick()
 	stick.size = controls.size
@@ -99,6 +104,7 @@ func test_a_second_finger_cannot_steal_the_joystick() -> void:
 
 func test_the_contextual_button_is_hidden_until_a_verb_is_set() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	var button: Button = controls.contextual_button()
 	assert_eq(button.current_verb(), "", "no verb until something is near (GDD §11)")
 	assert_eq(button.text, Strings.t("verb.idle"), "it idles as a faint mark the Call can land on")
@@ -107,6 +113,7 @@ func test_the_contextual_button_is_hidden_until_a_verb_is_set() -> void:
 
 func test_the_contextual_button_labels_itself_from_the_string_table() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	var button: Button = controls.contextual_button()
 	button.show_verb("verb.listen")
 	assert_eq(button.text, Strings.t("verb.listen"), "the label is data, never a literal")
@@ -115,6 +122,7 @@ func test_the_contextual_button_labels_itself_from_the_string_table() -> void:
 
 func test_pressing_the_button_reports_the_verb_id() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	var button: Button = controls.contextual_button()
 	button.show_verb("verb.listen")
 	watch_signals(button)
@@ -124,6 +132,7 @@ func test_pressing_the_button_reports_the_verb_id() -> void:
 
 func test_a_cleared_button_reports_nothing_when_pressed() -> void:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	var button: Button = controls.contextual_button()
 	button.show_verb("verb.listen")
 	button.clear_verb()

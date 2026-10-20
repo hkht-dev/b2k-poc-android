@@ -129,6 +129,7 @@ func test_the_camera_opens_back_up_in_the_open_street() -> void:
 ## input every physics frame and a direct call would be silently discarded.
 func _hold_stick_forward(street: Node3D) -> void:
 	var controls: Control = street.get_node("%TouchControls")
+	controls.apply_scheme("touch")
 	var stick: Control = controls.joystick()
 	controls.size = Vector2(1080, 1920)
 	stick.size = controls.size
