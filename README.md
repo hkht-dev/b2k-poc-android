@@ -41,6 +41,11 @@ diagram), *Map*, a plain minimap that is off until you turn it on, and
 inversion, large text, a box behind subtitles, sounds shown as ripples, and
 tap-to-walk. Each is saved at once.
 
+A compass strip at the top shows which way you face. Two shops on the
+south side of the street can be walked into: stand at the door and the
+button says *Go in*; inside, the door says *Go out*. The journey remembers
+which side of the door you were on.
+
 The slice ends at the bus stop: walk there after the can has been placed or
 taken, or sit there (the button says *Sit*) once you have played a minute
 and a half. *Play again* starts a fresh journey.

@@ -41,6 +41,7 @@ var _subtitle_left := 0.0
 @onready var _pause: Button = %PauseButton
 @onready var _minimap: Control = %Minimap
 @onready var _subtitle: Label = %Subtitle
+@onready var _compass: Control = %Compass
 
 
 func _ready() -> void:
@@ -67,6 +68,10 @@ func scheme() -> String:
 
 func minimap() -> Control:
 	return _minimap
+
+
+func compass() -> Control:
+	return _compass
 
 
 ## Shows a subtitle by string id for a few seconds (GDD §11 accessibility).

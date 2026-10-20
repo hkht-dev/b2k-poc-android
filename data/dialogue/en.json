@@ -121,5 +121,55 @@
       "gave_dry_fountain"
     ],
     "review_status": "draft"
+  },
+  "storekeeper_greet": {
+    "speaker": "storekeeper",
+    "text_id": "line.storekeeper_greet",
+    "cards": [
+      {
+        "text_id": "card.storekeeper_greet.looking",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.storekeeper_greet.water",
+        "sets": [],
+        "next": "storekeeper_water"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "storekeeper_water": {
+    "speaker": "storekeeper",
+    "text_id": "line.storekeeper_water",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tailor_greet": {
+    "speaker": "tailor",
+    "text_id": "line.tailor_greet",
+    "cards": [
+      {
+        "text_id": "card.tailor_greet.thanks",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.tailor_greet.who_made",
+        "sets": [],
+        "next": "tailor_who_made"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tailor_who_made": {
+    "speaker": "tailor",
+    "text_id": "line.tailor_who_made",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
   }
 }

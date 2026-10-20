@@ -26,7 +26,7 @@ func _ready() -> void:
 	_title.text = Strings.t("controls.title")
 	for child in _lines.get_children():
 		child.queue_free()
-	for key in ["move", "look", "walk_there", "use", "hum"]:
+	for key in ["move", "look", "walk_there", "use", "hum", "places"]:
 		var label := Label.new()
 		label.text = Strings.t("controls.%s.%s" % [scheme, key])
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

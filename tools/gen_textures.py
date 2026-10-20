@@ -270,6 +270,13 @@ TEXTURES = {
     "cloth_pale": lambda: cloth("pale", (214, 204, 176)),
     "skin": lambda: skin("skin"),
 }
+# tools/texture_parts/<name>.py: more textures, each module a `TEXTURES` dict
+# of name -> function returning an RGB array (import helpers from gen_textures).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from scenegen import load_parts  # noqa: E402
+
+for _part in load_parts("texture_parts"):
+    TEXTURES.update(_part.TEXTURES)
 
 
 def main() -> int:

@@ -124,6 +124,13 @@ SOUNDS = {
     "street_bed": street_bed,
     "water_loop": water_loop,
 }
+# tools/audio_parts/<name>.py: more sounds, each module a `SOUNDS` dict of
+# name -> function returning samples at RATE (import helpers from gen_audio).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from scenegen import load_parts  # noqa: E402
+
+for _part in load_parts("audio_parts"):
+    SOUNDS.update(_part.SOUNDS)
 
 
 def encode(samples: np.ndarray) -> bytes:

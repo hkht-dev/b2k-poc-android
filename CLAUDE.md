@@ -39,6 +39,26 @@ repository only through `tools/fetch_polyhaven.py` or `tools/fetch_kenney.py` (o
 writes their row in `docs/RIGHTS_REGISTER.md`. Never add a file under
 `assets/thirdparty/` by hand.
 
+## Owner expansion (2026-10-20)
+
+After playing P6 the owner asked for the world to grow past the slice: a
+heading compass, shops the player can walk into (each inside its own place
+behind a door), a car to drive, a showroom to try clothes on in, and then the
+macro design of `docs/GDD.md` developed in parallel: the Grove, the Pool, the
+main quest, the side quests, Tells, Glimpse points, wisdom cards, the Garden,
+lamps (local only), tales, vignettes, the tower, the Song, Act 4 and Act 5.
+`docs/DECISIONS.md` "The world grows" records it. The slice's out-of-scope
+list below is therefore lifted for those systems; everything else in this
+file still holds, in particular: no backend, no analytics, no network call,
+no IAP, no score or meter, every flag and string in data, CC0 assets only.
+
+Scenes are generated: the street by `tools/gen_street.py` plus one file per
+feature under `tools/street_parts/`; interiors by `tools/gen_interiors.py`
+plus `tools/interiors/`; sounds and textures likewise take parts
+(`tools/audio_parts/`, `tools/texture_parts/`). A walkable place extends
+`scripts/places/place.gd`; doors and spawn points are data on the scene and
+`data/places.json` maps a place id to its scene.
+
 ## The slice
 
 Out of scope for Slice 1, and not to be scaffolded: the Grove, the Pool/Veil

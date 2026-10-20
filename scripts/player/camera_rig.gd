@@ -132,6 +132,18 @@ func orbit(drag: Vector2) -> void:
 	_pitch_pivot.rotation.x = _pitch
 
 
+## Puts the camera straight behind a body facing [param yaw], at once: on
+## arriving through a door the view should already look into the room.
+func snap_behind(yaw: float) -> void:
+	_yaw = yaw
+	_yaw_pivot.rotation.y = _yaw
+	_since_drag = 1000.0
+	_drift_left = 0.0
+	var target := _target()
+	if target != null:
+		global_position = target.global_position + Vector3.UP * SHOULDER_HEIGHT
+
+
 func stick_to_world(stick: Vector2) -> Vector2:
 	return Vector2(stick.x, -stick.y).rotated(-_yaw)
 
