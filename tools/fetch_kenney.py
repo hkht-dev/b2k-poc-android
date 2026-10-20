@@ -85,7 +85,71 @@ FILES = {
         "the player, pedestrians and Tulu: rigged body and skins",
         ("Root/Skeleton3D", "res://assets/characters/kenney_humanoid_map.tres"),
     ),
+    # The same body with other clothes: skins only. (The zombies and the
+    # cyborg stay out; Hollow Vale is an ordinary street.)
+    "animated-characters-protagonists": (
+        ["Skins/criminalMaleA.png", "Skins/skaterFemaleA.png", "Skins/skaterMaleA.png"],
+        "pedestrian and Tulu skins",
+        None,
+    ),
+    "animated-characters-survivors": (
+        ["Skins/survivorFemaleA.png", "Skins/survivorMaleB.png"],
+        "pedestrian skins",
+        None,
+    ),
 }
+
+# Kenney's palette has a turquoise foliage green; GDD §10 forbids peacock blue
+# in the Street, so leaves are set to a dull olive on the way in. Material
+# name -> linear RGBA baseColorFactor.
+RECOLOUR = {
+    "leafsGreen": (0.33, 0.47, 0.22, 1.0),
+    "leafsDark": (0.26, 0.38, 0.18, 1.0),
+}
+
+
+def recolour(path: Path) -> list[str]:
+    """Rewrite named materials' base colour inside a .glb; returns the names
+    it changed. A GLB is a 12-byte header, a JSON chunk, then binary chunks."""
+    raw = bytearray(path.read_bytes())
+    assert raw[:4] == b"glTF", path
+    json_len = struct.unpack_from("<I", raw, 12)[0]
+    assert raw[16:20] == b"JSON"
+    data = json.loads(raw[20:20 + json_len])
+    changed = []
+    for material in data.get("materials", []):
+        if material.get("name") in RECOLOUR:
+            material.setdefault("pbrMetallicRoughness", {})["baseColorFactor"] = list(RECOLOUR[material["name"]])
+            changed.append(material["name"])
+    if not changed:
+        return changed
+    body = json.dumps(data, separators=(",", ":")).encode()
+    body += b" " * (-len(body) % 4)
+    rest = raw[20 + json_len:]
+    out = bytearray(b"glTF") + struct.pack("<II", 2, 12 + 8 + len(body) + len(rest))
+    out += struct.pack("<I", len(body)) + b"JSON" + body + rest
+    path.write_bytes(out)
+    return changed
+
+
+def merge(path: Path) -> int:
+    """Join a model's parts into one mesh (same material throughout, as the
+    car kit is: a body and four wheels become one draw call). Returns how
+    many parts were joined; 0 or 1 leaves the file as shipped. Needs
+    `trimesh` (pip); --check does not."""
+    import trimesh  # noqa: PLC0415 — optional, fetch only
+
+    scene = trimesh.load(path, force="scene")
+    meshes = scene.dump()  # node transforms applied
+    if len(meshes) < 2:
+        return len(meshes)
+    merged = trimesh.util.concatenate(meshes)
+    merged.visual.material = meshes[0].visual.material
+    out = trimesh.Scene()
+    out.add_geometry(merged, geom_name=path.stem)
+    path.write_bytes(out.export(file_type="glb", include_normals=True))
+    return len(meshes)
+
 
 def register_row(kit: str, model: str, used: str, path: Path, processing: str = "GLB as shipped") -> None:
     text = REGISTER.read_text() if REGISTER.exists() else ""
