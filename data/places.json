@@ -22,5 +22,13 @@
   "shrine": {
     "scene": "res://scenes/places/Shrine.tscn",
     "name_id": "place.shrine"
+  },
+  "veil_down": {
+    "scene": "res://scenes/places/VeilDown.tscn",
+    "name_id": "place.veil_down"
+  },
+  "veil_up": {
+    "scene": "res://scenes/places/VeilUp.tscn",
+    "name_id": "place.veil_up"
   }
 }

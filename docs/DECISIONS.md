@@ -2259,3 +2259,102 @@ the hall's; the dawn climb reads the flags set here and is not built here.
 Three more skinned bodies and a dozen primitives; not measured in the web
 build here (shared machine, per the agents' brief). The integrator's walk
 should carry the numbers.
+
+
+## 2026-10-20 — The Pool of Worlds: the way down and the way up
+
+GDD §3 Act 2 "Falling" and Act 5 "Rising", §3a Act 2 ("Nothing but tilting
+the view"), §5 "The Pool of Worlds" (a 90-second descent, one particle
+system, two directions), §8 Scene B, §10 Pool row, §11 (accessibility).
+Affects §5 (the Veil is a place in `data/places.json`), §12 (nothing new on
+the journey).
+
+### One scene, two places
+
+- `scenes/places/Veil.tscn` + `scripts/places/veil.gd` is **not a Place**:
+  nothing walks here and nothing can be used, so it does not carry the
+  player, the camera rig, doors or spawn points. It is a `Node3D` with the
+  same `place_requested(place_id, spawn_id)` signal a Place has, so `Main`'s
+  existing wiring swaps the next scene without knowing the difference.
+- `VeilDown.tscn` and `VeilUp.tscn` instance it with the exports set
+  (`direction`, `next_place`, `next_spawn`, `seconds` 90, `early_end_after`
+  20, `hold_seconds` 1, `line_ids`); `data/places.json` names them
+  `veil_down` and `veil_up`. The Grove's *Dive* and the shrine's basin are
+  doors onto those ids; the Veil's own exports say where it lands:
+  `street` / `fountain_basin` on the way down, `grove` / `pool_bank` on the
+  way up. Both are data to be pointed elsewhere; neither spawn point exists
+  yet (the Street puts the player in the basin by default, which is where
+  the fall ends).
+- The two ways are one scene because GDD §5 asks for "one particle system,
+  two directions": every constant is shared and `direction` only flips the
+  sign of the stream, the start and end colours, the glow and the Song.
+- At the end: a fade to black over 1.2 s, the Song fading with it, then
+  `GameState.set_place(next_place, next_spawn)` and `place_requested`, in
+  that order, as a door does.
+
+### What is on screen
+
+- **Stars**: two `MultiMeshInstance3D` segments sharing one `MultiMesh` of
+  180 billboard quads each (360 points, 720 triangles, two draw calls),
+  stacked 60 m apart and leapfrogging past the camera, so the field is
+  endless with no per-point work per frame. Built from a seeded RNG in
+  `_ready`, uniform over the ring's area. Star white with a little nebula
+  violet, never warm (GDD §10). Four low-poly spheres are the bubbles; they
+  rise through the water, so they overtake the stars on the way down and
+  lag them on the way up.
+- **Camera**: at the origin, looking a little down the fall (up the rise),
+  swaying slowly on its own. A drag or the right stick tilts it through
+  `TouchControls.camera_dragged`, the same seam the Place uses, with the rig's
+  radians-per-pixel and the journey's sensitivity and inversion settings.
+  The HUD is instanced and then emptied: joystick, button, pause, map and
+  compass hidden (GDD §11 "HUD: empty by default"). A tap does nothing.
+- **Colour**: a `ColorRect` vignette (a radial mask in a canvas shader) drains
+  from nebula violet to blue-black over the descent and warms from blue-black
+  to rose-gold over the ascent; the sky behind the stars follows it at a
+  third of the brightness. A second rect with the mask inverted is the
+  player's own glow, fading out on the way down and in on the way up.
+  Rose-gold here is `(0.92, 0.64, 0.50)`: copper rather than pink, so it is
+  nowhere near magenta; blue-black `(0.02, 0.03, 0.09)` is nowhere near
+  peacock blue.
+- **Lines** (§8 Scene B, "one line at a time"): `line_ids` on the Veil, three
+  on the way down (`veil.line.easy`, `veil.line.harder`,
+  `veil.line.never_closed`), none on the way up. Each has its share of the
+  middle of the sequence and fades in, holds and fades out.
+
+### The early end (accessibility)
+
+- No *Skip* is offered; the first fall is meant to be sat through. After
+  `early_end_after` (20 s) a touch held still for `hold_seconds` (1 s) ends
+  it, as does holding the `contextual` action (E, gamepad A) for desktop and
+  gamepad parity. GDD §11: "No timed input anywhere"; a player who cannot
+  wait, or whose assistive setup needs to move on, is not held in a
+  cinematic. A finger that moves more than the tap slop is a drag, not a
+  hold, and letting go cancels.
+- There is no meter: the view darkens as the finger stays, and the ending
+  is simply the darkening completing. Releasing brings the view back over
+  0.3 s. This is the hold's own feedback, not a progress bar.
+
+### The Song
+
+- `tools/audio_parts/veil.py` writes `song_layers_down.ogg` and
+  `song_layers_up.ogg` through `tools/gen_audio.py`: three PLACEHOLDER
+  layers (a band-limited triangle melody on Tulu's G A C, a low drone, a
+  plucked arpeggio) standing in for the Song's flute, tanpura and tabla
+  (GDD §10 *Veil*: "same recording, mixed differently"). The way down loses
+  the melody, then the arpeggio, then the drone, to silence by 97 %; the
+  way up mirrors the gains in time. 90 s each, 44.1 kHz, about 210 KB each.
+- The import leaves `loop` off: each file is exactly as long as the
+  sequence, and a loop would bring the full Song back after the silence (or
+  the silence back after the full Song). A longer `seconds` wants a longer
+  file, not a loop.
+- `gen_audio.encode` now feeds libsndfile ten seconds at a time: its Vorbis
+  encoder segfaults when handed more than about two million frames in a
+  single write, which these are the first sounds to do. Short sounds are
+  unaffected and their committed files were left as they were.
+
+### Budget
+
+Not measured in a web build (no exports this phase). Statically: two
+MultiMesh draw calls (720 triangles), four spheres (about 580 triangles),
+three full-screen `ColorRect`s with a tiny shader, one label and the HUD.
+No lights, no shadows, no environment effects.

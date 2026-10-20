@@ -1,0 +1,208 @@
+[gd_scene load_steps=14 format=3]
+
+; The Pool of Worlds (GDD §5): the fall through stars, and the rise back.
+; Hand-authored, not generated: the Veil has no walls, props or doors for
+; tools/scenegen.py to build. VeilDown.tscn and VeilUp.tscn instance this
+; with the exports set; data/places.json points at those two.
+;
+; PLACEHOLDER: billboard quads for stars, low-poly spheres for bubbles, a
+; radial mask for the vignette and the glow. Replaced by the one particle
+; system of GDD §5 "The Pool of Worlds" and the unravelling ribbons of §8
+; Scene B. Palette: GDD §10, Pool row (blue-black, nebula violet, star white).
+
+[ext_resource type="Script" path="res://scripts/places/veil.gd" id="1_veil"]
+[ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="2_controls"]
+[ext_resource type="FontVariation" path="res://assets/ui/font_body.tres" id="3_body"]
+
+[sub_resource type="Environment" id="Environment_veil"]
+resource_local_to_scene = true
+background_mode = 1
+background_color = Color(0.02, 0.03, 0.09, 1)
+tonemap_mode = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_star"]
+size = Vector2(0.14, 0.14)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_star"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 1)
+disable_receive_shadows = true
+billboard_mode = 1
+billboard_keep_scale = true
+
+[sub_resource type="MultiMesh" id="MultiMesh_stars"]
+transform_format = 1
+use_colors = true
+mesh = SubResource("QuadMesh_star")
+
+[sub_resource type="SphereMesh" id="SphereMesh_bubble"]
+radius = 0.3
+height = 0.6
+radial_segments = 12
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bubble"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.9, 0.9, 0.93, 0.22)
+disable_receive_shadows = true
+
+[sub_resource type="Shader" id="Shader_mask"]
+code = "shader_type canvas_item;
+render_mode blend_mix;
+
+// A radial mask on a flat colour: the colour sits at the edges (a vignette)
+// or at the centre (the glow). PLACEHOLDER for the unravelling glow of GDD
+// §8 Scene B; the colours come from the ColorRect, set by veil.gd.
+uniform float inner : hint_range(0.0, 1.5) = 0.45;
+uniform float outer : hint_range(0.0, 2.0) = 1.15;
+uniform bool centre = false;
+
+void fragment() {
+	float d = distance(UV, vec2(0.5)) * 2.0;
+	float edge = smoothstep(inner, outer, d);
+	float mask = centre ? 1.0 - edge : edge;
+	COLOR = vec4(COLOR.rgb, COLOR.a * mask);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
+shader = SubResource("Shader_mask")
+shader_parameter/inner = 0.45
+shader_parameter/outer = 1.15
+shader_parameter/centre = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
+shader = SubResource("Shader_mask")
+shader_parameter/inner = 0.0
+shader_parameter/outer = 0.9
+shader_parameter/centre = true
+
+[node name="Veil" type="Node3D"]
+script = ExtResource("1_veil")
+
+[node name="Pivot" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="Tilt" type="Node3D" parent="Pivot"]
+unique_name_in_owner = true
+
+[node name="Camera" type="Camera3D" parent="Pivot/Tilt"]
+unique_name_in_owner = true
+current = true
+fov = 70.0
+near = 0.1
+far = 70.0
+
+[node name="World" type="WorldEnvironment" parent="."]
+unique_name_in_owner = true
+environment = SubResource("Environment_veil")
+
+[node name="Stars" type="Node3D" parent="."]
+
+[node name="SegmentA" type="MultiMeshInstance3D" parent="Stars"]
+unique_name_in_owner = true
+material_override = SubResource("StandardMaterial3D_star")
+cast_shadow = 0
+multimesh = SubResource("MultiMesh_stars")
+
+[node name="SegmentB" type="MultiMeshInstance3D" parent="Stars"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -60, 0)
+material_override = SubResource("StandardMaterial3D_star")
+cast_shadow = 0
+multimesh = SubResource("MultiMesh_stars")
+
+[node name="Bubbles" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="Bubble0" type="MeshInstance3D" parent="Bubbles"]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_bubble")
+surface_material_override/0 = SubResource("StandardMaterial3D_bubble")
+
+[node name="Bubble1" type="MeshInstance3D" parent="Bubbles"]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_bubble")
+surface_material_override/0 = SubResource("StandardMaterial3D_bubble")
+
+[node name="Bubble2" type="MeshInstance3D" parent="Bubbles"]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_bubble")
+surface_material_override/0 = SubResource("StandardMaterial3D_bubble")
+
+[node name="Bubble3" type="MeshInstance3D" parent="Bubbles"]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_bubble")
+surface_material_override/0 = SubResource("StandardMaterial3D_bubble")
+
+; PLACEHOLDER: tools/audio_parts/veil.py stands in for the composer's stem
+; mix of the Song (GDD §10 "Music", *Veil*). veil.gd picks the file by direction.
+[node name="Song" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+volume_db = -6.0
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Vignette" type="ColorRect" parent="UI"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_vignette")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.27, 0.21, 0.33, 1)
+
+[node name="Glow" type="ColorRect" parent="UI"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_glow")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.98, 0.82, 0.58, 0.55)
+
+; §8 Scene B: "Text, white on dark, one line at a time." Ids on the Veil's
+; `line_ids`; the text comes from the string table at run time.
+[node name="Line" type="Label" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -60.0
+offset_right = 440.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("3_body")
+theme_override_font_sizes/font_size = 28
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="TouchControls" parent="UI" instance=ExtResource("2_controls")]
+unique_name_in_owner = true
+
+[node name="Fade" type="ColorRect" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

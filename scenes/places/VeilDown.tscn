@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3]
+
+; The way down (GDD §3 Act 2 "Falling"): from the Grove's Pool to the
+; Street's dry fountain. Data only: Veil.tscn with its exports set. The
+; spawn id names the SpawnPoint in the Street the player climbs out on.
+
+[ext_resource type="PackedScene" path="res://scenes/places/Veil.tscn" id="1_veil"]
+
+[node name="VeilDown" instance=ExtResource("1_veil")]
+direction = "down"
+next_place = "street"
+next_spawn = "fountain_basin"
+seconds = 90.0
+early_end_after = 20.0
+hold_seconds = 1.0
+line_ids = PackedStringArray("veil.line.easy", "veil.line.harder", "veil.line.never_closed")
