@@ -1040,3 +1040,80 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — The other four Glimpse points
+
+GDD §6 "Glimpses" (five fixed points; conditions tied to state, never a
+timer; approaching ends it and leaves a feather or a jasmine flower; never
+counted), §3 (sitting on a rooftop, standing on the tower's beam, leaning in
+a doorway), §10 (jasmine white; the feather the one peacock blue). Affects
+§6 and §12 (four seen flags, four pick-up events).
+
+### One scene, five instances, everything that differs as data
+
+- `scenes/quest/Glimpse.tscn` is now the generic point. New exports on
+  `scripts/quest/glimpse.gd`: `trigger_condition` (a string in the grammar
+  of `scripts/lib/condition.gd`, so `flag:rukma_heard and not
+  flag:rukma_key_taken` is one line of scene data), `leaves` (`feather` or
+  `jasmine`), `leaves_offset` (where it lies, in the node's space),
+  `pickup_event` (the pick-up's own event, so two jasmine points do not
+  hide each other on reload), `pose` (`Sitting_Idle` or `Idle`, held
+  through `CharacterRig.hold_pose`) and `witnessed` (Tulu looks up; true at
+  the traffic light and nowhere else, GDD §6 "once"). The P5 exports keep
+  working: an empty `trigger_condition` reads `flag:<trigger_flag>`.
+- The scene holds both pick-ups (`FeatherPickup`, `JasminePickup`); on load
+  the script moves the one named by `leaves` to `leaves_offset` and frees
+  the other. Simpler than instancing at run time, and `%FeatherPickup`
+  still resolves for the P5 tests.
+- The four points are `tools/street_parts/glimpses.py`, one table: the top
+  of the billboard frame at 25.8 m (`flag:heard_tulu`, standing, feather at
+  the tower's foot), the doorway of Nanda's stairwell at (-29, 0, -12)
+  (`flag:rukma_heard and not flag:rukma_key_taken`, standing, jasmine on the
+  threshold), the far end of the garden at (-42, 0, 1) (`flag:garden_open`,
+  standing, jasmine on the spot) and the chai stall's roof (`flag:saw_shrine`,
+  sitting, feather on the pavement by the hatch). Seen flags
+  `glimpsed_<point>`, lines `journey.glimpse.<point>`.
+- The condition is read whole on every flag and event change, and once on
+  `_ready`: `Main` frees the Street when the player goes through a door, so
+  a flag set inside the shrine would otherwise never reach the roof above
+  its back door. A Glimpse that is due when the Street loads appears as the
+  player steps out. The P5 behaviour (edge on `gave_dry_fountain`) is a
+  special case of this and its tests pass unchanged.
+- `end_distance` is now measured across the ground (XZ), not in 3D: a
+  figure 26 m up is "arrived at" from the pavement beneath it, which a 3D
+  radius could only express as a sphere that also covered the far pavement.
+  The traffic light keeps its 6 m, which on the ground is a touch wider than
+  before; the P5 approach test still passes.
+- `scenes/quest/Jasmine.tscn`: six white ellipsoid petals round a pale
+  centre on a short green stem, primitives, inline materials; the player's
+  third carryable (`Player.tscn`, flag `carrying_jasmine`). PLACEHOLDER for
+  the painted jasmine of GDD §10. `scenes/quest/JasminePickup.tscn` is the
+  feather pick-up with `item = "jasmine"`.
+
+### Two things found on the way
+
+- `scenegen.xf(pos, yaw)` writes the basis row by row, which is how Godot
+  reads `Transform3D(...)` in a scene file; the node it places therefore has
+  forward `(sin yaw, 0, -cos yaw)`, the mirror of what `rotation.y = yaw`
+  gives. Noted here rather than changed: every yaw in the generators was
+  tuned against what the scene shows. `glimpses.py` has `facing()` and
+  `local_offset()` for this convention, and a test pins where the pick-ups
+  land in world space.
+- The traffic-light Glimpse was placed with yaw `pi/2`, which faces east,
+  away from the fountain, and put its feather under the lamp housing; its
+  comment said the opposite. Now `-pi/2`: the figure faces the fountain and
+  the feather lies on the road below the pole, as the comment always said.
+  The P5 tests place the player relative to the node and pass unchanged.
+
+### Not done here
+
+- The stairwell doorway itself, the garden's gate opening, the shrine and
+  the roof key are other features; this change only reads their flags. The
+  stairwell point stands on open pavement until the doorway is built there
+  and may need nudging to its threshold. The shrine's back door is within
+  the chai-stall point's 4 m, so a player stepping out beneath it sees the
+  roof empty and the feather already fallen; whether that is the right
+  staging is a playtest question, and `end_distance` is data.
+- Budget not re-measured: four more hidden skinned meshes and four hidden
+  omni lights that are off until their moment, one at a time, once each.

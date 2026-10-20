@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 ; The body is scenes/characters/Character.tscn (a rigged CC0 human, see there).
 ; PLACEHOLDER: replaced by the traveler form of GDD §10 "Characters" —
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/quest/WaterCan.tscn" id="3_can"]
 [ext_resource type="PackedScene" path="res://scenes/quest/Feather.tscn" id="4_feather"]
 [ext_resource type="PackedScene" path="res://scenes/ui/SoundRipple.tscn" id="5_ripple"]
+[ext_resource type="PackedScene" path="res://scenes/quest/Jasmine.tscn" id="6_jasmine"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.34
@@ -21,7 +22,8 @@ floor_snap_length = 0.4
 script = ExtResource("1_player")
 carryables = {
 "can": ExtResource("3_can"),
-"feather": ExtResource("4_feather")
+"feather": ExtResource("4_feather"),
+"jasmine": ExtResource("6_jasmine")
 }
 
 [node name="Collision" type="CollisionShape3D" parent="."]

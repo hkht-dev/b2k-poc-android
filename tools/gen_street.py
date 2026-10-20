@@ -211,11 +211,14 @@ b.solid("Housing", "TrafficLight", (32.6, 5.1, 14), (0.5, 1.2, 0.45), "tyre", co
 for i, y in enumerate((5.45, 5.1, 4.75)):
     b.cyl(f"Lamp{i}", "TrafficLight", (32.6, y, 14.2), 0.13, 0.2, "road_paint")
 # The Glimpse point (§4.5): the silhouette sits on the beam facing the
-# fountain; its feather falls on the pavement below the pole.
+# fountain (xf's yaw turns the other way: -pi/2 faces -X); its feather falls
+# on the road below the pole. The one point Tulu looks up at (GDD §6); the
+# other four are tools/street_parts/glimpses.py.
 b.nodes.append(
     '[node name="Glimpse" parent="TrafficLight" instance=ExtResource("14_glimpse")]\n'
     "unique_name_in_owner = true\n"
-    f"transform = {xf((29.5, 5.85, 14.0), math.pi / 2)}\n\n"
+    f"transform = {xf((29.5, 5.85, 14.0), -math.pi / 2)}\n"
+    "witnessed = true\n\n"
 )
 
 # --- the billboard tower -----------------------------------------------------
