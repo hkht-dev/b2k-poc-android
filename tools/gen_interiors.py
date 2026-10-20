@@ -88,13 +88,14 @@ def showroom() -> str:
     b = Builder()
     W, D = 13.0, 9.0
     room(b, W, D, "timber", "plaster_cream", "showroom_door")
-    lights(b, [(-3.5, -1.5), (3.5, -1.5), (0, 2.5)])
+    lights(b, [(-3.5, -1.5), (3.5, -1.5), (1.5, 2.5)])
     b.group("Fittings")
-    # The counter along the south wall, the tailor behind it.
-    b.solid("Counter", "Fittings", (3.5, 0.5, 3.4), (4.4, 1.0, 0.7), "timber")
-    b.solid("CounterTop", "Fittings", (3.5, 1.02, 3.4), (4.6, 0.06, 0.9), "plaster_white", collide=False)
-    b.label("SignInside", "Fittings", "sign.showroom_inside", (3.5, 2.5, D / 2 - 0.05), NORTH, size=56)
-    keeper(b, "Tailor", "survivorMaleB", "tailor_greet", (3.5, 0, 4.0), NORTH)
+    # The counter along the south wall, west of centre so the mirror's corner
+    # stays clear; the tailor behind it.
+    b.solid("Counter", "Fittings", (1.0, 0.5, 3.4), (4.0, 1.0, 0.7), "timber")
+    b.solid("CounterTop", "Fittings", (1.0, 1.02, 3.4), (4.2, 0.06, 0.9), "plaster_white", collide=False)
+    b.label("SignInside", "Fittings", "sign.showroom_inside", (1.0, 2.5, D / 2 - 0.05), NORTH, size=56)
+    keeper(b, "Tailor", "survivorMaleB", "tailor_greet", (1.0, 0, 4.0), NORTH)
     # Two rails of clothes along the west wall, in the street's own cloth.
     garments = []
     for row, z in enumerate((-2.6, 0.4)):
@@ -108,19 +109,34 @@ def showroom() -> str:
     b.multimesh("GarmentsPale", "Fittings", "BoxMesh_unit", "cloth_pale", garments[1::2], shadows=False)
     b.collider("RailBody", "Fittings", (2.9, 1.8, 0.5), [((-4.9, 0.9, -2.6), 0.0), ((-4.9, 0.9, 0.4), 0.0)])
     # Three mannequins on round plinths by the east wall, dressed differently.
-    for i, (skin, z) in enumerate((("skaterFemaleA", -2.8), ("criminalMaleA", 0.0), ("survivorFemaleA", 2.6))):
+    mannequins = (("skaterFemaleA", -3.2), ("criminalMaleA", -1.3), ("survivorFemaleA", 0.6))
+    for i, (skin, z) in enumerate(mannequins):
         b.cyl(f"Plinth{i}", "Fittings", (4.8, 0.1, z), 0.55, 0.2, "plaster_white")
         b.figure(f"Mannequin{i}", "Fittings", skin, (4.8, 0.2, z), yaw=-math.pi / 2)
-    b.collider("PlinthBody", "Fittings", (1.1, 1.0, 1.1), [((4.8, 0.5, z), 0.0) for z in (-2.8, 0.0, 2.6)])
+    b.collider("PlinthBody", "Fittings", (1.1, 1.0, 1.1), [((4.8, 0.5, z), 0.0) for _, z in mannequins])
     # The long mirror on the east wall; a dark pane with a timber frame.
-    b.solid("MirrorFrame", "Fittings", (W / 2 - 0.06, 1.3, 3.2), (0.1, 2.4, 1.8), "timber", collide=False)
-    b.solid("Mirror", "Fittings", (W / 2 - 0.1, 1.3, 3.2), (0.04, 2.2, 1.6), "tyre", collide=False)
+    mirror_z = 3.2
+    b.solid("MirrorFrame", "Fittings", (W / 2 - 0.06, 1.3, mirror_z), (0.1, 2.4, 1.8), "timber", collide=False)
+    b.solid("Mirror", "Fittings", (W / 2 - 0.1, 1.3, mirror_z), (0.04, 2.2, 1.6), "tyre", collide=False)
+    # Before the mirror, the fitting dais: a round plinth low enough to step
+    # onto (0.2 m, under the player's step height), carrying the Try-on stand
+    # (scenes/quest/TryOnStand.tscn) whose verb opens the wardrobe. Owner
+    # request 2026-10-20: "go to showroom and try on different clothes".
+    dais = (4.3, 0.1, mirror_z)
+    b.cyl("Dais", "Fittings", dais, 0.6, 0.2, "plaster_white")
+    b.collider("DaisBody", "Fittings", (1.2, 0.2, 1.2), [(dais, 0.0)])
+    b.nodes.append(
+        '[node name="TryOnStand" parent="Fittings" instance=ExtResource("try_on")]\n'
+        "unique_name_in_owner = true\n"
+        f"transform = {xf((dais[0], 0.2, dais[2]), -math.pi / 2)}\n\n"
+    )
     # A low table with folded cloth, mid-room.
     b.solid("Table", "Fittings", (0, 0.4, 0.8), (2.0, 0.08, 1.0), "timber")
     b.solid("TableLegs", "Fittings", (0, 0.2, 0.8), (1.8, 0.4, 0.8), "timber")
     for i, (dx, dz, mat) in enumerate(((-0.5, -0.2, "cloth_pale"), (0.4, 0.1, "coat"), (0.0, 0.3, "canopy"))):
         b.solid(f"Folded{i}", "Fittings", (dx, 0.5, 0.8 + dz), (0.5, 0.12, 0.4), mat, collide=False)
-    return assemble(b, "Showroom", "showroom", (0.42, 0.36, 0.3))
+    try_on_ext = '[ext_resource type="PackedScene" path="res://scenes/quest/TryOnStand.tscn" id="try_on"]\n'
+    return assemble(b, "Showroom", "showroom", (0.42, 0.36, 0.3), extra_ext=try_on_ext)
 
 
 # ------------------------------------------------------------------ the store
