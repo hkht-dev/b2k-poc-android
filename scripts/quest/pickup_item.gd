@@ -11,6 +11,9 @@ signal picked_up(player: Node3D)
 @export var item := "feather"
 ## The event fired when it is picked up; empty for none.
 @export var event := "feather_picked_up"
+## A flag set when it is picked up; empty for none. The feather sets none;
+## the string on Nanda's shelf sets `has_sarang_string` (GDD §7 "Mediate").
+@export var flag := ""
 
 @onready var _pick_up: Interactable = %PickUp
 
@@ -32,6 +35,8 @@ func _on_pick_up(player: Node3D) -> void:
 	visible = false
 	if not event.is_empty():
 		GameState.fire_event(event)
+	if not flag.is_empty():
+		GameState.set_flag(flag)
 	picked_up.emit(player)
 
 

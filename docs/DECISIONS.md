@@ -1929,3 +1929,76 @@ mesh), five small opaque primitives, one MultiMesh, one transparent mesh,
 one Label3D: about eight draw calls and under 2k triangles against the P6
 headroom (median 112 of 200 draw calls). The integrator's next measured
 walk should confirm.
+
+
+## 2026-10-20 — Dhanpal's office and Nanda's flat
+
+GDD §5 (Hollow Vale: "four enterable interiors ... Dhanpal's office, Nanda's
+flat at the end of the alley"; "Locks, grilles, CCTV cameras and phones
+appear in every household and shop"), §4 (Dhanpal, Old Nanda), §7
+("Mediate", step 3: "bring him the broken instrument's missing string (found
+at Nanda's flat)"; "Micro-interactions": a one-line thought, no giver, no
+reward). Affects §5, §7.
+
+### Two more rooms, through the same seam
+
+- `tools/interiors/office.py` → `scenes/places/Office.tscn`, place `office`
+  ("Dhanpal's office"): 9 x 7 m, the desk and leather chair, filing
+  cabinets, three framed photographs of the tower on the east wall, the
+  room's windows onto the street, a brass plaque (`sign.office`), a camera
+  high in the corner and a second door in the south wall with two locks on
+  it. `tools/interiors/nanda_flat.py` → `scenes/places/NandaFlat.tscn`,
+  place `nanda_flat` ("Nanda's flat"): 6 x 5 m, dim (one amber lamp, half
+  the shops' ambient), a bed, a shelf of old things, one photograph on the
+  wall, bolts on the inside of the door. Both use `room()`, `lights()` and
+  `assemble()` from `gen_interiors.py` unchanged; the flat's dimness is a
+  one-string replacement of the ambient energy `assemble()` writes, asserted
+  so a change there fails loudly.
+- Street side: `tools/street_parts/office_door.py` (the door at
+  (46, 0, 25.9) at the hall front, a frame, leaf, step and the plaque, the
+  spawn `office_door` a metre north of it facing north) and
+  `tools/street_parts/nanda_door.py` (the door at (-29, 0, -13.5) facing
+  south into the west alley, a leaf with a barred peephole, the spawn
+  `nanda_door` just south of it facing south). Neither builds the hall or
+  the alley; those are other parts'. The office door's reach runs 2.4 m deep
+  so *Go in* is offered from the pavement wherever the hall's front wall
+  lands.
+- The door back in each room names the same spawn id as the door outside,
+  as the shops do.
+
+### Look, as a scene
+
+- `scenes/places/LookPoint.tscn` + `scripts/places/look_point.gd`: an
+  `Interactable` *Look* in a box (`reach`) that opens one dialogue line
+  (`line_id`). Which flags a look leaves behind is the line's own `sets`
+  (data/dialogue/en.json), so the script knows no flag. The office's three
+  photographs, camera and lock, and the flat's photograph, are six of these;
+  every line is speaker `thought` (`speaker.thought` is empty, as the
+  fountain's is: a thought has no name over it), has no cards, is under 20
+  words. The lock's sets `noticed_office_lock`; the brothers' photograph
+  sets `saw_brothers_photo`.
+- The photographs are pictograms in dark print on a pale card: a shaft, a
+  crane, the billboard, a figure. PLACEHOLDER for the painted photographs
+  of GDD §10; the pictogram is enough for the thought to land.
+
+### The string
+
+- `scenes/quest/InstrumentString.tscn` (three thin rings in the street's
+  dull metal; PLACEHOLDER for the wound string of GDD §10, and deliberately
+  not peacock blue: §10 lets that colour appear first on the Veena's
+  strings at dawn) is the third entry in the player's `carryables`
+  ("string"). `scenes/quest/StringPickup.tscn` lies on the shelf's third
+  board: *Pick up* through `pickup_item.gd`, which gained an optional `flag`
+  export (set on pick-up; the feather leaves it empty) beside its `event`.
+  Picking the string up sets `has_sarang_string` and fires
+  `sarang_string_picked_up`, so a loaded journey does not lay it down again.
+  The giving happens at Sarang's corner, which reads `sarang_string_given`;
+  nothing of that is in the flat.
+
+### Noted, not fixed
+
+- A `Label3D`'s front is its +Z, so `b.label(..., NORTH)` with `NORTH = 0`
+  on a south wall faces into the wall and is unreadable from the room with
+  `double_sided = false`. The office plaque and the street plaque use a yaw
+  of π (`FACE_NORTH`) so they read from the north. The shops' inside signs
+  (`gen_interiors.py`) still use `NORTH`; theirs to turn.

@@ -9,7 +9,11 @@
 [ext_resource type="PackedScene" path="res://scenes/quest/WaterCan.tscn" id="3_can"]
 [ext_resource type="PackedScene" path="res://scenes/quest/Feather.tscn" id="4_feather"]
 [ext_resource type="PackedScene" path="res://scenes/ui/SoundRipple.tscn" id="5_ripple"]
+<<<<<<< HEAD
 [ext_resource type="PackedScene" path="res://scenes/quest/Jasmine.tscn" id="6_jasmine"]
+=======
+[ext_resource type="PackedScene" path="res://scenes/quest/InstrumentString.tscn" id="6_string"]
+>>>>>>> worktree-agent-aecfadf74a501af3c
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.34
@@ -23,7 +27,11 @@ script = ExtResource("1_player")
 carryables = {
 "can": ExtResource("3_can"),
 "feather": ExtResource("4_feather"),
+<<<<<<< HEAD
 "jasmine": ExtResource("6_jasmine")
+=======
+"string": ExtResource("6_string")
+>>>>>>> worktree-agent-aecfadf74a501af3c
 }
 
 [node name="Collision" type="CollisionShape3D" parent="."]
