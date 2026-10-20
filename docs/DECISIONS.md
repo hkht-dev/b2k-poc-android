@@ -1040,3 +1040,85 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — A car to drive on the Street
+
+Owner request ("enter inside cars, drive"). GDD §6 names movement as the
+first of the five things the player does; this is that at another pace.
+Affects §6 (movement and camera), §11 (the controls card), §12 (nothing of
+it is saved). CLAUDE.md's "never a meter" binds: no speedometer, no fuel, no
+damage, no lap, no number anywhere, and a test looks for one.
+
+### One car, one verb, the Place at the wheel
+
+- `scenes/vehicles/Car.tscn` with `scripts/vehicles/car.gd` (`DriveableCar`):
+  a `CharacterBody3D` wearing Quaternius' SportsCar2 (CC0, already in the
+  rights register; it faces +Z in the file and is turned half round so the
+  body faces -Z like everything that moves). An `Interactable` `%Enter`
+  round it offers *Drive* (`verb.drive`); the verb the button shows while
+  driving is data on the car (`exit_verb_id`, `verb.exit` "Get out").
+- Arcade kinematics, no wheels simulated: the raw stick's Y is the
+  throttle, its X the wheel. 11 m/s forward, 3 m/s in reverse; 6 m/s² on the
+  throttle, 12 m/s² braking, 3 m/s² coasting, and the brake again when
+  nobody is at the wheel, so a left car does not roll. The yaw rate is
+  1.5 rad/s at full lock from 4 m/s up and proportional below: a standing car
+  does not spin on the spot, and reversing swings the nose the other way.
+  The player's three-sweep step-up, at 0.25 m, takes kerbs; walls, the
+  fountain's lip and the parked cars stop it, keeping only what the wall
+  left (a head-on halt, or a scrape along).
+- Collision layers 1 and 2, mask 1. Layer 2 so it meets the world as the
+  player does; layer 1 as well so the player and the camera meet it as a
+  wall rather than walking through it (the parked cars' collider boxes are
+  on layer 1 for the same reason). The task said layer 2; the extra bit is
+  the whole difference.
+- `scripts/places/place.gd` owns the seat, in one delimited block.
+  `board(car)` hides the player (invisible, `PROCESS_MODE_DISABLED` so the
+  body leaves the physics space, carried along inside), points the camera
+  rig at the car and feeds it the raw stick; `leave_car()` stands them beside
+  the left door (the right if the left is against something), visible and
+  solid again. The button says *Get out* throughout; the compass heading is
+  the car's; the hum, tap-to-walk and the doors are off the table from the
+  seat; pause works as it always did. The desktop key fires the button
+  whenever a verb shows, so E gets out too.
+- The camera rig has two follow profiles (`set_follow_profile`). Walking is
+  GDD §6's 3.5 m at shoulder height; the car is seen from 6 m at 1.6 m, and
+  the rig eases round behind the nose whenever the car rolls (the run's
+  auto-align without the run), so steering reads. A drag still orbits and
+  the ease resumes 1.5 s later.
+- Not saved. The journey knows places and spawn points, never a seat (GDD
+  §12: one object to save), so a reloaded journey is on foot and the car is
+  back at the kerb. The car's position is not saved either: it is set
+  dressing with a verb, not state. A test holds that boarding changes
+  nothing in `GameState.to_dict()`.
+
+### The street
+
+- `tools/street_parts/car.py` parks the car at the north kerb of the
+  east-west road, nose east, where `gen_street.py`'s `PARKED` list stood the
+  same SportsCar2; that entry and its collider box are gone from the list,
+  the one edit to the generator. It also raises four invisible walls
+  (`StaticBody3D` boxes, 6 m tall) just outside the ground slabs (x ±65,
+  z ±45): a car at 11 m/s can never leave the block, and nor can a walker
+  fall off its edge now.
+- `tools/audio_parts/engine.py` makes `engine_loop.ogg`, a 3 s synthesized
+  idle (a 24 Hz firing stack over a 12 Hz sub, low-passed at 500 Hz, ends
+  cross-faded; `loop=true` set by hand in the `.import` as the other beds
+  have it). The car pitches it from 0.8 at rest to 1.6 at top speed: one
+  loop is the whole engine.
+- Strings `verb.drive`, `verb.exit`, `controls.<scheme>.drive`. The controls
+  card's keys are a const `LINE_KEYS` on `controls_hint.gd` now, with
+  `drive` added; its test counts that const rather than five.
+
+### Placeholders
+
+- The SportsCar2 body: a generic stylised vehicle of GDD §5 ("vehicles and
+  clothes are generic") replaces it.
+- `engine_loop.ogg`: a recorded engine under GDD §10's Hollow Vale bed.
+
+### Budget
+
+Not re-measured in this change (no web build in the agent's run). The car
+is one more instance of a model already in the scene (one draw call), the
+walls are colliders with no mesh, and the engine is one 3D stream; the next
+web-build pass should confirm against P6's numbers.

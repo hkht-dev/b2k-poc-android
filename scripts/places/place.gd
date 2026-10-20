@@ -10,6 +10,11 @@
 ## lands, is data on the Door and SpawnPoint nodes; which scene a place id
 ## names is data/places.json. Pointing input arrives as screen touches, as it
 ## always did (see street.gd's history for why there is no mouse path).
+##
+## Driving (owner request 2026-10-20, "enter inside cars, drive"): a
+## DriveableCar's *Drive* boards the player here; the stick then goes to the
+## car, the button says the car's exit verb, and using it puts the player
+## back on their feet beside it. The journey never records a seat.
 class_name Place
 extends Node3D
 
@@ -43,6 +48,10 @@ var _fade: ColorRect = null
 ## Set while the player may not move: leaving through a door, or the end.
 var _input_locked := false
 var _leaving := false
+## -- driving: the car the player is at the wheel of, or null on foot --------
+var _car: DriveableCar = null
+var _player_layer := 0
+var _player_mask := 0
 
 @onready var _player: CharacterBody3D = %Player
 @onready var _camera_rig: Node3D = %CameraRig
@@ -73,6 +82,8 @@ func _ready() -> void:
 	_ui.add_child(_fade)
 	for node in get_tree().get_nodes_in_group(Door.GROUP):
 		(node as Door).used_door.connect(_on_door_used)
+	for node in get_tree().get_nodes_in_group(DriveableCar.GROUP):
+		(node as DriveableCar).board_requested.connect(board)
 	if _place_at_spawn():
 		# Arrived through a door: the view comes back from black.
 		_fade.color.a = 1.0
@@ -84,6 +95,9 @@ func _physics_process(delta: float) -> void:
 		GameState.add_play_time(delta)
 	_scan_interactables()
 	_controls.compass().set_heading(heading())
+	if _car != null:
+		_drive()
+		return
 	if _player.is_climbing() or _input_locked:
 		_player.set_move_input(Vector2.ZERO, 0.0)
 		return
@@ -92,9 +106,10 @@ func _physics_process(delta: float) -> void:
 	)
 
 
-## Which way the player is going, as the body's yaw (0 faces north, -Z).
+## Which way the player is going, as the body's yaw (0 faces north, -Z); at
+## the wheel, the car's.
 func heading() -> float:
-	return _player.rotation.y
+	return _car.rotation.y if _car != null else _player.rotation.y
 
 
 ## Puts the player on the spawn point the journey names, if this place has
@@ -117,6 +132,10 @@ func _place_at_spawn() -> bool:
 
 ## The nearest usable thing the player stands in decides the button's verb.
 func _scan_interactables() -> void:
+	if _car != null:
+		_near = null
+		_controls.contextual_button().show_verb(_car.exit_verb_id)
+		return
 	var best: Interactable = null
 	var best_distance := INF
 	for node in get_tree().get_nodes_in_group(Interactable.GROUP):
@@ -143,7 +162,11 @@ func player() -> CharacterBody3D:
 	return _player
 
 
-func _on_verb_used(_verb_id: String) -> void:
+func _on_verb_used(verb_id: String) -> void:
+	if _car != null:
+		if verb_id == _car.exit_verb_id and not is_paused():
+			leave_car()
+		return
 	if _near == null or is_paused() or _input_locked:
 		return
 	var target := _near
@@ -158,7 +181,7 @@ func _on_verb_used(_verb_id: String) -> void:
 
 ## The Call (GDD §6): the player hums; anything that can answer, does.
 func hum() -> void:
-	if is_paused() or _player.is_climbing() or _input_locked:
+	if is_paused() or _player.is_climbing() or _input_locked or _car != null:
 		return
 	_hum_player.play()
 	_controls.subtitle("sub.player_hum")
@@ -196,10 +219,73 @@ func fade_alpha() -> float:
 	return _fade.color.a
 
 
+# -- driving ------------------------------------------------------------------
+# Owner request 2026-10-20 ("enter inside cars, drive"). GDD §6: movement is
+# the first of the five things the player does; a car is that at another
+# pace. Nothing here is saved: the journey knows places and spawn points,
+# never a seat, so a reloaded journey is on foot (docs/DECISIONS.md).
+
+
+## The player used *Drive*: they vanish into the car, the camera steps back
+## to see it, and the stick is the car's until they get out.
+func board(car: DriveableCar) -> void:
+	if _car != null or car == null or is_paused() or _input_locked or _player.is_climbing():
+		return
+	_car = car
+	_player.set_move_input(Vector2.ZERO, 0.0)
+	_player.velocity = Vector3.ZERO
+	_player_layer = _player.collision_layer
+	_player_mask = _player.collision_mask
+	_player.collision_layer = 0
+	_player.collision_mask = 0
+	_player.process_mode = Node.PROCESS_MODE_DISABLED
+	_player.visible = false
+	_player.global_position = car.global_position
+	_camera_rig.target_path = _camera_rig.get_path_to(car)
+	_camera_rig.set_follow_profile(_camera_rig.PROFILE_CAR)
+	car.start_driving()
+
+
+## *Get out*: the player stands beside the car's door, on their feet again.
+func leave_car() -> void:
+	if _car == null:
+		return
+	var car := _car
+	_car = null
+	car.stop_driving()
+	_player.global_position = car.door_point() + Vector3.UP * 0.2
+	_player.rotation.y = car.rotation.y
+	_player.velocity = Vector3.ZERO
+	_player.collision_layer = _player_layer
+	_player.collision_mask = _player_mask
+	_player.process_mode = Node.PROCESS_MODE_INHERIT
+	_player.visible = true
+	# A tap-to-walk begun before boarding ends where the player now stands.
+	_player.walk_to(_player.global_position)
+	_camera_rig.target_path = _camera_rig.get_path_to(_player)
+	_camera_rig.set_follow_profile(_camera_rig.PROFILE_WALK)
+	_controls.contextual_button().clear_verb()
+
+
+func is_driving() -> bool:
+	return _car != null
+
+
+func car() -> DriveableCar:
+	return _car
+
+
+## At the wheel: the raw stick is the car's (its Y the throttle, its X the
+## wheel, no camera frame), and the hidden player rides along inside.
+func _drive() -> void:
+	_car.set_drive_input(Vector2.ZERO if _input_locked else _controls.move_vector())
+	_player.global_position = _car.global_position
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("contextual"):
 		_controls.contextual_button().button_down.emit()
-		if _near != null:
+		if _near != null or _car != null:
 			_controls.contextual_button().pressed.emit()
 	elif event.is_action_released("contextual"):
 		_controls.contextual_button().button_up.emit()
@@ -304,6 +390,8 @@ func _on_camera_dragged(delta: Vector2) -> void:
 ## §A3: a tap on the right zone walks the player to that point on the ground.
 func _on_tapped(screen: Vector2) -> void:
 	if is_paused() or not tap_to_walk_enabled() or _player.is_climbing() or _input_locked:
+		return
+	if _car != null:
 		return
 	var point: Variant = _camera_rig.ground_point(screen)
 	if point != null:
