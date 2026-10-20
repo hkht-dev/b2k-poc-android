@@ -206,3 +206,26 @@ func test_no_clock_drives_the_light() -> void:
 	await wait_seconds(0.5)
 	assert_eq(daylight.stage_id(), "arrival", "time alone changes nothing")
 	assert_eq(street.mood_sun_colour(), Daylight.colour_of(Daylight.stage("arrival"), "sun_colour"))
+
+
+func test_the_remembrance_tint_outlasts_a_later_mood_and_stage() -> void:
+	var street := _street()
+	await wait_frames(2)
+	var daylight: Daylight = street.daylight()
+	var rose := Color(1.0, 0.74, 0.66)
+	street.tint_sun(rose, 0.0)
+	assert_eq(street.mood_sun_colour(), rose, "set at once")
+	assert_true(daylight.is_sun_tinted())
+	GameState.set_flag("took_dry_fountain")
+	assert_eq(daylight.stage_id(), "after_fountain", "the stage still moves")
+	assert_eq(
+		daylight.target_sun_colour(),
+		rose * street.MOODS["took_dry_fountain"][0],
+		"but the mood tints from the rose, not from the stage's colour"
+	)
+	await wait_frames(10)
+	assert_ne(
+		street.mood_sun_colour(),
+		Daylight.colour_of(Daylight.stage("after_fountain"), "sun_colour"),
+		"the dawn is not undone"
+	)

@@ -173,6 +173,7 @@ func hold_still(on: bool) -> void:
 	if on:
 		velocity = Vector3.ZERO
 		_has_walk_target = false
+		_update_footsteps()
 
 
 func is_held_still() -> bool:
@@ -461,6 +462,7 @@ func _begin_vault(dir: Vector3, landing: Vector3) -> void:
 	_vault_elapsed = 0.0
 	_has_walk_target = false
 	velocity = Vector3.ZERO
+	_update_footsteps()
 	rotation.y = atan2(-dir.x, -dir.z)
 	vault_started.emit()
 

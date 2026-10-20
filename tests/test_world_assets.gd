@@ -137,6 +137,20 @@ func test_a_climb_silences_the_feet() -> void:
 	assert_false(player.is_footsteps_playing(), "no steps on a wall")
 
 
+func test_holding_still_and_a_vault_silence_the_feet() -> void:
+	var player: CharacterBody3D = add_child_autofree(PLAYER.instantiate())
+	player.set_move_input(Vector2(0.0, -1.0))
+	_step(player, 0.3)
+	assert_true(player.is_footsteps_playing())
+	player.hold_still(true)
+	assert_false(player.is_footsteps_playing(), "no steps on the fitting dais")
+	player.hold_still(false)
+	_step(player, 0.3)
+	assert_true(player.is_footsteps_playing(), "walking again")
+	player._begin_vault(Vector3(0.0, 0.0, -1.0), player.global_position + Vector3(0.0, 0.5, -1.5))
+	assert_false(player.is_footsteps_playing(), "no steps in the air")
+
+
 func test_the_door_sounds_when_used() -> void:
 	var door: Door = add_child_autofree(DOOR.instantiate())
 	var player: Node3D = add_child_autofree(Node3D.new())

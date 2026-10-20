@@ -9,6 +9,8 @@ const SCRATCH := "user://test_car_journey.json"
 ## On the road beside the parked car: inside its *Drive* reach.
 const AT_THE_CAR := Vector3(-12.0, 0.2, 13.0)
 const MOVE_ACTIONS := ["move_forward", "move_back", "move_left", "move_right"]
+## A flag that offers a wisdom card (data/wisdom.json), to offer one at the wheel.
+const CARD_FLAG := "gave_dry_fountain"
 
 var _real_path := ""
 
@@ -149,6 +151,25 @@ func test_get_out_puts_the_player_beside_the_car_on_their_feet() -> void:
 	assert_eq(rig.follow_profile(), rig.PROFILE_WALK)
 	await wait_frames(4)
 	assert_eq(_button(street).current_verb(), "verb.drive", "and could get back in")
+
+
+func test_at_the_wheel_the_contextual_key_leaves_the_car_and_opens_no_card() -> void:
+	var street := _street()
+	await _board(street)
+	assert_true(street.is_driving())
+	GameState.set_flag(CARD_FLAG)
+	await wait_frames(2)
+	var lotus: Control = street.get_node("%TouchControls").lotus()
+	assert_true(lotus.is_showing(), "a card is offered while driving")
+	var press := InputEventAction.new()
+	press.action = "contextual"
+	press.pressed = true
+	street._unhandled_input(press)
+	assert_null(street.wisdom_card(), "the key is the car's: no card opens")
+	assert_false(get_tree().paused)
+	await wait_frames(3)
+	assert_false(street.is_driving(), "the player got out")
+	assert_true(lotus.is_showing(), "the offer stands")
 
 
 func test_the_car_cannot_leave_the_block() -> void:

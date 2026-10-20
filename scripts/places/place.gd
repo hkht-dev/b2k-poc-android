@@ -361,9 +361,16 @@ func _drive() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("contextual"):
-		# Optional wisdom: with nothing usable near, the action opens the
-		# offered card; near something, the thing wins (the card is optional).
-		if _near == null and not is_paused() and not _input_locked and _controls.lotus().open():
+		# Optional wisdom: with nothing usable near and no wheel in hand, the
+		# action opens the offered card; near something, or at the wheel, the
+		# thing wins (the card is optional).
+		if (
+			_near == null
+			and _car == null
+			and not is_paused()
+			and not _input_locked
+			and _controls.lotus().open()
+		):
 			get_viewport().set_input_as_handled()
 			return
 		_controls.contextual_button().button_down.emit()

@@ -33,6 +33,11 @@ static var _loaded := false
 ## ambient energy. White and one mean no mood.
 var mood_colour := Color.WHITE
 var mood_ambient := 1.0
+## The Remembrance's rose (street.gd tint_sun): once set, the sun's colour
+## comes from here instead of the stage, still under the mood, so no stage
+## or mood that comes later undoes the dawn.
+var _tint_colour := Color.WHITE
+var _tinted := false
 
 var _sun: DirectionalLight3D = null
 var _environment: Environment = null
@@ -157,13 +162,27 @@ func set_mood(colour: Color, ambient: float, seconds: float) -> void:
 	_apply(seconds)
 
 
+## The sun eases to [param colour] and stays tinted from there: the stages
+## and moods that come later multiply this, not the stage's colour.
+func set_sun_tint(colour: Color, seconds: float) -> void:
+	_tint_colour = colour
+	_tinted = true
+	_apply(seconds)
+
+
+func is_sun_tinted() -> bool:
+	return _tinted
+
+
 func stage_id() -> String:
 	return str(_stage.get("id", ""))
 
 
-## Where the sun colour is heading: the stage's colour under the mood.
+## Where the sun colour is heading: the tint if one was set, else the
+## stage's colour; either under the mood.
 func target_sun_colour() -> Color:
-	return colour_of(_stage, "sun_colour") * mood_colour
+	var base := _tint_colour if _tinted else colour_of(_stage, "sun_colour")
+	return base * mood_colour
 
 
 func target_ambient_energy() -> float:

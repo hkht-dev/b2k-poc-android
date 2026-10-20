@@ -114,13 +114,16 @@ func _drift_bubble() -> void:
 	tween.tween_callback(func() -> void: _bubble.visible = false)
 
 
-## The body stands still (its physics step is off, so the stick does nothing)
-## and holds the pose; or is let go.
+## The body stands still (held, so the stick does nothing and the feet fall
+## silent) and holds the pose; or is let go.
 func _hold_still(player: Node3D, on: bool) -> void:
 	var body := player as CharacterBody3D
 	if body != null:
 		body.velocity = Vector3.ZERO
-	player.set_physics_process(not on)
+	if player.has_method("hold_still"):
+		player.hold_still(on)
+	else:
+		player.set_physics_process(not on)
 	var rig: CharacterRig = player.get_node_or_null("%Mesh")
 	if rig == null:
 		return

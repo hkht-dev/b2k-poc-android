@@ -26,10 +26,6 @@ const MOOD_SECONDS := 4.0
 var _bed_player: AudioStreamPlayer = null
 var _ending := false
 var _daylight: Daylight = null
-var _base_sun_colour := Color.WHITE
-var _base_ambient := 1.0
-var _mood_tween: Tween = null
-var _tint_tween: Tween = null
 
 @onready var _sun: DirectionalLight3D = $Sun
 @onready var _bus_stop: Node3D = %BusStopPoint
@@ -79,19 +75,11 @@ func daylight() -> Daylight:
 
 ## The sky's first pink (GDD §10: "the first time any pink appears in Hollow
 ## Vale is at beat 12"; §3 Act 4 "Remembrance"): eases the sun to
-## [param colour] over [param seconds]. Any mood that comes later tints from
-## there, so the dawn is not undone by a flag.
+## [param colour] over [param seconds], through the daylight, so any stage
+## or mood that comes later tints from there and the dawn is not undone by
+## a flag.
 func tint_sun(colour: Color, seconds: float) -> void:
-	if _mood_tween != null:
-		_mood_tween.kill()
-	if _tint_tween != null:
-		_tint_tween.kill()
-	_base_sun_colour = colour
-	if seconds <= 0.0:
-		_sun.light_color = colour
-		return
-	_tint_tween = create_tween()
-	_tint_tween.tween_property(_sun, "light_color", colour, seconds)
+	_daylight.set_sun_tint(colour, seconds)
 
 
 ## The bus stop said it is over (CLAUDE_CODE_BRIEF.md §4.6): the player sits
