@@ -81,7 +81,15 @@ REQUIRED_STRING_IDS = [
     "settings.compass",
     *[f"compass.{k}" for k in ("north", "east", "south", "west")],
     *[f"controls.{scheme}.places" for scheme in ("touch", "desktop", "gamepad")],
+    # the expansion's stages (docs/DECISIONS.md "The world grows")
+    "pause.garden",
+    *[f"garden.{k}" for k in ("title", "close", "pull", "pulled", "hint", "empty", "creeper")],
+    "journey.stray_cows",
+    "quest.stray_cows.both",
 ]
+SKINS = {"humanFemaleA", "humanMaleA", "criminalMaleA", "skaterFemaleA", "skaterMaleA", "survivorFemaleA", "survivorMaleB"}
+VIGNETTE_REQUIRED = ["id", "giver_name_id", "skin", "spot", "lines", "journey_line_id", "outcomes"]
+SEED_SOURCE = re.compile(r"^(flag:\S+|choice:\S+:\d+)$")
 PLACE_REQUIRED = ["scene", "name_id"]
 
 QUEST_REQUIRED = ["id", "giver", "start_condition", "steps", "end_condition"]
@@ -131,6 +139,8 @@ def main() -> int:
     problems += check_dialogue(strings)
     problems += check_places(strings)
     problems += check_daylight()
+    problems += check_vignettes(strings)
+    problems += check_garden(strings)
     if problems:
         fail(f"{problems} problem(s)")
         return 1
@@ -157,7 +167,8 @@ def check_strings() -> dict | None:
             fail(f"data/strings/en.json is missing the id '{required}'")
             problems += 1
     for key, text in english.items():
-        if key.startswith(("line.", "card.")) and len(str(text).split()) > MAX_WORDS:
+        spoken = key.startswith(("line.", "card.")) or re.match(r"^vignette\.[^.]+\.(line|card)\.", key)
+        if spoken and len(str(text).split()) > MAX_WORDS:
             fail(f"'{key}' is {len(str(text).split())} words; GDD §8 keeps lines under 20")
             problems += 1
     for locale, table in tables.items():
@@ -360,6 +371,154 @@ def check_daylight() -> int:
             problems += 1
     if not problems:
         print(f"ok  data/daylight.json ({len(stages)} stages)")
+    return problems
+
+def check_lines_table(table: dict, strings: dict, rel: str, dialogue_ids: set | None = None) -> int:
+    """The shape of data/dialogue lines, reused for vignette files."""
+    problems = 0
+    for line_id, line in table.items():
+        if not isinstance(line, dict):
+            fail(f"{rel}: line '{line_id}' is not an object")
+            problems += 1
+            continue
+        for key in LINE_REQUIRED:
+            if key not in line:
+                fail(f"{rel}: line '{line_id}' is missing '{key}'")
+                problems += 1
+        if f"speaker.{line.get('speaker')}" not in strings:
+            fail(f"{rel}: line '{line_id}' speaker '{line.get('speaker')}' has no speaker.* string")
+            problems += 1
+        if line.get("text_id") not in strings:
+            fail(f"{rel}: line '{line_id}' text '{line.get('text_id')}' not in strings")
+            problems += 1
+        if line.get("review_status") not in REVIEW_STATUSES:
+            fail(f"{rel}: line '{line_id}' review_status must be one of {sorted(REVIEW_STATUSES)}")
+            problems += 1
+        cards = line.get("cards", [])
+        if not isinstance(cards, list) or len(cards) not in (0, 2, 3):
+            fail(f"{rel}: line '{line_id}' offers {len(cards) if isinstance(cards, list) else '?'} cards; GDD §6 allows two or three")
+            problems += 1
+            cards = cards if isinstance(cards, list) else []
+        for card in cards:
+            if not isinstance(card, dict):
+                fail(f"{rel}: line '{line_id}' has a card that is not an object")
+                problems += 1
+                continue
+            for key in CARD_REQUIRED:
+                if key not in card:
+                    fail(f"{rel}: line '{line_id}' card is missing '{key}'")
+                    problems += 1
+            if card.get("text_id") not in strings:
+                fail(f"{rel}: line '{line_id}' card text '{card.get('text_id')}' not in strings")
+                problems += 1
+            nxt = card.get("next", "")
+            if nxt and nxt not in table and not (dialogue_ids and nxt in dialogue_ids):
+                fail(f"{rel}: line '{line_id}' points at missing line '{nxt}'")
+                problems += 1
+    return problems
+
+
+def check_vignettes(strings: dict) -> int:
+    """data/vignettes/*.json: one stranger a day, its lines in the dialogue shape."""
+    folder = DATA / "vignettes"
+    if not folder.is_dir():
+        return 0
+    dialogue = load(DATA / "dialogue" / "en.json") or {}
+    problems = 0
+    count = 0
+    for path in sorted(folder.glob("*.json")):
+        rel = path.relative_to(ROOT)
+        data = load(path)
+        if data is None:
+            problems += 1
+            continue
+        count += 1
+        for key in VIGNETTE_REQUIRED:
+            if key not in data:
+                fail(f"{rel}: missing '{key}'")
+                problems += 1
+        vid = str(data.get("id", ""))
+        if vid != path.stem:
+            fail(f"{rel}: id '{vid}' must equal the file name")
+            problems += 1
+        if data.get("spot") not in ("a", "b", "c"):
+            fail(f"{rel}: spot must be a, b or c")
+            problems += 1
+        if data.get("skin") not in SKINS:
+            fail(f"{rel}: skin '{data.get('skin')}' is not a Kenney skin")
+            problems += 1
+        for key in ("giver_name_id", "journey_line_id"):
+            if data.get(key) not in strings:
+                fail(f"{rel}: '{key}' '{data.get(key)}' not in strings")
+                problems += 1
+        lines = data.get("lines", {})
+        if not isinstance(lines, dict) or not lines:
+            fail(f"{rel}: 'lines' must be a non-empty object")
+            problems += 1
+            continue
+        problems += check_lines_table(lines, strings, str(rel), set(dialogue))
+        set_flags = set()
+        for line_id, line in lines.items():
+            if not line_id.startswith(f"vignette_{vid}_"):
+                fail(f"{rel}: line id '{line_id}' must start with 'vignette_{vid}_'")
+                problems += 1
+            if line_id in dialogue:
+                fail(f"{rel}: line id '{line_id}' clashes with data/dialogue/en.json")
+                problems += 1
+            for card in line.get("cards", []) if isinstance(line, dict) else []:
+                for flag in card.get("sets", []) if isinstance(card, dict) else []:
+                    set_flags.add(flag)
+        outcomes = set(data.get("outcomes", []))
+        if outcomes != set_flags:
+            fail(f"{rel}: outcomes {sorted(outcomes)} must be exactly the flags the cards set {sorted(set_flags)}")
+            problems += 1
+    if not problems:
+        print(f"ok  data/vignettes ({count} vignettes)")
+    return problems
+
+
+def check_garden(strings: dict) -> int:
+    """data/garden.json: seeds from flags and choices, the creeper, the waters."""
+    path = DATA / "garden.json"
+    if not path.exists():
+        return 0
+    data = load(path)
+    if data is None:
+        return 1
+    problems = 0
+    seeds = data.get("seeds")
+    if not isinstance(seeds, list) or not seeds:
+        fail("data/garden.json: 'seeds' must be a non-empty list")
+        return problems + 1
+    for seed in seeds:
+        if not isinstance(seed, dict):
+            fail("data/garden.json: a seed is not an object")
+            problems += 1
+            continue
+        if not SEED_SOURCE.match(str(seed.get("source", ""))):
+            fail(f"data/garden.json: seed source '{seed.get('source')}' must be flag:<name> or choice:<line>:<index>")
+            problems += 1
+        if seed.get("kind") not in ("sweet", "bitter", "weed"):
+            fail(f"data/garden.json: seed '{seed.get('source')}' kind must be sweet, bitter or weed")
+            problems += 1
+        if seed.get("sentence_id") not in strings:
+            fail(f"data/garden.json: seed sentence '{seed.get('sentence_id')}' not in strings")
+            problems += 1
+    creeper = data.get("creeper", {})
+    if not isinstance(creeper, dict) or creeper.get("sentence_id") not in strings or not creeper.get("given_flag"):
+        fail("data/garden.json: 'creeper' needs a sentence_id in strings and a given_flag")
+        problems += 1
+    waters = data.get("waters", {}).get("flags") if isinstance(data.get("waters"), dict) else None
+    if not isinstance(waters, list) or not all(isinstance(f, str) for f in waters):
+        fail("data/garden.json: 'waters.flags' must be a list of flag names")
+        problems += 1
+    growth = data.get("growth", {})
+    for key in ("sapling_after_days", "fruiting_after_days"):
+        if not isinstance(growth, dict) or not isinstance(growth.get(key), int):
+            fail(f"data/garden.json: 'growth.{key}' must be an integer")
+            problems += 1
+    if not problems:
+        print(f"ok  data/garden.json ({len(seeds)} seeds)")
     return problems
 
 
