@@ -2593,3 +2593,98 @@ comment.
 
 Every PNG and OGG here: replaced 1:1 by the painted surfaces and recorded
 sounds of GDD §10. No rights rows: generated, like the street's own.
+
+
+## 2026-10-20 — Sitting for a tale: Puranjana in three sittings, the painted scroll
+
+GDD §3a Act 3 ("Sit with Madhuri; tap to turn a painted scroll: Puranjana,
+in three sittings"), §9a "Tales from the Srimad-Bhagavatam", §6 "The Garden"
+(the creeper is watered by hearing), §8 (voice), §11 (controls). Affects §7
+(the investigate route's shrine room is where the seat belongs) and §16a
+(the daily "three-minute tale" is the same mechanic).
+
+### The data: a tale is sittings of panels, and only flags remember it
+
+- `data/tales.json` holds three tales: *Puranjana* (Canto 4, ch. 25–29) in
+  three sittings of six, six and seven panels; *Prahlada* (Canto 7, ch. 5)
+  and *Dhruva* (Canto 4, ch. 8–12), the two witness tales of §9a, in one
+  sitting each. A tale is `{id, title_id, source_id, journey_line_id,
+  review_status, sittings: [[panel text ids]]}`; every word is in
+  `data/strings/en.json` as `tale.<id>.title`, `tale.<id>.source`,
+  `tale.<id>.<sitting>.<panel>`. Panels are under 40 words, plainly told
+  (§8: they talk about gates, lakes and seats, not philosophy). The one
+  gloss is Puranjana's last panel, which is the Bhagavatam's own.
+- `source_id` is the canto and chapter, shown at the foot of the scroll:
+  §9a says every tale carries its source on its card. `review_status` is
+  `draft` on all three, as on dialogue lines: the panel (GDD §15) has not
+  read them. They are paraphrases, not translations; nothing is quoted.
+- Flags, by one convention off the tale id (as `carrying_<item>`):
+  `heard_tale_<id>_<n>` when sitting n has been heard to its end,
+  `heard_tale_<id>` when the last has. `Tales.next_sitting()` offers the
+  first sitting whose flag is unset; once all are set it offers the last
+  again, so a tale can be heard twice. Nothing else is stored: no
+  position within a sitting, no count of hearings. Closing the scroll
+  early records nothing. The Garden, when it exists, reads these flags.
+- `scripts/core/tales.gd` is a static loader like `Places`, so
+  `scripts/core/content.gd` stays the integrator's.
+
+### The seat and the scroll
+
+- `scenes/quest/TaleSeat.tscn` is an `Interactable` *Sit* and the rule;
+  what it looks like belongs to the place around it. Using it sits the
+  player where they stand (`CharacterRig.hold_pose("Sitting_Idle")`, the
+  bus stop's clip), drifts the camera toward the seat for two seconds and
+  opens `scenes/ui/ScrollScreen.tscn` on the place's `UI` layer, over the
+  HUD. Finishing a sitting sets its flag; finishing the last also sets the
+  tale's flag and adds the tale's line to *Your journey* (§9a: tales are
+  "collected in *Your journey*").
+- While the player sits, the seat stops the player's physics
+  (`set_physics_process(false)`) rather than touching the Place seam; the
+  scroll covers the screen, so no tap or joystick reaches the controls,
+  and a held key cannot walk the body off the cushion. It is one function
+  (`TaleSeat._hold`) to swap if the Place grows a `lock_input` seam; the
+  Counting Man's and Nanda's sittings will want the same thing.
+- The scroll is drawn, not textured: parchment, a frame line, faint fibre
+  lines, a timber roll across the top and bottom with the rolled paper
+  showing at the ends. The words sit on it in the heading serif. Tap or
+  click anywhere on the scroll, Enter, Space or the pad's A (the
+  `contextual` action) turns; *Back* goes back one panel; *Close* rolls
+  it up. Escape stays the pause: the pause menu lies over the scroll and
+  the scroll ignores keys while the tree is paused. The two buttons take
+  no keyboard focus, so Enter always means "turn".
+- Godot 4.3's built-in `ui_cancel` and `ui_accept` carry no joypad
+  buttons (4.4 adds them), so a pad can turn and finish a sitting but
+  cannot go back or close without a pointer. A `back` action (B) in
+  `project.godot` would close that; the integrator owns that file and the
+  slice's gamepad scheme is "PC later" (GDD §11).
+- No page counter, no progress bar, no sitting "2/3": the sitting's name
+  ("Second sitting") and the hint ("Tap to turn the scroll", on the last
+  panel "Tap to roll it up") are the only orientation. GDD §6: no meters.
+- Portrait first: the rolls run across the width because the phone is
+  tall; the layout is computed from the control's size, so a landscape
+  desktop window gets a wider, shorter scroll.
+
+### The seat on the street, for development
+
+- `tools/street_parts/tale_seat.py` puts a cushion (a flat cylinder in
+  the street's `coat` cloth) and the seat on the south-east corner of the
+  step round the fountain, at (5.4, −0.15, 5.4), with a Label3D sign
+  (`sign.tale_seat`) facing the pavement. The asked-for spot
+  (0, −0.15, 6.9) lies inside the lip's torus (inner radius 5.6, outer
+  7.0), where nothing can be seen or stood; the corner is the same step
+  at the same height, in the open.
+- The shrine-room change moves or duplicates this beside Madhuri and may
+  then drop the street's. The scene, the data and the scroll do not know
+  where they are; only `tale_id` is set on the node.
+- PLACEHOLDERS: the cushion stands for Madhuri's mat (GDD §4, §9a); the
+  drawn parchment and the silence stand for the painted frames and the
+  teller's voice (§9a: "static hand-painted frames with light movement,
+  narrated by the character who tells them"), about 70 frames for
+  Chapter 1.
+
+### Budget
+
+Not measured in a web build for this change (no export was run on the
+shared machine). The street gains one cylinder mesh, one Label3D and one
+hidden Area3D; the scroll is a handful of 2D rectangles and three labels
+while it is open. Nothing is simulated.

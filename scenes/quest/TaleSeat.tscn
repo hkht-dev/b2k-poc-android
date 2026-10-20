@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3]
+
+; A seat for a tale (scripts/quest/tale_seat.gd): *Sit*, and the painted
+; scroll opens on the next sitting. The seat is the verb and the rule; what
+; it looks like is built by the place's generator around it.
+
+[ext_resource type="Script" path="res://scripts/quest/tale_seat.gd" id="1_seat"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sit"]
+size = Vector3(3.2, 2.2, 3.2)
+
+[node name="TaleSeat" type="Node3D"]
+script = ExtResource("1_seat")
+tale_id = "puranjana"
+
+[node name="Sit" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.sit"
+
+[node name="Shape" type="CollisionShape3D" parent="Sit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("BoxShape3D_sit")
