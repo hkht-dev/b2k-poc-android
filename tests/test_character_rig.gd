@@ -95,3 +95,36 @@ func test_the_player_scene_stands_alone() -> void:
 	await wait_frames(2)
 	assert_true(player.get_node("Mesh") is CharacterRig)
 	assert_not_null(player.get_node_or_null("Mesh/Body"))
+
+
+func test_clip_tracks_point_at_the_body_skeleton_by_profile_bone_names() -> void:
+	# Bodies and clips are imported through a humanoid BoneMap, so bone names
+	# are the profile's ("Hips", "LeftUpperArm"), and the rig re-points every
+	# track at the body's skeleton node whatever the clip scene's layout was.
+	var rig := _rig()
+	var skeleton := rig.skeleton()
+	assert_not_null(skeleton)
+	assert_gt(skeleton.find_bone("Hips"), -1, "bones carry the profile's names")
+	assert_gt(skeleton.find_bone("LeftUpperArm"), -1)
+	var clip := rig.animation_player().get_animation("clips/walk")
+	var expected := NodePath(str(rig.get_node("Body").get_path_to(skeleton)))
+	assert_gt(clip.get_track_count(), 10)
+	for track: int in clip.get_track_count():
+		var path := clip.track_get_path(track)
+		assert_eq(path.get_subname_count(), 1, "every kept track is a bone track")
+		assert_eq(
+			NodePath(path.get_concatenated_names()), expected, "and points at the body's skeleton"
+		)
+		assert_gt(skeleton.find_bone(path.get_subname(0)), -1, "with a bone the body has")
+
+
+func test_the_walk_moves_the_legs_over_time() -> void:
+	var rig := _rig()
+	var skeleton := rig.skeleton()
+	var foot := skeleton.find_bone("LeftFoot")
+	rig.animation_player().play("clips/walk")
+	rig.animation_player().seek(0.0, true)
+	var at_start := skeleton.get_bone_global_pose(foot).origin
+	rig.animation_player().seek(0.3, true)
+	var later := skeleton.get_bone_global_pose(foot).origin
+	assert_gt(at_start.distance_to(later), 0.05, "the foot has moved")
