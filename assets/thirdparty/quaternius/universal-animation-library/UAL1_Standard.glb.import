@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dermdj8u3003q"
-path="res://.godot/imported/idle.fbx-b025f1903496fd8deb895b4dc63f693a.scn"
+uid="uid://din1t1uh4nxa6"
+path="res://.godot/imported/UAL1_Standard.glb-f3b2a2f8b3ce15bf7968442ee03c395e.scn"
 
 [deps]
 
-source_file="res://assets/thirdparty/kenney/animated-characters-retro/idle.fbx"
-dest_files=["res://.godot/imported/idle.fbx-b025f1903496fd8deb895b4dc63f693a.scn"]
+source_file="res://assets/thirdparty/quaternius/universal-animation-library/UAL1_Standard.glb"
+dest_files=["res://.godot/imported/UAL1_Standard.glb-f3b2a2f8b3ce15bf7968442ee03c395e.scn"]
 
 [params]
 
@@ -33,12 +33,11 @@ animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "nodes": {
-"PATH:Root/Skeleton3D": {
-"retarget/bone_map": Resource("res://assets/characters/kenney_humanoid_map.tres"),
+"PATH:Armature/Skeleton3D": {
+"retarget/bone_map": Resource("res://assets/characters/quaternius_humanoid_map.tres"),
 "retarget/rest_fixer/fix_silhouette/enable": true
 }
 }
 }
-fbx/importer=0
-fbx/allow_geometry_helper_nodes=false
-fbx/embedded_image_handling=1
+gltf/naming_version=1
+gltf/embedded_image_handling=1

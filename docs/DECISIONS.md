@@ -737,3 +737,33 @@ Godot's `SkeletonProfileHumanoid` at import. Affects amendment §B4.
   (The Quaternius body is 1.6 m to Kenney's 3.7 m, so 0.59 m is the same
   swing.) `fix_silhouette` is the documented path for cross-rig clips and
   keeps the axes normalised, so it is the one used.
+
+
+## 2026-10-20 — The true walk: Quaternius' Universal Animation Library on Kenney's body
+
+The owner asked for a true walk and fetched Quaternius' packs through a
+browser (itch.io serves nothing else) onto a release of this repository.
+Affects amendment §B4; GDD §6 (the player's body language).
+
+- `tools/fetch_quaternius.py` (new): takes the listed files out of a release
+  asset, writes the retarget `.import` for rigged files
+  (`tools/retarget_import.py`, now shared with `fetch_kenney.py`) and the
+  rights-register rows. The library is one GLB with 43 clips on the
+  universal rig; Godot drops the `_Loop` suffix on import, so the names are
+  `Idle`, `Walk`, `Jog_Fwd`, `Sprint`, `Interact`, `PickUp_Table`, …
+- `Character.tscn` now points idle, walk and run at that GLB. Kenney's own
+  `idle`/`run`/`jump` clips left the repository with the slowed-run
+  placeholder: nothing used them.
+- The free *Universal Base Characters* tier has superhero suits only, so
+  the body stays Kenney's human in a shirt and jeans (GDD §10: "an ordinary
+  coat"). The library's walk reaches it through the humanoid profile.
+- `CharacterRig` keeps only bone **rotation** tracks from a clip. Position
+  tracks carry the source rig's offsets: the library's hips height, applied
+  under Kenney's hips-control bone, lifted the body 1.5 m off the ground.
+  Rotations alone carry the walk; the vertical bob is lost, which at this
+  size is not visible.
+- Reference speeds: Walk at 1.5 m/s (its 1.33 s cycle at the player's
+  2.2 m/s plays at 1.5×, a brisk walk), Jog_Fwd at 3.6 m/s; the run
+  threshold stays 3.2 m/s.
+
+PERF_TABLE_PLACEHOLDER

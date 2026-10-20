@@ -24,19 +24,25 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from retarget_import import write_retarget_import  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "thirdparty" / "quaternius"
 REGISTER = ROOT / "docs" / "RIGHTS_REGISTER.md"
 LICENCE = "CC0 1.0 (License_Standard.txt in the pack; https://quaternius.com)"
 RELEASE = "https://github.com/hkht-dev/b2k-poc-android/releases/download/quaternius-packs-2026-10-20"
 
-# pack -> (zip asset name on the release, itch page, [paths inside the zip], where used)
+# pack -> (zip asset name on the release, itch page, [paths inside the zip],
+#          where used, retarget (skeleton node, BoneMap) for .glb/.fbx files)
 PACKS = {
     "universal-animation-library": (
         "Universal.Animation.Library.Standard.zip",
         "https://quaternius.itch.io/universal-animation-library",
-        [],  # filled in once the zip is inspected: the walk, idle and run clips
-        "walk, idle and run clips for the rigged humans",
+        # One GLB holds all 43 clips on the universal rig (no root motion).
+        ["Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"],
+        "the walk, idle and jog of every rigged human",
+        ("Armature/Skeleton3D", "res://assets/characters/quaternius_humanoid_map.tres"),
     ),
 }
 USER_AGENT = "b2k-poc-android fetch_quaternius.py (https://github.com/hkht-dev/b2k-poc-android)"
@@ -60,7 +66,7 @@ def register_row(pack: str, name: str, page: str, used: str, path: Path, rel: st
 
 
 def unpack(pack: str, archive: zipfile.ZipFile) -> int:
-    asset, page, paths, used = PACKS[pack]
+    asset, page, paths, used, retarget = PACKS[pack]
     pack_dir = OUT / pack
     pack_dir.mkdir(parents=True, exist_ok=True)
     licence = next((n for n in archive.namelist() if "license" in n.lower()), None)
@@ -74,6 +80,8 @@ def unpack(pack: str, archive: zipfile.ZipFile) -> int:
             continue
         path = pack_dir / Path(rel).name
         path.write_bytes(archive.read(rel))
+        if retarget and path.suffix in (".glb", ".gltf", ".fbx"):
+            write_retarget_import(ROOT, path, *retarget)
         register_row(pack, Path(rel).stem, page, used, path, rel)
         print(f"fetch_quaternius: {pack}/{path.name} ({path.stat().st_size // 1024} KB)")
     return problems
@@ -87,7 +95,7 @@ def main() -> int:
     args = parser.parse_args()
     problems = 0
     if args.check:
-        for pack, (_, _, paths, _) in PACKS.items():
+        for pack, (_, _, paths, _, _) in PACKS.items():
             for rel in paths:
                 if not (OUT / pack / Path(rel).name).exists():
                     print(f"fetch_quaternius: missing {pack}/{Path(rel).name}", file=sys.stderr)
@@ -99,7 +107,7 @@ def main() -> int:
         if args.pack not in PACKS:
             parser.error(f"name the pack: {', '.join(PACKS)}")
         return unpack(args.pack, zipfile.ZipFile(args.local))
-    for pack, (asset, _, _, _) in PACKS.items():
+    for pack, (asset, _, _, _, _) in PACKS.items():
         print(f"fetch_quaternius: downloading {asset} from the release")
         problems += unpack(pack, zipfile.ZipFile(io.BytesIO(fetch(f"{RELEASE}/{asset}"))))
     return 1 if problems else 0

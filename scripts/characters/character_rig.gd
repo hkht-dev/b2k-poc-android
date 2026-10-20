@@ -142,10 +142,12 @@ func _play(wanted: String) -> void:
 	_player.play(key, BLEND)
 
 
-## The named animation out of a clip scene, looped, its bone tracks pointed
-## at `skeleton_path` (the body's skeleton, relative to the body's root),
-## shared through the cache. Tracks that are not bone tracks are dropped: a
-## clip's own root-motion node means nothing on another body.
+## The named animation out of a clip scene, looped, its bone rotation tracks
+## pointed at `skeleton_path` (the body's skeleton, relative to the body's
+## root), shared through the cache. Everything else is dropped: a clip's own
+## root node means nothing on another body, and a position track carries the
+## source rig's bone offsets (the library's hips height lifted Kenney's body
+## 1.5 m off the ground). Rotations alone carry a walk; the bob goes.
 func _clip(scene: PackedScene, animation_name: String, skeleton_path: NodePath) -> Animation:
 	if scene == null or animation_name.is_empty():
 		return null
@@ -160,7 +162,10 @@ func _clip(scene: PackedScene, animation_name: String, skeleton_path: NodePath) 
 		clip.loop_mode = Animation.LOOP_LINEAR
 		for track: int in range(clip.get_track_count() - 1, -1, -1):
 			var path := clip.track_get_path(track)
-			if path.get_subname_count() == 0:
+			if (
+				path.get_subname_count() == 0
+				or clip.track_get_type(track) != Animation.TYPE_ROTATION_3D
+			):
 				clip.remove_track(track)
 			else:
 				clip.track_set_path(track, NodePath("%s:%s" % [skeleton_path, path.get_subname(0)]))
