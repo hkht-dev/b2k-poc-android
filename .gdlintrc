@@ -1,0 +1,4 @@
+# gdlint settings. GameState is the one journey object (GDD §12), so its
+# public surface grows with every system that saves something; the default
+# cap of 20 public methods is lifted for that reason (docs/DECISIONS.md).
+max-public-methods: 40
