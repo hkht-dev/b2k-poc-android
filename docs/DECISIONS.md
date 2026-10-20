@@ -1625,3 +1625,74 @@ journey). Built on `feat/e1-places` (the Showroom is a Place).
   file says so, and a final art pass replaces the `skin` paths and names.
 - The dais and the mirror are primitives in the street's materials, as the
   rest of the interiors are, for the painted set dressing of GDD §10.
+
+
+## 2026-10-20 — The Forgotten Song as data, and Dhanpal at the hall
+
+GDD §7 "Main quest: The Forgotten Song", §8 Scene C, §4 Dhanpal, §6
+"Remembering Krishna". Affects §7 (the quest file's shape), §11 (the pause
+menu's one line).
+
+### The spine is one file; the approaches are flags
+
+- `data/quests/forgotten_song.json`: giver `dhanpal`; it starts on
+  `heard_tulu` or `met_dhanpal`, so following the boy and meeting the
+  landlord both open it. It ends on `played_for_others` or `kept_veena`,
+  each a branch with its own line in *Your journey*
+  (`journey.forgotten_song.played` / `.kept`). No flag of its own is set by
+  the quest: the tower, the competitors, the shrine and the Veena set theirs,
+  and the quest only reads them.
+- The runner walks steps in order and re-derives progress from flags, so
+  three approaches that can run in any order and mix are written as one
+  ordered list of ten steps whose `complete_when` say "this approach's next
+  milestone, *or* the player is on another approach, *or* they are on the
+  tower". Order: hear of it, the tower waits, Compete (key, shortcut),
+  Mediate (a second competitor, all four), Investigate (lamp, Sarang's bar),
+  climb, dawn. Compete steps give way to any Mediate or Investigate flag;
+  Mediate steps give way to the shrine or to a finished Compete; Investigate
+  steps give way to a finished Compete or a finished Mediate; `on_the_tower`
+  clears every preparation. So under a mix the one line follows Investigate
+  over Mediate over Compete, and a finished approach wins over a begun one
+  (GDD §7: "a player who starts competing can switch to mediating after one
+  taken item"). Every condition is monotone (no `not`), so a loaded journey
+  lands on the same step; a test holds that.
+- "Two competitors before accepting" has no counter in the condition
+  language, so it is the six pairs written out. Long, but it is data, and
+  the alternative was a path variable or a counter in code.
+- Objective texts (`quest.forgotten_song.*`) are the pause menu's one line in
+  the character's voice: "Dawn is coming. The tower is waiting." is the
+  GDD's "Be on the tower at dawn" said by the traveler.
+
+### Dhanpal
+
+- `scenes/npc/Dhanpal.tscn` is the shared body in the criminalMaleA skin, a
+  little taller and broadened; `scripts/npc/dhanpal.gd` is the shopkeeper
+  pattern (first available of `entry_lines`) plus one thing of his own: he
+  turns to whoever comes within 5 m of the hall and back to the street when
+  they go. He never follows. His lines after each dawn are chosen by
+  `requires`, not judged in code.
+- Scene C's cards: *Count me in* (sets `accepted_contest`), *Who else is
+  climbing?*, *Not today*; the first line's `sets` is `met_dhanpal`. "Why
+  does the name matter?" follows *Who else*, so the GDD's line about Nanda
+  and his brother is reachable without accepting.
+- The hall is the last south flat given a front by
+  `tools/street_parts/dhanpal.py`: a step at the pavement's road edge, two
+  pillars, a fascia with the `sign.hall` label, a roof back to the face, a
+  doorway between two windows. The pedestrians' loop (z 23 and 24.4) passes
+  under the roof between the pillars and the door, a colonnade people walk
+  through, which is why the step and pillars stop short of z 22.7. The task
+  named "x 46, z 27"; z 27 is inside the flat, so the front sits on its
+  street face (z 24.9) and the pavement in front, centred on x 46.
+- PLACEHOLDER: the hall front is primitives in the street's textures,
+  replaced by the hall of GDD §5; Dhanpal's body by GDD §4's.
+
+### For the integrator
+
+- `scripts/ui/pause_menu.gd` `now_line()` reads the first ACTIVE quest in
+  id order, and `dry_fountain` (active from the start) sorts before
+  `forgotten_song`; it also returns *Somewhere a boy is humming* until
+  `heard_tulu`, even once Dhanpal has been met. The main quest's line should
+  win: either a `priority`/`main` field on the quest file read by `now_line`,
+  or the main quest first. Left untouched here (shared file).
+- `tools/check_data.py` `REQUIRED_STRING_IDS`: add `speaker.dhanpal` and
+  `sign.hall` (the sign is referenced only by the generated scene).
