@@ -70,7 +70,8 @@ def zip_url(kit: str) -> str:
 
 # Files taken as shipped from a kit, by their path inside the zip:
 # kit -> (paths, where used, retarget). Kenney's animated characters are FBX
-# (a body, skin PNGs); Godot 4.3 imports FBX natively, so it stays FBX. `retarget` names the skeleton node inside each FBX and the BoneMap
+# (a body, skin PNGs); Godot 4.3 imports FBX natively, so it stays FBX.
+# `retarget` names the skeleton node inside each FBX and the BoneMap
 # that maps its bones onto Godot's humanoid profile; the tool writes that
 # into the file's .import so a clip from another rig plays on the body.
 FILES = {
@@ -84,18 +85,6 @@ FILES = {
         ],
         "the player, pedestrians and Tulu: rigged body and skins",
         ("Root/Skeleton3D", "res://assets/characters/kenney_humanoid_map.tres"),
-    ),
-    # The same body with other clothes: skins only. (The zombies and the
-    # cyborg stay out; Hollow Vale is an ordinary street.)
-    "animated-characters-protagonists": (
-        ["Skins/criminalMaleA.png", "Skins/skaterFemaleA.png", "Skins/skaterMaleA.png"],
-        "pedestrian and Tulu skins",
-        None,
-    ),
-    "animated-characters-survivors": (
-        ["Skins/survivorFemaleA.png", "Skins/survivorMaleB.png"],
-        "pedestrian skins",
-        None,
     ),
 }
 
