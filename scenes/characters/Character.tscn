@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3]
+
+; A rigged human for the Street: Kenney's "Animated Characters Retro" body
+; (CC0, docs/RIGHTS_REGISTER.md) with its idle and run clips, assembled by
+; scripts/characters/character_rig.gd. Instance it and set `skin`.
+;
+; PLACEHOLDER: the walk is the run clip slowed to walking pace — the pack
+; has idle, run and jump only. Replaced by a true walk clip when the owner
+; brings in Quaternius' Universal Base Characters + Universal Animation
+; Library (docs/RIGGED_CHARACTER.md); then walk_scene/walk_animation change
+; here and nothing in code does. The traveler form of GDD §10 replaces the
+; body itself.
+
+[ext_resource type="Script" path="res://scripts/characters/character_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/kenney/animated-characters-retro/characterMedium.fbx" id="2_body"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-retro/humanMaleA.png" id="3_skin"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/kenney/animated-characters-retro/idle.fbx" id="4_idle"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/kenney/animated-characters-retro/run.fbx" id="5_run"]
+
+[node name="Character" type="Node3D"]
+script = ExtResource("1_rig")
+body = ExtResource("2_body")
+skin = ExtResource("3_skin")
+height = 1.75
+body_height = 3.7
+idle_scene = ExtResource("4_idle")
+idle_animation = "Root|Idle"
+walk_scene = ExtResource("5_run")
+walk_animation = "Root|Run"
+walk_reference_speed = 2.4
+run_scene = ExtResource("5_run")
+run_animation = "Root|Run"
+run_reference_speed = 4.6
+run_above = 3.2

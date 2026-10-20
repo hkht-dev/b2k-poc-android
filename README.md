@@ -163,7 +163,7 @@ ever signs sideload builds.
 |---|---|
 | `data/` | Every quest, line of dialogue and player-facing string. No text is baked into a scene. |
 | `scenes/`, `scripts/` | Mirror each other; one `.gd` per scene, shared code in `scripts/lib/`. |
-| `assets/` | Procedural textures from `tools/gen_textures.py`; CC0 Poly Haven textures and models and Kenney kits under `assets/thirdparty/`, fetched by `tools/fetch_polyhaven.py` and `tools/fetch_kenney.py` (decimated and stylised on the way in) and listed in `docs/RIGHTS_REGISTER.md`; primitive meshes elsewhere. Each carries a `PLACEHOLDER` comment naming its replacement from GDD §10. |
+| `assets/` | Procedural textures from `tools/gen_textures.py`; CC0 Poly Haven textures and models and Kenney kits (cars, trees, the rigged animated characters) under `assets/thirdparty/`, fetched by `tools/fetch_polyhaven.py` and `tools/fetch_kenney.py` (decimated and stylised on the way in) and listed in `docs/RIGHTS_REGISTER.md`; primitive meshes elsewhere. Each carries a `PLACEHOLDER` comment naming its replacement from GDD §10. |
 | `tests/` | GUT tests. |
 | `tools/` | Checked-in scripts CI runs. |
 | `docs/` | The GDD, the slice spec, every decision, the playtest protocol. |

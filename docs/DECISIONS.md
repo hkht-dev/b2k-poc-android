@@ -643,3 +643,53 @@ inside it elsewhere. Cutting the directional shadow distance from 70 m to
 because what crowds that angle is within 45 m anyway. Left at 45 m (it
 costs nothing). The remedy for the peak is the lightmap bake (§B5), which
 removes the shadow pass altogether, not fewer props.
+
+## 2026-10-20 — Rigged humans: Kenney's animated characters through Godot's FBX importer
+
+The owner asked for real hands and legs on the people and, after the visual
+pass, for a rigged character with a true walk. Affects GDD §4 (people on the
+street), §6 (the player's body), amendment §B4.
+
+### What was tried first, and why it changed
+
+The earlier note (`docs/RIGGED_CHARACTER.md`, now rewritten) said a rigged
+CC0 human needed a desktop: the packs are FBX and there was no importer
+here. Wrong on the second half: Godot 4.3's built-in FBX importer (ufbx)
+reads Kenney's files headless — the body as a skinned mesh on a 58-bone
+skeleton, each clip as an AnimationPlayer. Verified before building.
+
+### What was built
+
+- `tools/fetch_kenney.py` gained `FILES`: paths taken as shipped from a kit.
+  *Animated Characters Retro*: the body, `idle`/`run`/`jump`, two human
+  skins. FBX stays FBX; Godot imports it.
+- `scripts/characters/character_rig.gd` (`CharacterRig`): instances the
+  body, scales it to a given height (Kenney's is 3.7 m tall at scale 1,
+  turned half round because it faces +Z), paints the skin on its one
+  material, and fills an AnimationPlayer rooted at the body with the clips,
+  looped and shared through a cache so eight humans hold one copy of each.
+  It reads motion from its own position delta, as the procedural walk did,
+  so the player, Tulu and the pedestrians drive it identically; idle, walk
+  and run are chosen by ground speed, with the clip's `speed_scale`
+  following the speed so feet do not slide.
+- `scenes/characters/Character.tscn` holds the data: which scene and
+  animation is idle, walk and run, the reference speeds, the height. The
+  player, Tulu (scaled 0.72) and the six pedestrians instance it with a
+  `skin`. `figure_animator.gd` and the primitive figures are gone.
+
+### The walk
+
+Kenney's pack has idle, run and jump — no walk. The walk is the run clip
+at `walk_reference_speed` 2.4 m/s, so at the player's 2.2 m/s it plays at
+0.9×: a brisk jog rather than a stroll, honest about being a placeholder.
+A true walk comes from Quaternius' *Universal Animation Library* on the
+*Universal Base Characters* rig (CC0), which only itch.io serves to a
+browser; the owner is fetching those (steps in `docs/RIGGED_CHARACTER.md`),
+and swapping them in is a change to `Character.tscn`, not to code.
+
+### Budget
+
+Skinned meshes cannot be batched: eight humans are eight draw calls each
+frame (plus shadow). Numbers below.
+
+PERF_TABLE_PLACEHOLDER
