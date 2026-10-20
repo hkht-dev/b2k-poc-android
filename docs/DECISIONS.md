@@ -3416,34 +3416,54 @@ on one patch of pavement, and for assertions that could not fail.
 
 ### Budget after the expansion
 
-The first profile of the whole expansion (the P7 walk: the basin and the
-street outside, six headings each, the web build in headless Chromium) came
-out at a median of 171 draw calls and a worst angle of 251 against the 200
-cap, after the detail-shadow rule had already taken the worst angle down from
-270. The expansion's props were the cost: 250 `MeshInstance3D`s in the
-street, 165 of them collision-less boxes and cylinders, each a draw call and
-most of them a second one in the shadow pass.
+The P7 walk (the basin and the street outside, six headings at each, the web
+build in headless Chromium) was run four times as this was worked down.
 
-`scenegen.Builder` now batches details: `detail()` and `detail_cyl()`
-(and `detail_mesh()` for a part's own material) put a collision-less
-primitive into one MultiMesh per (parent, mesh, material, shadows), written
-by `flush_details()` when the scene is assembled, so a bucket costs one draw
-call however many boxes it holds. Every part's `solid(..., collide=False)`
-and upright `cyl()` went through it, except the things a script or a test
-finds by name (the padlock, the coins, the mended string, the cables, the
-landings, the cans, the fruit, the dais, the lip, the stairs). The Tells'
-own helpers batch the same way. A detail is an instance, not a node, so
-`get_node()` no longer finds it; the name a part gives one is for the
-reader. Two side effects, both improvements: a yawed box with unequal sides
-was written through `xf()`, which scales after it rotates (a slight skew);
-an instance rotates then scales. And the street scene is 117 mesh nodes and
-85 MultiMeshes instead of 250 and 25.
+The first profile of the whole expansion came out at a median of 171 draw
+calls and a worst angle of 251 against the 200 cap, after the detail-shadow
+rule had already taken the worst angle down from 270. The expansion's props
+were the cost: 250 `MeshInstance3D`s in the street, 165 of them
+collision-less boxes and cylinders, each a draw call and most of them a
+second one in the shadow pass.
+
+**Details batch.** `scenegen.Builder` gained `detail()`, `detail_cyl()` and
+`detail_mesh()`: a collision-less primitive goes into one MultiMesh per
+(mesh, material) for the whole scene, written under a `Details` node by
+`flush_details()` when the scene is assembled, so a bucket costs one draw
+call however many boxes it holds. A nested parent that may move (a gate's
+leaf) keeps a bucket of its own. Every part's `solid(..., collide=False)`
+and upright `cyl()` went through it, and the Tells' own helpers batch the
+same way. That took the worst angle to 221.
+
+**A detail is small.** Batching everything also took the roads and the
+fountain's basin out of the tree, and `scripts/ui/minimap.gd` reads the
+block's footprints out of the street's groups by name, for the map and for
+the Path card: both lost them silently, and nothing failed. A primitive 3 m
+or more on any side (`Builder.BATCH_LIMIT`) is structure, not a detail, and
+stays a node under its group. `tests/test_minimap.gd` now stands in the way
+of that happening again; it also found that the minimap's fountain entry
+still named `Wall`, which the square pit had and the round fountain has not
+had since it was built.
+
+**The shadow distance.** With structure back as nodes the worst angle was
+233. Every caster inside the directional shadow's distance is a second draw
+call, and the street is 130 m long: at 45 m the whole block was casting at
+the worst angle. 28 m still reaches the far pavement and the shadows under
+the player, the fountain and the shopfronts are unchanged in the
+screenshots. That is the number in the table below.
+
+A detail is an instance, not a node, so `get_node()` no longer finds one;
+the name a part gives it is for the reader. One side effect is an
+improvement: a yawed box with unequal sides used to go through `xf()`,
+which scales after it rotates (a slight skew), where an instance rotates
+then scales. The street scene is 153 mesh nodes and 48 MultiMeshes (790
+instances in them) where it was 250 and 25.
 
 | Metric | Limit (amendment §C) | P6 | Expansion, first profile | This change |
 |---|---|---|---|---|
-| Draw calls per frame | < 200 | median 112, max 177 | median 171, max 251 | BATCH_DRAW |
-| Primitives per frame | < 150k | median 56.0k, max 71.4k | median 65.3k, max 80.6k | BATCH_PRIM |
-| Web `.pck` | — | 36 MB | 50 MB | BATCH_PCK |
+| Draw calls per frame | < 200 | median 112, max 177 | median 171, max 251 | median 156, max 198 |
+| Primitives per frame | < 150k | median 56.0k, max 71.4k | median 65.3k, max 80.6k | median 58.3k, max 80.9k |
+| Web `.pck` | — | 36 MB | 50 MB | 50 MB |
 
 The `.pck` grew by the world's textures and sounds (owner override: the
 install budget no longer binds). The three-device run (GDD §13) stays the
