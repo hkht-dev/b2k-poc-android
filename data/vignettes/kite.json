@@ -1,0 +1,84 @@
+{
+  "id": "kite",
+  "giver_name_id": "speaker.vignette_kite",
+  "skin": "skaterFemaleA",
+  "spot": "c",
+  "lines": {
+    "vignette_kite_open": {
+      "speaker": "vignette_kite",
+      "text_id": "vignette.kite.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.kite.card.open.down",
+          "sets": [
+            "vignette_kite_fetched"
+          ],
+          "next": "vignette_kite_end_fetched"
+        },
+        {
+          "text_id": "vignette.kite.card.open.stick",
+          "sets": [
+            "vignette_kite_left"
+          ],
+          "next": "vignette_kite_end_left"
+        },
+        {
+          "text_id": "vignette.kite.card.open.where",
+          "sets": [],
+          "next": "vignette_kite_made"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_kite_made": {
+      "speaker": "vignette_kite",
+      "text_id": "vignette.kite.line.made",
+      "cards": [
+        {
+          "text_id": "vignette.kite.card.made.another",
+          "sets": [
+            "vignette_kite_another"
+          ],
+          "next": "vignette_kite_end_another"
+        },
+        {
+          "text_id": "vignette.kite.card.made.worth",
+          "sets": [
+            "vignette_kite_fetched"
+          ],
+          "next": "vignette_kite_end_fetched"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_kite_end_fetched": {
+      "speaker": "vignette_kite",
+      "text_id": "vignette.kite.line.end_fetched",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_kite_end_left": {
+      "speaker": "vignette_kite",
+      "text_id": "vignette.kite.line.end_left",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_kite_end_another": {
+      "speaker": "vignette_kite",
+      "text_id": "vignette.kite.line.end_another",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.kite.journey",
+  "outcomes": [
+    "vignette_kite_another",
+    "vignette_kite_fetched",
+    "vignette_kite_left"
+  ]
+}

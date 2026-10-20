@@ -44,6 +44,10 @@ var play_seconds: float = 0.0
 ## which side of one the player is on.
 var place: String = DEFAULT_PLACE
 var spawn: String = ""
+## Real days ("YYYY-MM-DD") whose dawn vignette the journey has been granted
+## (GDD §16a "Dawn vignettes": missed days queue, nothing is lost). Which of
+## them has been played is a flag, `vignette_<id>_done`, like everything else.
+var vignette_days: Array[String] = []
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -142,6 +146,16 @@ func add_journey_line(line_id: String) -> bool:
 	return true
 
 
+## Records that a real day's dawn vignette has been granted (GDD §16a).
+## Returns false if that day already was.
+func grant_vignette_day(date: String) -> bool:
+	if date.is_empty() or vignette_days.has(date):
+		return false
+	vignette_days.append(date)
+	_save_if_enabled()
+	return true
+
+
 # -- persistence --------------------------------------------------------------
 
 
@@ -158,6 +172,7 @@ func to_dict() -> Dictionary:
 		"play_seconds": play_seconds,
 		"place": place,
 		"spawn": spawn,
+		"vignette_days": vignette_days.duplicate(),
 	}
 
 
@@ -181,6 +196,9 @@ func from_dict(data: Dictionary) -> void:
 	if place.is_empty():
 		place = DEFAULT_PLACE
 	spawn = str(data.get("spawn", ""))
+	vignette_days.clear()
+	for date in _string_array(data.get("vignette_days", [])):
+		vignette_days.append(date)
 
 
 func save() -> bool:
@@ -220,6 +238,7 @@ func wipe() -> void:
 	play_seconds = 0.0
 	place = DEFAULT_PLACE
 	spawn = ""
+	vignette_days.clear()
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)

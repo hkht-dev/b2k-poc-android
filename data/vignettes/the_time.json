@@ -1,0 +1,112 @@
+{
+  "id": "the_time",
+  "giver_name_id": "speaker.vignette_the_time",
+  "skin": "skaterFemaleA",
+  "spot": "c",
+  "lines": {
+    "vignette_the_time_open": {
+      "speaker": "vignette_the_time",
+      "text_id": "vignette.the_time.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.the_time.card.open.watch",
+          "sets": [],
+          "next": "vignette_the_time_stopped"
+        },
+        {
+          "text_id": "vignette.the_time.card.open.midday",
+          "sets": [
+            "vignette_the_time_told"
+          ],
+          "next": "vignette_the_time_end_told"
+        },
+        {
+          "text_id": "vignette.the_time.card.open.no",
+          "sets": [
+            "vignette_the_time_none"
+          ],
+          "next": "vignette_the_time_end_none"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_the_time_stopped": {
+      "speaker": "vignette_the_time",
+      "text_id": "vignette.the_time.line.stopped",
+      "cards": [
+        {
+          "text_id": "vignette.the_time.card.stopped.what_day",
+          "sets": [],
+          "next": "vignette_the_time_day"
+        },
+        {
+          "text_id": "vignette.the_time.card.stopped.set",
+          "sets": [
+            "vignette_the_time_set_it"
+          ],
+          "next": "vignette_the_time_end_set"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_the_time_day": {
+      "speaker": "vignette_the_time",
+      "text_id": "vignette.the_time.line.day",
+      "cards": [
+        {
+          "text_id": "vignette.the_time.card.day.set",
+          "sets": [
+            "vignette_the_time_set_it"
+          ],
+          "next": "vignette_the_time_end_set"
+        },
+        {
+          "text_id": "vignette.the_time.card.day.still",
+          "sets": [
+            "vignette_the_time_kept"
+          ],
+          "next": "vignette_the_time_end_kept"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_the_time_end_told": {
+      "speaker": "vignette_the_time",
+      "text_id": "vignette.the_time.line.end_told",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_the_time_end_none": {
+      "speaker": "vignette_the_time",
+      "text_id": "vignette.the_time.line.end_none",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_the_time_end_set": {
+      "speaker": "vignette_the_time",
+      "text_id": "vignette.the_time.line.end_set",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_the_time_end_kept": {
+      "speaker": "vignette_the_time",
+      "text_id": "vignette.the_time.line.end_kept",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.the_time.journey",
+  "outcomes": [
+    "vignette_the_time_kept",
+    "vignette_the_time_none",
+    "vignette_the_time_set_it",
+    "vignette_the_time_told"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "id": "dog",
+  "giver_name_id": "speaker.vignette_dog",
+  "skin": "skaterMaleA",
+  "spot": "a",
+  "lines": {
+    "vignette_dog_open": {
+      "speaker": "vignette_dog",
+      "text_id": "vignette.dog.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.dog.card.open.have_you",
+          "sets": [],
+          "next": "vignette_dog_once"
+        },
+        {
+          "text_id": "vignette.dog.card.open.shoo",
+          "sets": [
+            "vignette_dog_shooed"
+          ],
+          "next": "vignette_dog_end_shooed"
+        },
+        {
+          "text_id": "vignette.dog.card.open.name",
+          "sets": [],
+          "next": "vignette_dog_name"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_dog_once": {
+      "speaker": "vignette_dog",
+      "text_id": "vignette.dog.line.once",
+      "cards": [
+        {
+          "text_id": "vignette.dog.card.once.here",
+          "sets": [
+            "vignette_dog_fed"
+          ],
+          "next": "vignette_dog_end_fed"
+        },
+        {
+          "text_id": "vignette.dog.card.once.streets",
+          "sets": [
+            "vignette_dog_streets"
+          ],
+          "next": "vignette_dog_end_streets"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_dog_name": {
+      "speaker": "vignette_dog",
+      "text_id": "vignette.dog.line.name",
+      "cards": [
+        {
+          "text_id": "vignette.dog.card.name.call",
+          "sets": [
+            "vignette_dog_fed"
+          ],
+          "next": "vignette_dog_end_fed"
+        },
+        {
+          "text_id": "vignette.dog.card.name.secret",
+          "sets": [
+            "vignette_dog_streets"
+          ],
+          "next": "vignette_dog_end_streets"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_dog_end_shooed": {
+      "speaker": "vignette_dog",
+      "text_id": "vignette.dog.line.end_shooed",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_dog_end_fed": {
+      "speaker": "vignette_dog",
+      "text_id": "vignette.dog.line.end_fed",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_dog_end_streets": {
+      "speaker": "vignette_dog",
+      "text_id": "vignette.dog.line.end_streets",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.dog.journey",
+  "outcomes": [
+    "vignette_dog_fed",
+    "vignette_dog_shooed",
+    "vignette_dog_streets"
+  ]
+}

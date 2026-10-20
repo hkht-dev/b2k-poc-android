@@ -1,0 +1,82 @@
+{
+  "id": "no_such_place",
+  "giver_name_id": "speaker.vignette_no_such_place",
+  "skin": "criminalMaleA",
+  "spot": "b",
+  "lines": {
+    "vignette_no_such_place_open": {
+      "speaker": "vignette_no_such_place",
+      "text_id": "vignette.no_such_place.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.no_such_place.card.open.none",
+          "sets": [],
+          "next": "vignette_no_such_place_there_was"
+        },
+        {
+          "text_id": "vignette.no_such_place.card.open.left",
+          "sets": [
+            "vignette_no_such_place_sent"
+          ],
+          "next": "vignette_no_such_place_end_sent"
+        },
+        {
+          "text_id": "vignette.no_such_place.card.open.what",
+          "sets": [],
+          "next": "vignette_no_such_place_there_was"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_no_such_place_there_was": {
+      "speaker": "vignette_no_such_place",
+      "text_id": "vignette.no_such_place.line.there_was",
+      "cards": [
+        {
+          "text_id": "vignette.no_such_place.card.there_was.sit",
+          "sets": [
+            "vignette_no_such_place_listened"
+          ],
+          "next": "vignette_no_such_place_end_listened"
+        },
+        {
+          "text_id": "vignette.no_such_place.card.there_was.flats",
+          "sets": [
+            "vignette_no_such_place_told"
+          ],
+          "next": "vignette_no_such_place_end_told"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_no_such_place_end_sent": {
+      "speaker": "vignette_no_such_place",
+      "text_id": "vignette.no_such_place.line.end_sent",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_no_such_place_end_listened": {
+      "speaker": "vignette_no_such_place",
+      "text_id": "vignette.no_such_place.line.end_listened",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_no_such_place_end_told": {
+      "speaker": "vignette_no_such_place",
+      "text_id": "vignette.no_such_place.line.end_told",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.no_such_place.journey",
+  "outcomes": [
+    "vignette_no_such_place_listened",
+    "vignette_no_such_place_sent",
+    "vignette_no_such_place_told"
+  ]
+}

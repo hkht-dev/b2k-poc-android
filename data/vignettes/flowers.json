@@ -1,0 +1,112 @@
+{
+  "id": "flowers",
+  "giver_name_id": "speaker.vignette_flowers",
+  "skin": "survivorFemaleA",
+  "spot": "c",
+  "lines": {
+    "vignette_flowers_open": {
+      "speaker": "vignette_flowers",
+      "text_id": "vignette.flowers.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.flowers.card.open.price",
+          "sets": [],
+          "next": "vignette_flowers_price"
+        },
+        {
+          "text_id": "vignette.flowers.card.open.morning",
+          "sets": [
+            "vignette_flowers_refused"
+          ],
+          "next": "vignette_flowers_end_refused"
+        },
+        {
+          "text_id": "vignette.flowers.card.open.who",
+          "sets": [],
+          "next": "vignette_flowers_who"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_flowers_price": {
+      "speaker": "vignette_flowers",
+      "text_id": "vignette.flowers.line.price",
+      "cards": [
+        {
+          "text_id": "vignette.flowers.card.price.pay",
+          "sets": [
+            "vignette_flowers_paid"
+          ],
+          "next": "vignette_flowers_end_paid"
+        },
+        {
+          "text_id": "vignette.flowers.card.price.free",
+          "sets": [
+            "vignette_flowers_taken"
+          ],
+          "next": "vignette_flowers_end_taken"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_flowers_who": {
+      "speaker": "vignette_flowers",
+      "text_id": "vignette.flowers.line.who",
+      "cards": [
+        {
+          "text_id": "vignette.flowers.card.who.shrine",
+          "sets": [
+            "vignette_flowers_shrine"
+          ],
+          "next": "vignette_flowers_end_shrine"
+        },
+        {
+          "text_id": "vignette.flowers.card.who.someone",
+          "sets": [
+            "vignette_flowers_refused"
+          ],
+          "next": "vignette_flowers_end_refused"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_flowers_end_refused": {
+      "speaker": "vignette_flowers",
+      "text_id": "vignette.flowers.line.end_refused",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_flowers_end_paid": {
+      "speaker": "vignette_flowers",
+      "text_id": "vignette.flowers.line.end_paid",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_flowers_end_taken": {
+      "speaker": "vignette_flowers",
+      "text_id": "vignette.flowers.line.end_taken",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_flowers_end_shrine": {
+      "speaker": "vignette_flowers",
+      "text_id": "vignette.flowers.line.end_shrine",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.flowers.journey",
+  "outcomes": [
+    "vignette_flowers_paid",
+    "vignette_flowers_refused",
+    "vignette_flowers_shrine",
+    "vignette_flowers_taken"
+  ]
+}

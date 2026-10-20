@@ -1,0 +1,92 @@
+{
+  "id": "lost_ring",
+  "giver_name_id": "speaker.vignette_lost_ring",
+  "skin": "humanFemaleA",
+  "spot": "a",
+  "lines": {
+    "vignette_lost_ring_open": {
+      "speaker": "vignette_lost_ring",
+      "text_id": "vignette.lost_ring.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.lost_ring.card.open.whose",
+          "sets": [],
+          "next": "vignette_lost_ring_ask"
+        },
+        {
+          "text_id": "vignette.lost_ring.card.open.keep",
+          "sets": [
+            "vignette_lost_ring_kept"
+          ],
+          "next": "vignette_lost_ring_end_kept"
+        },
+        {
+          "text_id": "vignette.lost_ring.card.open.leave",
+          "sets": [
+            "vignette_lost_ring_left"
+          ],
+          "next": "vignette_lost_ring_end_left"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_lost_ring_ask": {
+      "speaker": "vignette_lost_ring",
+      "text_id": "vignette.lost_ring.line.ask",
+      "cards": [
+        {
+          "text_id": "vignette.lost_ring.card.ask.shop",
+          "sets": [
+            "vignette_lost_ring_shop"
+          ],
+          "next": "vignette_lost_ring_end_shop"
+        },
+        {
+          "text_id": "vignette.lost_ring.card.ask.wait",
+          "sets": [
+            "vignette_lost_ring_waited"
+          ],
+          "next": "vignette_lost_ring_end_waited"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_lost_ring_end_kept": {
+      "speaker": "vignette_lost_ring",
+      "text_id": "vignette.lost_ring.line.end_kept",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_lost_ring_end_left": {
+      "speaker": "vignette_lost_ring",
+      "text_id": "vignette.lost_ring.line.end_left",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_lost_ring_end_shop": {
+      "speaker": "vignette_lost_ring",
+      "text_id": "vignette.lost_ring.line.end_shop",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_lost_ring_end_waited": {
+      "speaker": "vignette_lost_ring",
+      "text_id": "vignette.lost_ring.line.end_waited",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.lost_ring.journey",
+  "outcomes": [
+    "vignette_lost_ring_kept",
+    "vignette_lost_ring_left",
+    "vignette_lost_ring_shop",
+    "vignette_lost_ring_waited"
+  ]
+}
