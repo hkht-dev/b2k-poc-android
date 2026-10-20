@@ -132,15 +132,15 @@ def build(b) -> None:
 
     # A doorway in the tower's foot with a cow-shaped shadow lying out of it,
     # and nothing in the doorway.
-    _box(b, "DoorwayDark", (-27.0, 1.2, -18.46), (1.4, 2.4, 0.08), "tyre", shadow=False)
-    _box(b, "DoorwayPostL", (-27.76, 1.25, -18.44), (0.12, 2.5, 0.14), "timber")
-    _box(b, "DoorwayPostR", (-26.24, 1.25, -18.44), (0.12, 2.5, 0.14), "timber")
-    _box(b, "DoorwayLintel", (-27.0, 2.46, -18.44), (1.64, 0.12, 0.14), "timber")
-    _decal(b, "CowBody", (-27.0, 0.012, -17.35), (1.7, 0.75), "tell_shadow")
-    _decal(b, "CowHead", (-26.05, 0.012, -17.0), (0.55, 0.42), "tell_shadow")
+    _box(b, "DoorwayDark", (-33.0, 1.2, -18.46), (1.4, 2.4, 0.08), "tyre", shadow=False)
+    _box(b, "DoorwayPostL", (-33.76, 1.25, -18.44), (0.12, 2.5, 0.14), "timber")
+    _box(b, "DoorwayPostR", (-32.24, 1.25, -18.44), (0.12, 2.5, 0.14), "timber")
+    _box(b, "DoorwayLintel", (-33.0, 2.46, -18.44), (1.64, 0.12, 0.14), "timber")
+    _decal(b, "CowBody", (-33.0, 0.012, -17.35), (1.7, 0.75), "tell_shadow")
+    _decal(b, "CowHead", (-32.05, 0.012, -17.0), (0.55, 0.42), "tell_shadow")
     for i, x in enumerate((-27.7, -27.35, -26.65, -26.3)):
         _decal(b, f"CowLeg{i}", (x, 0.012, -17.95), (0.14, 0.5), "tell_shadow")
-    _tell(b, "cow_shadow", (-27.0, 0.0, -16.6))
+    _tell(b, "cow_shadow", (-33.0, 0.0, -16.6))
 
     # A kite over the crossing with no string: a diamond on two spars, a tail.
     _mesh(b, "Kite", GROUP, roll_xf((27.0, 6.8, 11.5), math.pi / 4, (0.9, 0.9, 0.02)), "BoxMesh_unit", "cloth_pale")

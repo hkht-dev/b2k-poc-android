@@ -9,6 +9,12 @@
 ## The body wears the journey's outfit (GameState.outfit, data/outfits.json;
 ## owner request 2026-10-20, the showroom's wardrobe) and repaints when it
 ## changes, so a choice shows at once and a loaded journey comes back dressed.
+##
+## Rooftop running (GDD §3a "Hold to sprint; time jumps at ledges and
+## cables", §16a): a run carried off a ledge vaults the gap to the next
+## surface when one is in reach; otherwise the body falls, and a long fall
+## ends in a brief stumble. Cables are walked by balance. There is still no
+## jump button: the leap is the run meeting the edge.
 extends CharacterBody3D
 
 signal climb_started
@@ -31,6 +37,14 @@ const ACCELERATION := 12.0
 const TURN_SPEED := 9.0
 const GRAVITY := 18.0
 const CLIMB_DURATION := 0.85
+## PLACEHOLDER: four synthesised steps from tools/audio_parts/world.py,
+## replaced by recorded steps per surface (GDD §10 "Sound"). One loop; the
+## pitch tells a walk from a run, so there is nothing to cross-fade.
+const FOOTSTEPS := preload("res://assets/audio/footsteps_pavement.ogg")
+const FOOTSTEPS_WALK_PITCH := 1.0
+const FOOTSTEPS_RUN_PITCH := 1.35
+## Horizontal speed, m/s, below which the feet are still.
+const FOOTSTEPS_MIN_SPEED := 0.3
 ## Tap-to-walk arrives within this of the point and stops (§A3).
 const ARRIVE_DISTANCE := 0.45
 ## Highest ledge the feet walk straight over: kerbs (0.16 m) and the fountain
@@ -39,6 +53,10 @@ const ARRIVE_DISTANCE := 0.45
 const STEP_HEIGHT := 0.36
 ## What the player carries persists as a flag `carrying_<item>` (GDD §12: the
 ## flag model is the only state), so an autosave mid-carry comes back with
+## Standing on the fitting dais with the wardrobe open: input is ignored.
+var _still := false
+## The skin the scene gave the body, worn when the journey names no outfit.
+var _scene_skin: Texture2D = null
 ## the item in hand. Which items exist, and what they look like, is data on
 ## the scene (`carryables`).
 const CARRY_PREFIX := "carrying_"
@@ -79,15 +97,6 @@ const WORLD_LAYER := 1
 const LANDING_NORMAL_Y := 0.7
 const CHEST_HEIGHT := 1.0
 
-## PLACEHOLDER: four synthesised steps from tools/audio_parts/world.py,
-## replaced by recorded steps per surface (GDD §10 "Sound"). One loop; the
-## pitch tells a walk from a run, so there is nothing to cross-fade.
-const FOOTSTEPS := preload("res://assets/audio/footsteps_pavement.ogg")
-const FOOTSTEPS_WALK_PITCH := 1.0
-const FOOTSTEPS_RUN_PITCH := 1.35
-## Horizontal speed, m/s, below which the feet are still.
-const FOOTSTEPS_MIN_SPEED := 0.3
-
 ## item id -> the scene shown in the hand (CLAUDE_CODE_BRIEF.md §4.4, §4.5).
 @export var carryables: Dictionary = {}
 
@@ -115,11 +124,6 @@ var _fall_from_y := 0.0
 var _cable_axis := Vector3.ZERO
 var _cable_origin := Vector3.ZERO
 var _cable_grace := 0.0
-
-## Standing on the fitting dais with the wardrobe open: input is ignored.
-var _still := false
-## The skin the scene gave the body, worn when the journey names no outfit.
-var _scene_skin: Texture2D = null
 var _footsteps: AudioStreamPlayer3D = null
 
 @onready var _rig: CharacterRig = %Mesh
@@ -132,6 +136,7 @@ func _ready() -> void:
 	_footsteps.unit_size = 3.0
 	_footsteps.max_distance = 16.0
 	add_child(_footsteps)
+	_fall_from_y = global_position.y
 	for item in carryables:
 		if GameState.has_flag(CARRY_PREFIX + str(item)):
 			_rig.carry(true, carryables[item])
@@ -144,6 +149,9 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if _is_climbing:
 		_advance_climb(delta)
+		return
+	if _is_vaulting:
+		_advance_vault(delta)
 		return
 	if _still:
 		return
@@ -271,7 +279,7 @@ func footsteps_pitch() -> float:
 
 
 func begin_climb(exit: Vector3) -> bool:
-	if _is_climbing:
+	if _is_climbing or _is_vaulting:
 		return false
 	_is_climbing = true
 	_climb_from = global_position
@@ -292,6 +300,14 @@ func _advance_ground(delta: float) -> void:
 	var strength := _move_input.length()
 	var deflection := _deflection
 
+	if _stumble_left > 0.0:
+		# Landed hard: the body gathers itself and the stick says nothing.
+		_stumble_left -= delta
+		wish = Vector3.ZERO
+		strength = 0.0
+		deflection = 0.0
+		_has_walk_target = false
+
 	if _has_walk_target and strength < 0.01:
 		var to_target := _walk_target - global_position
 		to_target.y = 0.0
@@ -309,8 +325,35 @@ func _advance_ground(delta: float) -> void:
 	_is_running = _full_tilt_time >= AUTO_RUN_DELAY
 	_run_time = _run_time + delta if _is_running else 0.0
 
+	_read_cable(delta)
+	var recenter := Vector3.ZERO
+	if is_on_cable():
+		# Balance: only the push along the cable moves the body, and the body
+		# eases back over the cable's line.
+		wish = _cable_axis * wish.dot(_cable_axis)
+		strength = minf(strength, wish.length())
+		var off := global_position - _cable_origin
+		off.y = 0.0
+		off -= _cable_axis * off.dot(_cable_axis)
+		recenter = (-off * CABLE_RECENTER).limit_length(CABLE_RECENTER_MAX)
+	_update_footsteps()
+
+
+## The steps loop while the body actually moves (the velocity after sliding,
+## so pushing at a wall is silent), faster when running, and stop when still
+## or climbing.
+func _update_footsteps() -> void:
+	var speed := Vector2(velocity.x, velocity.z).length()
+	if not _is_climbing and speed >= FOOTSTEPS_MIN_SPEED:
+		_footsteps.pitch_scale = FOOTSTEPS_RUN_PITCH if _is_running else FOOTSTEPS_WALK_PITCH
+		if not _footsteps.playing:
+			_footsteps.play()
+	elif _footsteps.playing:
+		_footsteps.stop()
+
 	var speed := RUN_SPEED if _is_running else WALK_SPEED
 	var target := wish.normalized() * speed * strength if wish.length() > 0.001 else Vector3.ZERO
+	target += recenter
 	velocity.x = move_toward(velocity.x, target.x, ACCELERATION * delta)
 	velocity.z = move_toward(velocity.z, target.z, ACCELERATION * delta)
 
@@ -326,22 +369,11 @@ func _advance_ground(delta: float) -> void:
 			_has_moved = true
 			moved_first_time.emit()
 
+	if _try_vault():
+		return
 	_step_up(delta)
 	move_and_slide()
-	_update_footsteps()
-
-
-## The steps loop while the body actually moves (the velocity after sliding,
-## so pushing at a wall is silent), faster when running, and stop when still
-## or climbing.
-func _update_footsteps() -> void:
-	var speed := Vector2(velocity.x, velocity.z).length()
-	if not _is_climbing and speed >= FOOTSTEPS_MIN_SPEED:
-		_footsteps.pitch_scale = FOOTSTEPS_RUN_PITCH if _is_running else FOOTSTEPS_WALK_PITCH
-		if not _footsteps.playing:
-			_footsteps.play()
-	elif _footsteps.playing:
-		_footsteps.stop()
+	_track_fall()
 
 
 ## Lifts the body over a low ledge in its path. Three sweeps: is the way
