@@ -36,7 +36,14 @@ it stays out of the way:
 | Pause | Button top-left | Esc | Start |
 
 There is no jump button. The pause menu has *Controls* (this card, with a
-diagram) and *Map*, a plain minimap that is off until you turn it on.
+diagram), *Map*, a plain minimap that is off until you turn it on, and
+*Settings*: joystick side, size and opacity, camera sensitivity and
+inversion, large text, a box behind subtitles, sounds shown as ripples, and
+tap-to-walk. Each is saved at once.
+
+The slice ends at the bus stop: walk there after the can has been placed or
+taken, or sit there (the button says *Sit*) once you have played a minute
+and a half. *Play again* starts a fresh journey.
 
 ## Install the build on an Android phone
 

@@ -79,6 +79,22 @@ func subtitle_text() -> String:
 	return _subtitle.text
 
 
+## A box behind the subtitle (brief §7) for readers who need the contrast.
+func set_subtitle_box(on: bool) -> void:
+	if on:
+		var box := StyleBoxFlat.new()
+		box.bg_color = Color(0.1, 0.08, 0.06, 0.7)
+		box.set_content_margin_all(10.0)
+		box.set_corner_radius_all(8)
+		_subtitle.add_theme_stylebox_override("normal", box)
+	else:
+		_subtitle.remove_theme_stylebox_override("normal")
+
+
+func has_subtitle_box() -> bool:
+	return _subtitle.has_theme_stylebox_override("normal")
+
+
 func pause_button() -> Button:
 	return _pause
 

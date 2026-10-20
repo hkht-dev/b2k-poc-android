@@ -24,6 +24,7 @@ const LIBRARY := "clips"
 const STATE_IDLE := "idle"
 const STATE_WALK := "walk"
 const STATE_RUN := "run"
+const STATE_POSE := "pose"
 const BLEND := 0.18
 const BODY_NAME := "Body"
 const HAND_BONE := "RightHand"
@@ -104,7 +105,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if delta <= 0.0 or _player == null:
+	if delta <= 0.0 or _player == null or _state == STATE_POSE:
 		return
 	var moved := global_position - _last
 	moved.y = 0.0
@@ -136,6 +137,29 @@ func animation_player() -> AnimationPlayer:
 
 func skeleton() -> Skeleton3D:
 	return _skeleton
+
+
+## Holds one clip out of the idle scene (sitting at the bus stop) until
+## released; motion no longer picks the state.
+func hold_pose(animation_name: String) -> void:
+	if _player == null or _skeleton == null:
+		return
+	var skeleton_path := get_node(BODY_NAME).get_path_to(_skeleton)
+	var clip := _clip(idle_scene, animation_name, _skeleton, skeleton_path)
+	if clip == null:
+		return
+	var library: AnimationLibrary = _player.get_animation_library(LIBRARY)
+	if library.has_animation(STATE_POSE):
+		library.remove_animation(STATE_POSE)
+	library.add_animation(STATE_POSE, clip)
+	_state = STATE_POSE
+	_player.play("%s/%s" % [LIBRARY, STATE_POSE], BLEND)
+
+
+func release_pose() -> void:
+	if _state == STATE_POSE:
+		_state = ""
+		_play(STATE_IDLE)
 
 
 ## Puts `scene` (or `carried_scene`) in the right hand, or takes it away. The

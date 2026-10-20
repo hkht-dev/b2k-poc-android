@@ -10,6 +10,7 @@ extends Node
 const TITLE_SCREEN := "res://scenes/ui/TitleScreen.tscn"
 const FIRST_PLAY_SCREEN := "res://scenes/street/Street.tscn"
 const CONTROLS_HINT := "res://scenes/ui/ControlsHint.tscn"
+const END_SCREEN := "res://scenes/ui/EndScreen.tscn"
 const DEBUG_PANEL := preload("res://scenes/core/DebugPanel.tscn")
 const CONTROLS_HINT_SCRIPT := preload("res://scripts/ui/controls_hint.gd")
 
@@ -62,6 +63,10 @@ func _connect_screen(screen: Node) -> void:
 		screen.connect("debug_requested", open_debug_panel)
 	if screen.has_signal("dismissed"):
 		screen.connect("dismissed", _on_hint_dismissed)
+	if screen.has_signal("slice_ended"):
+		screen.connect("slice_ended", _on_slice_ended)
+	if screen.has_signal("play_again_pressed"):
+		screen.connect("play_again_pressed", _on_back_pressed)
 
 
 ## Shows the tester's panel over whatever is on screen. One at a time.
@@ -98,3 +103,8 @@ func _on_hint_dismissed() -> void:
 
 func _on_back_pressed() -> void:
 	show_screen(TITLE_SCREEN)
+
+
+## The street has faded to black (CLAUDE_CODE_BRIEF.md §4.6).
+func _on_slice_ended(_reason: String) -> void:
+	show_screen(END_SCREEN)

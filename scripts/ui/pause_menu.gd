@@ -8,6 +8,7 @@ extends Control
 
 signal resumed
 signal controls_requested
+signal settings_requested
 signal map_toggled(on: bool)
 
 const MINIMAP := preload("res://scripts/ui/minimap.gd")
@@ -16,6 +17,7 @@ const MINIMAP := preload("res://scripts/ui/minimap.gd")
 @onready var _resume: Button = %ResumeButton
 @onready var _controls: Button = %ControlsButton
 @onready var _map: Button = %MapButton
+@onready var _settings: Button = %SettingsButton
 @onready var _now: Label = %Now
 @onready var _journey_title: Label = %JourneyTitle
 @onready var _journey: VBoxContainer = %Journey
@@ -28,6 +30,8 @@ func _ready() -> void:
 	_controls.text = Strings.t("pause.controls")
 	_resume.pressed.connect(func() -> void: resumed.emit())
 	_controls.pressed.connect(func() -> void: controls_requested.emit())
+	_settings.text = Strings.t("pause.settings")
+	_settings.pressed.connect(func() -> void: settings_requested.emit())
 	_refresh_map_label()
 	_map.pressed.connect(_on_map)
 	_now.text = now_line()

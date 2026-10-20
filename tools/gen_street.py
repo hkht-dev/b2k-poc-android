@@ -469,6 +469,12 @@ solid("Shelter", "BusStop", (9, 2.6, 20.8), (5.2, 0.16, 2.6), "corrugated", coll
 solid("ShelterPostL", "BusStop", (6.7, 1.3, 21.9), (0.16, 2.6, 0.16), "rust_metal")
 solid("ShelterPostR", "BusStop", (11.3, 1.3, 21.9), (0.16, 2.6, 0.16), "rust_metal")
 solid("StopSign", "BusStop", (11.9, 2.0, 21.9), (0.7, 0.9, 0.06), "road_paint", collide=False)
+# Where the slice ends (§4.6): arriving with a can placed or taken, or *Sit*.
+nodes.append(
+    '[node name="BusStopPoint" parent="BusStop" instance=ExtResource("15_bus_stop")]\n'
+    "unique_name_in_owner = true\n"
+    f"transform = {xf((9.2, 0.16, 20.0))}\n\n"
+)
 
 # --- cables between the flats, trees, parked cars (§B3) -----------------------
 group("Dressing")
@@ -601,6 +607,7 @@ header = (
     '[ext_resource type="PackedScene" path="res://scenes/npc/Gopal.tscn" id="12_gopal"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/quest/FountainPoint.tscn" id="13_fountain_point"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/quest/Glimpse.tscn" id="14_glimpse"]\n'
+    '[ext_resource type="PackedScene" path="res://scenes/quest/BusStopPoint.tscn" id="15_bus_stop"]\n'
     + "".join(
         f'[ext_resource type="PackedScene" path="res://assets/thirdparty/{path}" id="{MODEL_ID[m]}"]\n'
         for m, path in MODELS.items()

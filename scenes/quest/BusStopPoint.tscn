@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3]
+
+; The end of the slice at the bus stop bench (scripts/quest/bus_stop.gd).
+
+[ext_resource type="Script" path="res://scripts/quest/bus_stop.gd" id="1_stop"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_stop"]
+size = Vector3(7.0, 2.4, 4.0)
+
+[node name="BusStopPoint" type="Node3D"]
+script = ExtResource("1_stop")
+
+[node name="Arrive" type="Area3D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Arrive"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("BoxShape3D_stop")
+
+[node name="Sit" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.sit"
+
+[node name="Shape" type="CollisionShape3D" parent="Sit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("BoxShape3D_stop")

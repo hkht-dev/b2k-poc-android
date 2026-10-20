@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 ; The body is scenes/characters/Character.tscn (a rigged CC0 human, see there).
 ; PLACEHOLDER: replaced by the traveler form of GDD §10 "Characters" —
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
 [ext_resource type="PackedScene" path="res://scenes/quest/WaterCan.tscn" id="3_can"]
 [ext_resource type="PackedScene" path="res://scenes/quest/Feather.tscn" id="4_feather"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SoundRipple.tscn" id="5_ripple"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.34
@@ -29,3 +30,7 @@ shape = SubResource("CapsuleShape3D_body")
 
 [node name="Mesh" parent="." instance=ExtResource("2_character")]
 unique_name_in_owner = true
+
+[node name="Ripple" parent="." instance=ExtResource("5_ripple")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)

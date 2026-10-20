@@ -33,6 +33,10 @@ var settings: Dictionary = {}
 ## Times the player has hummed (CLAUDE_CODE_BRIEF.md §4.2 "Track hummed
 ## count"). The flag `hummed` is set at three (GDD §6 "Remembering Krishna").
 var hum_count: int = 0
+## Seconds played in this journey (CLAUDE_CODE_BRIEF.md §4.6: the bus stop's
+## *Sit* opens after 90 s of play). Counted by the street, saved with the
+## rest; not a timer the player sees.
+var play_seconds: float = 0.0
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -84,6 +88,12 @@ func has_event(event: String) -> bool:
 
 
 ## Counts a hum; the third sets `hummed`.
+## Adds played time. Not autosaved on its own: the next flag or event
+## carries it.
+func add_play_time(delta: float) -> void:
+	play_seconds += maxf(0.0, delta)
+
+
 func record_hum() -> int:
 	hum_count += 1
 	if hum_count >= HUMMED_AT:
@@ -131,6 +141,7 @@ func to_dict() -> Dictionary:
 		"journey_lines": journey_lines.duplicate(),
 		"settings": settings.duplicate(true),
 		"hum_count": hum_count,
+		"play_seconds": play_seconds,
 	}
 
 
@@ -149,6 +160,7 @@ func from_dict(data: Dictionary) -> void:
 		journey_lines.append(line)
 	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
 	hum_count = int(data.get("hum_count", 0))
+	play_seconds = float(data.get("play_seconds", 0.0))
 
 
 func save() -> bool:
@@ -185,6 +197,7 @@ func wipe() -> void:
 	journey_lines.clear()
 	settings = {}
 	hum_count = 0
+	play_seconds = 0.0
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)

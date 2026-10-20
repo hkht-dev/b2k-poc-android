@@ -13,7 +13,7 @@ Status key: **built** · *in progress* · planned.
 | P3 | Tulu, the hum, the `Listen` verb | **built** (blindfold test pending) |
 | P4 | The Dry Fountain, all three outcomes | **built** |
 | P5 | The Glimpse and the feather | **built** |
-| P6 | End screen, audio bed, lighting, accessibility | planned |
+| P6 | End screen, audio bed, lighting, accessibility | **built** |
 
 ---
 
@@ -133,6 +133,11 @@ Below it, *Play again* and nothing else. *Play again* wipes `GameState`.
 The tester questionnaire is **not** in the build. It is
 [`PLAYTEST_PROTOCOL.md`](PLAYTEST_PROTOCOL.md).
 
+*(Built in P6: `scenes/quest/BusStopPoint.tscn` at the bus stop, its ending
+flags and the 90 s as data on the scene; the street fades over 1.6 s and
+emits `slice_ended`; `scenes/ui/EndScreen.tscn` shows the line and *Play
+again*; `GameState.play_seconds` is the play time, saved with the journey.)*
+
 ## 7. Data formats — P2
 
 **Quest JSON** — fields per GDD §7: `id`, `giver`, `start_condition`, `steps[]`
@@ -182,6 +187,14 @@ and beat change. One slot. *Play again* wipes it.
   sound-cue visuals.
 - *Auto-walk to target*: tap a destination to walk there.
 - Screen-reader labels on every menu control.
+
+*(Built in P6: `scenes/ui/SettingsScreen.tscn` from the pause menu, every
+row data in `scripts/ui/settings_screen.gd`, saved to `GameState.settings`
+at once and applied by the street; the ripple is `scenes/ui/SoundRipple.tscn`
+at Tulu and on the player's hum, 1.4 s a ring, well under 3 Hz; the subtitle
+box is a style on the subtitle label; large text scales the whole UI by 1.2;
+tap-to-walk arrived in P1; the "screen-reader label" is each control's
+tooltip, the nearest Godot 4.3 has — see `DECISIONS.md`.)*
 
 ## 9. Definition of done
 
