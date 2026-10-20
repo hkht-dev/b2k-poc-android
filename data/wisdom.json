@@ -1,0 +1,82 @@
+{
+  "_comment": "GDD §9 'Wisdom encounters', transcribed. One card per beat; a card is offered once per journey when its trigger (the condition grammar of scripts/lib/condition.gd) becomes true. PLACEHOLDER: every verse string is the game's own plain rendering, labelled as such on the card; the licensed translation and edition go in after the panel's week-12 review (GDD §9, §15).",
+  "cards": [
+    {
+      "id": "whisper",
+      "beat": "After the whisper (Act 1)",
+      "trigger": "flag:heard_whisper",
+      "verse_id": "wisdom.whisper.verse",
+      "meaning_id": "wisdom.whisper.meaning",
+      "more_id": "wisdom.whisper.more",
+      "source_id": "wisdom.whisper.source",
+      "reference": "Bhagavad-gita 2.13",
+      "review_status": "draft"
+    },
+    {
+      "id": "arrival",
+      "beat": "Arrival in Hollow Vale",
+      "trigger": "flag:heard_tulu",
+      "verse_id": "wisdom.arrival.verse",
+      "meaning_id": "wisdom.arrival.meaning",
+      "more_id": "wisdom.arrival.more",
+      "source_id": "wisdom.arrival.source",
+      "reference": "Bhagavad-gita 15.7",
+      "review_status": "draft"
+    },
+    {
+      "id": "take",
+      "beat": "After any take choice",
+      "trigger": "flag:took_dry_fountain",
+      "verse_id": "wisdom.take.verse",
+      "meaning_id": "wisdom.take.meaning",
+      "more_id": "wisdom.take.more",
+      "source_id": "wisdom.take.source",
+      "reference": "Bhagavad-gita 2.62-63",
+      "review_status": "draft"
+    },
+    {
+      "id": "give",
+      "beat": "After any give choice",
+      "trigger": "flag:gave_dry_fountain",
+      "verse_id": "wisdom.give.verse",
+      "meaning_id": "wisdom.give.meaning",
+      "more_id": "wisdom.give.more",
+      "source_id": "wisdom.give.source",
+      "reference": "Bhagavad-gita 3.9",
+      "review_status": "draft"
+    },
+    {
+      "id": "shrine_water",
+      "beat": "At the shrine, after carrying water",
+      "trigger": "flag:saw_shrine",
+      "verse_id": "wisdom.shrine_water.verse",
+      "meaning_id": "wisdom.shrine_water.meaning",
+      "more_id": "wisdom.shrine_water.more",
+      "source_id": "wisdom.shrine_water.source",
+      "reference": "Bhagavad-gita 9.26",
+      "review_status": "draft"
+    },
+    {
+      "id": "melody",
+      "beat": "After beat 12 (the melody)",
+      "trigger": "flag:played_for_others or flag:kept_veena",
+      "verse_id": "wisdom.melody.verse",
+      "meaning_id": "wisdom.melody.meaning",
+      "more_id": "wisdom.melody.more",
+      "source_id": "wisdom.melody.source",
+      "reference": "Bhagavad-gita 18.66",
+      "review_status": "draft"
+    },
+    {
+      "id": "embrace",
+      "beat": "After the embrace (credits)",
+      "trigger": "flag:embraced",
+      "verse_id": "wisdom.embrace.verse",
+      "meaning_id": "wisdom.embrace.meaning",
+      "more_id": "wisdom.embrace.more",
+      "source_id": "wisdom.embrace.source",
+      "reference": "Bhagavad-gita 9.22",
+      "review_status": "draft"
+    }
+  ]
+}

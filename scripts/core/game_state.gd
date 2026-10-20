@@ -38,6 +38,10 @@ var journey_lines: Array[String] = []
 ## tell ids from data/tells.json, in the order seen. Never counted, never a
 ## number anywhere; *Your journey* lists their sentences.
 var noticed: Array[String] = []
+## Wisdom cards whose lotus has been offered this journey, by id (GDD §6
+## "Optional wisdom": once per card; ignoring it has no effect, so what is
+## kept is that it was offered, not whether it was opened).
+var wisdom_seen: Array[String] = []
 var settings: Dictionary = {}
 ## Times the player has hummed (CLAUDE_CODE_BRIEF.md §4.2 "Track hummed
 ## count"). The flag `hummed` is set at three (GDD §6 "Remembering Krishna").
@@ -187,6 +191,14 @@ func grant_vignette_day(date: String) -> bool:
 	if date.is_empty() or vignette_days.has(date):
 		return false
 	vignette_days.append(date)
+
+
+## Records that a wisdom card's lotus was offered. Returns false if it had
+## been already: a card is offered once per journey (GDD §9).
+func mark_wisdom_seen(card_id: String) -> bool:
+	if card_id.is_empty() or wisdom_seen.has(card_id):
+		return false
+	wisdom_seen.append(card_id)
 	_save_if_enabled()
 	return true
 
@@ -237,6 +249,10 @@ func _oldest_lamp_index(place_id: String) -> int:
 	return -1
 
 
+func has_seen_wisdom(card_id: String) -> bool:
+	return wisdom_seen.has(card_id)
+
+
 # -- persistence --------------------------------------------------------------
 
 
@@ -249,6 +265,7 @@ func to_dict() -> Dictionary:
 		"choice_history": choice_history.duplicate(true),
 		"journey_lines": journey_lines.duplicate(),
 		"noticed": noticed.duplicate(),
+		"wisdom_seen": wisdom_seen.duplicate(),
 		"settings": settings.duplicate(true),
 		"hum_count": hum_count,
 		"play_seconds": play_seconds,
@@ -277,6 +294,9 @@ func from_dict(data: Dictionary) -> void:
 	noticed.clear()
 	for tell_id in _string_array(data.get("noticed", [])):
 		noticed.append(tell_id)
+	wisdom_seen.clear()
+	for card_id in _string_array(data.get("wisdom_seen", [])):
+		wisdom_seen.append(card_id)
 	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
 	hum_count = int(data.get("hum_count", 0))
 	play_seconds = float(data.get("play_seconds", 0.0))
@@ -328,6 +348,7 @@ func wipe() -> void:
 	choice_history.clear()
 	journey_lines.clear()
 	noticed.clear()
+	wisdom_seen.clear()
 	settings = {}
 	hum_count = 0
 	play_seconds = 0.0
