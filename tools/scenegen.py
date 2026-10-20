@@ -180,6 +180,10 @@ class Builder:
     DETAIL_SIZE = 1.5
     # The root node the scene-wide detail buckets hang from.
     DETAILS_ROOT = "Details"
+    # A detail is small. Anything bigger on any side is structure — a road,
+    # a basin, a wall panel — and stays a node of its own under its group,
+    # where the minimap, the Path card and the tests look for it by name.
+    BATCH_LIMIT = 3.0
 
     def solid(self, name, parent, pos, size, mat, yaw=0.0, collide=True, shadows=None) -> None:
         """A box. With collision it is a StaticBody3D; without, a bare mesh.
@@ -277,16 +281,22 @@ class Builder:
         bucket["shadows"] = bucket["shadows"] or bool(shadows)
 
     def detail(self, name, parent, pos, size, mat, yaw=0.0, shadows=None) -> None:
-        """solid(..., collide=False), batched. `yaw` is read as solid() reads
-        it (xf's sense: rotation.y = -yaw). `name` is documentary."""
-        del name
+        """solid(..., collide=False), batched when it is small enough to be a
+        detail. `yaw` is read as solid() reads it (xf's sense:
+        rotation.y = -yaw). `name` is documentary for a batched detail and
+        the node's name for one that is too big to batch."""
+        if max(size) >= self.BATCH_LIMIT:
+            self.solid(name, parent, pos, size, mat, yaw, collide=False, shadows=shadows)
+            return
         if shadows is None:
             shadows = max(size) >= self.DETAIL_SIZE
         self.detail_mesh(parent, "BoxMesh_unit", mat, pos, -yaw, size, shadows)
 
     def detail_cyl(self, name, parent, pos, radius, height, mat, yaw=0.0, shadows=None) -> None:
-        """An upright cyl(), batched. `name` is documentary."""
-        del name
+        """An upright cyl(), batched when it is small enough to be a detail."""
+        if max(radius * 2, height) >= self.BATCH_LIMIT:
+            self.cyl(name, parent, pos, radius, height, mat, yaw, shadows=shadows)
+            return
         if shadows is None:
             shadows = max(radius * 2, height) >= self.DETAIL_SIZE
         self.detail_mesh(parent, "CylinderMesh_unit", mat, pos, -yaw, (radius * 2, height, radius * 2), shadows)

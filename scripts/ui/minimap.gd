@@ -66,7 +66,10 @@ func _collect() -> void:
 		return
 	for entry: Array in [
 		["Ground", ROAD, "Road"],
-		["Fountain", WATER, "Wall"],
+		# "Wall" was the square pit's; the round fountain's footprint is its
+		# basin (docs/DECISIONS.md "a round fountain").
+		["Fountain", WATER, "Basin"],
+		["Fountain", WATER, "Floor"],
 		["Shop", BLOCK, ""],
 		["ChaiStall", BLOCK, "Body"],
 		["Tower", BLOCK, "Block"],
