@@ -139,6 +139,17 @@ REQUIRED_STRING_IDS = [
     "sign.nanda_brother",
     "journey.dawn.played",
     "journey.dawn.kept",
+    "place.grove",
+    *[f"verb.{k}" for k in ("dive", "descend", "pet", "push")],
+    "sub.lalita_laughs",
+    "speaker.lalita",
+    "speaker.kuvera",
+    "speaker.bubble",
+    "end.share",
+    "end.card_subtitle",
+    "end.card_noticed",
+    "controls.key.desktop_use",
+    "controls.key.gamepad_use",
 ]
 MAX_PANEL_WORDS = 40
 SKINS = {"humanFemaleA", "humanMaleA", "criminalMaleA", "skaterFemaleA", "skaterMaleA", "survivorFemaleA", "survivorMaleB"}

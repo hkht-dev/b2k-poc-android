@@ -343,3 +343,21 @@ static func _ints(value: Variant) -> Array:
 		for item in value:
 			out.append(int(item))
 	return out
+
+
+## Every flag the garden's data reads: seed sources, the creeper's seed and
+## the waters, for the debug panel (Content.known_flags).
+static func known_flags() -> PackedStringArray:
+	var names := PackedStringArray()
+	for seed in data().get("seeds", []):
+		var source := str(seed.get("source", "")) if seed is Dictionary else ""
+		if source.begins_with("flag:"):
+			names.append(source.trim_prefix("flag:"))
+	var given_flag := str(creeper_data().get("given_flag", ""))
+	if not given_flag.is_empty():
+		names.append(given_flag)
+	var waters: Variant = data().get("waters", {})
+	if waters is Dictionary:
+		for flag in waters.get("flags", []):
+			names.append(str(flag))
+	return names
