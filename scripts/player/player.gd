@@ -27,9 +27,15 @@ const ARRIVE_DISTANCE := 0.45
 ## coping, but not a wall. A CharacterBody3D has no step-up of its own, and
 ## without this the kerb between pavement and road is a wall.
 const STEP_HEIGHT := 0.36
-## What the player carries persists as a flag (GDD §12: the flag model is the
-## only state), so an autosave mid-carry comes back with the can in hand.
-const FLAG_CARRYING := "carrying_can"
+## What the player carries persists as a flag `carrying_<item>` (GDD §12: the
+## flag model is the only state), so an autosave mid-carry comes back with
+## the item in hand. Which items exist, and what they look like, is data on
+## the scene (`carryables`).
+const CARRY_PREFIX := "carrying_"
+const DEFAULT_ITEM := "can"
+
+## item id -> the scene shown in the hand (CLAUDE_CODE_BRIEF.md §4.4, §4.5).
+@export var carryables: Dictionary = {}
 
 var _move_input := Vector2.ZERO
 var _deflection := 0.0
@@ -48,7 +54,10 @@ var _has_moved := false
 
 
 func _ready() -> void:
-	_rig.carry(is_carrying())
+	for item in carryables:
+		if GameState.has_flag(CARRY_PREFIX + str(item)):
+			_rig.carry(true, carryables[item])
+			break
 
 
 func _physics_process(delta: float) -> void:
@@ -58,20 +67,38 @@ func _physics_process(delta: float) -> void:
 	_advance_ground(delta)
 
 
-## Picks up a can: the flag is set and the body shows it in hand.
-func carry() -> void:
-	GameState.set_flag(FLAG_CARRYING)
-	_rig.carry(true)
+## Picks up an item: its flag is set and the body shows it in hand. One
+## thing at a time; a second pick-up is refused.
+func carry(item: String = DEFAULT_ITEM) -> bool:
+	if is_carrying() or not carryables.has(item):
+		return false
+	GameState.set_flag(CARRY_PREFIX + item)
+	_rig.carry(true, carryables[item])
+	return true
 
 
-## The can leaves the hand (placed, or taken away by a scene).
+## Whatever is in the hand leaves it (placed, or taken away by a scene).
 func put_down() -> void:
-	GameState.clear_flag(FLAG_CARRYING)
+	for item in carryables:
+		GameState.clear_flag(CARRY_PREFIX + str(item))
 	_rig.carry(false)
 
 
-func is_carrying() -> bool:
-	return GameState.has_flag(FLAG_CARRYING)
+## Carrying `item`, or, with no item named, carrying anything.
+func is_carrying(item: String = "") -> bool:
+	if not item.is_empty():
+		return GameState.has_flag(CARRY_PREFIX + item)
+	for each in carryables:
+		if GameState.has_flag(CARRY_PREFIX + str(each)):
+			return true
+	return false
+
+
+func carried_item() -> String:
+	for each in carryables:
+		if GameState.has_flag(CARRY_PREFIX + str(each)):
+			return str(each)
+	return ""
 
 
 ## Sets this frame's movement wish (camera-relative, curved) and the raw

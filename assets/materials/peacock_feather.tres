@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The one peacock blue in the Street (CLAUDE.md, GDD §10 Hollow Vale row):
+; the feather a Glimpse leaves behind, and nothing else.
+
+[resource]
+resource_name = "peacock_feather"
+cull_mode = 2
+albedo_color = Color(0.05, 0.42, 0.55, 1)
+emission_enabled = true
+emission = Color(0.02, 0.2, 0.3, 1)
+emission_energy_multiplier = 0.6
+roughness = 0.6

@@ -23,6 +23,9 @@ const LEAD_PAUSE_DISTANCE := 8.0
 const FOLLOW_DISTANCE := 5.0
 const FOLLOW_AFTER := 20.0
 const TURN_SPEED := 6.0
+## The Glimpse: he looks up and smiles (GDD §6) — a tilt back for a moment.
+const LOOK_UP_TILT := 0.22
+const LOOK_UP_SECONDS := 2.5
 
 @export var waypoints: PackedVector3Array = PackedVector3Array()
 
@@ -31,10 +34,13 @@ var _waypoint := 0
 var _ignored_for := 0.0
 var _player: Node3D = null
 var _reply_timer := 0.0
+var _look_up_left := 0.0
+var _look_up_at := Vector3.ZERO
 
 @onready var _hum: AudioStreamPlayer3D = %HumLoop
 @onready var _reply: AudioStreamPlayer3D = %Reply
 @onready var _listen: Interactable = %Listen
+@onready var _figure: Node3D = $Figure
 
 
 func _ready() -> void:
@@ -49,6 +55,12 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_player = _find_player()
 	_reply_timer = maxf(0.0, _reply_timer - delta)
+	if _look_up_left > 0.0:
+		_look_up_left -= delta
+		_face(_look_up_at, delta)
+		_figure.rotation.x = lerpf(_figure.rotation.x, -LOOK_UP_TILT, 4.0 * delta)
+		return
+	_figure.rotation.x = lerpf(_figure.rotation.x, 0.0, 4.0 * delta)
 	match _mode:
 		Mode.WAITING:
 			_ignored_for += delta
@@ -66,6 +78,16 @@ func mode() -> Mode:
 
 func is_at_the_door() -> bool:
 	return _mode == Mode.LEADING and _waypoint >= waypoints.size()
+
+
+## A Glimpse appeared at [param point]: he looks up at it for a moment.
+func look_up_at(point: Vector3) -> void:
+	_look_up_at = point
+	_look_up_left = LOOK_UP_SECONDS
+
+
+func is_looking_up() -> bool:
+	return _look_up_left > 0.0
 
 
 ## The player's hum reaches him: he answers with his notes, once he has been

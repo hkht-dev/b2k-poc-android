@@ -44,7 +44,7 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	var player := _find_player()
-	_place.enabled = player != null and player.is_carrying()
+	_place.enabled = player != null and player.is_carrying("can")
 	_look.enabled = player != null and not player.is_carrying()
 
 
@@ -63,7 +63,7 @@ func _on_look(_player: Node3D) -> void:
 
 
 func _on_place(player: Node3D) -> void:
-	if not player.is_carrying():
+	if not player.is_carrying("can"):
 		return
 	player.put_down()
 	GameState.fire_event(EVENT_PLACED)

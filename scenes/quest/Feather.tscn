@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+; A single peacock feather: a flat quad in the one peacock blue the Street
+; allows. In a hand (carried) or on the pavement (the Glimpse's proof).
+; PLACEHOLDER: replaced by the painted feather of GDD §10.
+
+[ext_resource type="Material" path="res://assets/materials/peacock_feather.tres" id="1_mat"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_feather"]
+size = Vector2(0.12, 0.5)
+
+[node name="Feather" type="Node3D"]
+
+[node name="Quad" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0.2)
+mesh = SubResource("PlaneMesh_feather")
+surface_material_override/0 = ExtResource("1_mat")
+cast_shadow = 0

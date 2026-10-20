@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+; The Glimpse's flute, in silhouette like the rest of the figure.
+
+[ext_resource type="Material" path="res://assets/materials/silhouette.tres" id="1_mat"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_flute"]
+top_radius = 0.018
+bottom_radius = 0.018
+height = 0.55
+radial_segments = 8
+rings = 0
+
+[node name="Flute" type="Node3D"]
+
+[node name="Pipe" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.26, 0.97, 0, -0.97, 0.26, 0, 0.05, 0.18)
+mesh = SubResource("CylinderMesh_flute")
+surface_material_override/0 = ExtResource("1_mat")
+cast_shadow = 0

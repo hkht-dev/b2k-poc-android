@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 ; The body is scenes/characters/Character.tscn (a rigged CC0 human, see there).
 ; PLACEHOLDER: replaced by the traveler form of GDD §10 "Characters" —
@@ -6,6 +6,8 @@
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
+[ext_resource type="PackedScene" path="res://scenes/quest/WaterCan.tscn" id="3_can"]
+[ext_resource type="PackedScene" path="res://scenes/quest/Feather.tscn" id="4_feather"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.34
@@ -16,6 +18,10 @@ collision_layer = 2
 collision_mask = 1
 floor_snap_length = 0.4
 script = ExtResource("1_player")
+carryables = {
+"can": ExtResource("3_can"),
+"feather": ExtResource("4_feather")
+}
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)

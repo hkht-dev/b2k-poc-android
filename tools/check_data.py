@@ -63,6 +63,8 @@ REQUIRED_STRING_IDS = [
     "speaker.gopal",
     "speaker.fountain",
     "sub.can_placed",
+    "journey.glimpse.traffic_light",
+    "pause.journey",
     "sub.tulu_hum",
     "sub.player_hum",
     "now.boy_humming",

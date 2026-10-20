@@ -394,6 +394,13 @@ solid("Beam", "TrafficLight", (29.5, 5.7, 14), (8.4, 0.3, 0.3), "rust_metal", co
 solid("Housing", "TrafficLight", (32.6, 5.1, 14), (0.5, 1.2, 0.45), "tyre", collide=False)
 for i, y in enumerate((5.45, 5.1, 4.75)):
     cyl(f"Lamp{i}", "TrafficLight", (32.6, y, 14.2), 0.13, 0.2, "road_paint")
+# The Glimpse point (§4.5): the silhouette sits on the beam facing the
+# fountain; its feather falls on the pavement below the pole.
+nodes.append(
+    '[node name="Glimpse" parent="TrafficLight" instance=ExtResource("14_glimpse")]\n'
+    "unique_name_in_owner = true\n"
+    f"transform = {xf((29.5, 5.85, 14.0), math.pi / 2)}\n\n"
+)
 
 # --- the billboard tower -----------------------------------------------------
 group("Tower")
@@ -593,6 +600,7 @@ header = (
     '[ext_resource type="Script" path="res://scripts/quest/can_stack.gd" id="11_can_stack"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Gopal.tscn" id="12_gopal"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/quest/FountainPoint.tscn" id="13_fountain_point"]\n'
+    '[ext_resource type="PackedScene" path="res://scenes/quest/Glimpse.tscn" id="14_glimpse"]\n'
     + "".join(
         f'[ext_resource type="PackedScene" path="res://assets/thirdparty/{path}" id="{MODEL_ID[m]}"]\n'
         for m, path in MODELS.items()
