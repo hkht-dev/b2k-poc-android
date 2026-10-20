@@ -103,6 +103,8 @@ func _ready() -> void:
 	_cards = CHOICE_CARDS.instantiate()
 	_ui.add_child(_cards)
 	_cards.bind(Content.dialogue)
+	_cards.apply_scheme(_controls.scheme())
+	_controls.scheme_changed.connect(_cards.apply_scheme)
 	# Optional wisdom (GDD §6, §9): a flag may offer a card; the lotus opens it.
 	GameState.flag_changed.connect(_on_wisdom_trigger)
 	_controls.lotus().opened.connect(_open_wisdom_card)
@@ -115,8 +117,18 @@ func _ready() -> void:
 		(node as Door).used_door.connect(_on_door_used)
 	for node in get_tree().get_nodes_in_group(DriveableCar.GROUP):
 		(node as DriveableCar).board_requested.connect(board)
+	# -- Path card (GDD §16a) ----------------------------------------------------
+	_tracks_route = place_id == GameState.ROUTE_PLACE
+	_route_clock = route_sample_seconds  # the first step of a walk is on the card
+	if _tracks_route:
+		PathCard.remember_blocks(_controls.minimap().footprints())
+	# ---------------------------------------------------------------------------
 	if _place_at_spawn():
-		# Arrived through a door: the view comes back from black.
+		# Arrived through a door: the view comes back from black, and the
+		# place says its name once.
+		var name_id := Places.name_id_of(place_id)
+		if not name_id.is_empty():
+			_controls.subtitle(name_id, PLACE_NAME_SECONDS)
 		_fade.color.a = 1.0
 		create_tween().tween_property(_fade, "color:a", 0.0, DOOR_FADE_SECONDS)
 	_lamps_ready()  # lamps
@@ -125,6 +137,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if not is_paused() and not _input_locked:
 		GameState.add_play_time(delta)
+		_sample_route(delta)
 	_scan_interactables()
 	_controls.compass().set_heading(heading())
 	if _car != null:

@@ -288,6 +288,7 @@ func to_dict() -> Dictionary:
 		"settings": settings.duplicate(true),
 		"hum_count": hum_count,
 		"play_seconds": play_seconds,
+		"route": route.duplicate(true),
 		"place": place,
 		"spawn": spawn,
 		"vignette_days": vignette_days.duplicate(),
@@ -319,6 +320,12 @@ func from_dict(data: Dictionary) -> void:
 	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
 	hum_count = int(data.get("hum_count", 0))
 	play_seconds = float(data.get("play_seconds", 0.0))
+	route.clear()
+	var saved_route: Variant = data.get("route", [])
+	if saved_route is Array:
+		for point in saved_route:
+			if point is Array and point.size() >= 2:
+				route.append([float(point[0]), float(point[1])])
 	place = str(data.get("place", DEFAULT_PLACE))
 	if place.is_empty():
 		place = DEFAULT_PLACE
@@ -373,6 +380,7 @@ func wipe() -> void:
 	play_seconds = 0.0
 	place = DEFAULT_PLACE
 	spawn = ""
+	route.clear()
 	vignette_days.clear()
 	garden = Garden.empty()
 	outfit = ""
