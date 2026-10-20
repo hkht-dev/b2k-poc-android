@@ -778,7 +778,6 @@ Same walk as before. The library GLB (7.4 MB on disk) replaces three Kenney
 clips of 1.7 MB; the `.pck` size held because the Kenney clips' skeletons
 went with them. Checked in the browser: idle stands relaxed, the walk
 strides, the jog runs, feet on the ground.
-PERF_TABLE_PLACEHOLDER
 
 
 ## 2026-10-20 — People dressed differently; a desktop scheme without the joystick
@@ -943,3 +942,17 @@ CLAUDE_CODE_BRIEF.md §4.5, GDD §6 "Glimpses", §10 (the one peacock blue).
   down again, and sets nothing else: nothing happens, as the brief says.
 - The pause menu now lists *Your journey* (GDD §6; the brief names the pause
   menu as where the line is recorded), hidden until it has a line.
+
+### Budget, as measured in the web build
+
+| Metric | Limit (amendment §C) | P4 | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 112, max 182 | median 112, max 178 |
+| Primitives per frame | < 150k | median 56.2k, max 70.4k | median 56.1k, max 68.2k |
+| Web `.pck` | — | 36 MB | 36 MB |
+
+Same walk as P4, with the Glimpse not showing (it is the single skinned
+mesh and one omni light for five seconds once a journey, and the measured
+walk never sets `gave_dry_fountain`). The numbers are within noise of P4's:
+the silhouette scene, hidden, costs nothing, and the feather pick-up is one
+quad. Frames per second remain unmeasured here (software renderer only).
