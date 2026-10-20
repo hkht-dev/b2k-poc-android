@@ -11,7 +11,7 @@ const SCRATCH := "user://test_competitors_journey.json"
 ## Where the player stands to talk to each: in front of Rukma on the road
 ## side of the bench, in front of Bhima Lal on the fountain's step, in front
 ## of Nanda on his doorstep, and square to the door itself.
-const RUKMA_SPOT := Vector3(10.6, 0.3, 19.8)
+const RUKMA_SPOT := Vector3(7.3, 0.3, 19.8)
 const BHIMA_SPOT := Vector3(-6.6, 0.1, 5.4)
 const NANDA_SPOT := Vector3(-27.3, 0.1, -16.0)
 const DOOR_SPOT := Vector3(-29.0, 0.1, -17.3)
@@ -97,7 +97,7 @@ func test_rukma_sits_asleep_on_the_bench_and_bhima_is_the_big_one() -> void:
 	assert_eq(rukma.idle_animation, "Sitting_Idle", "she sits (PLACEHOLDER for asleep)")
 	assert_eq(rukma.state(), "idle")
 	var rukma_pos: Vector3 = street.get_node("%Rukma").global_position
-	assert_almost_eq(rukma_pos.x, 10.6, 0.01)
+	assert_almost_eq(rukma_pos.x, 7.3, 0.01)
 	assert_almost_eq(rukma_pos.z, 21.0, 0.01, "on the bus stop bench")
 	var bhima: CharacterRig = street.get_node("%BhimaLal/%Figure")
 	var nanda: CharacterRig = street.get_node("%Nanda/%Figure")

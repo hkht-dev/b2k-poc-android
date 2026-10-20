@@ -337,21 +337,6 @@ func _advance_ground(delta: float) -> void:
 		off.y = 0.0
 		off -= _cable_axis * off.dot(_cable_axis)
 		recenter = (-off * CABLE_RECENTER).limit_length(CABLE_RECENTER_MAX)
-	_update_footsteps()
-
-
-## The steps loop while the body actually moves (the velocity after sliding,
-## so pushing at a wall is silent), faster when running, and stop when still
-## or climbing.
-func _update_footsteps() -> void:
-	var speed := Vector2(velocity.x, velocity.z).length()
-	if not _is_climbing and speed >= FOOTSTEPS_MIN_SPEED:
-		_footsteps.pitch_scale = FOOTSTEPS_RUN_PITCH if _is_running else FOOTSTEPS_WALK_PITCH
-		if not _footsteps.playing:
-			_footsteps.play()
-	elif _footsteps.playing:
-		_footsteps.stop()
-
 	var speed := RUN_SPEED if _is_running else WALK_SPEED
 	var target := wish.normalized() * speed * strength if wish.length() > 0.001 else Vector3.ZERO
 	target += recenter
@@ -374,6 +359,7 @@ func _update_footsteps() -> void:
 		return
 	_step_up(delta)
 	move_and_slide()
+	_update_footsteps()
 	_track_fall()
 
 
@@ -542,3 +528,16 @@ func _read_cable(delta: float) -> void:
 func _ray(from: Vector3, to: Vector3) -> Dictionary:
 	var query := PhysicsRayQueryParameters3D.create(from, to, WORLD_LAYER)
 	return get_world_3d().direct_space_state.intersect_ray(query)
+
+
+## The steps loop while the body actually moves (the velocity after sliding,
+## so pushing at a wall is silent), faster when running, and stop when still
+## or climbing.
+func _update_footsteps() -> void:
+	var speed := Vector2(velocity.x, velocity.z).length()
+	if not _is_climbing and speed >= FOOTSTEPS_MIN_SPEED:
+		_footsteps.pitch_scale = FOOTSTEPS_RUN_PITCH if _is_running else FOOTSTEPS_WALK_PITCH
+		if not _footsteps.playing:
+			_footsteps.play()
+	elif _footsteps.playing:
+		_footsteps.stop()
