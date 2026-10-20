@@ -1,0 +1,104 @@
+{
+  "id": "sign",
+  "giver_name_id": "speaker.vignette_sign",
+  "skin": "criminalMaleA",
+  "spot": "a",
+  "lines": {
+    "vignette_sign_open": {
+      "speaker": "vignette_sign",
+      "text_id": "vignette.sign.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.sign.card.open.read",
+          "sets": [],
+          "next": "vignette_sign_small"
+        },
+        {
+          "text_id": "vignette.sign.card.open.nothing",
+          "sets": [
+            "vignette_sign_spared"
+          ],
+          "next": "vignette_sign_end_spared"
+        },
+        {
+          "text_id": "vignette.sign.card.open.trade",
+          "sets": [],
+          "next": "vignette_sign_trade"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_sign_small": {
+      "speaker": "vignette_sign",
+      "text_id": "vignette.sign.line.small",
+      "cards": [
+        {
+          "text_id": "vignette.sign.card.small.all",
+          "sets": [
+            "vignette_sign_read_all"
+          ],
+          "next": "vignette_sign_end_all"
+        },
+        {
+          "text_id": "vignette.sign.card.small.none",
+          "sets": [
+            "vignette_sign_spared"
+          ],
+          "next": "vignette_sign_end_spared"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_sign_trade": {
+      "speaker": "vignette_sign",
+      "text_id": "vignette.sign.line.trade",
+      "cards": [
+        {
+          "text_id": "vignette.sign.card.trade.deal",
+          "sets": [
+            "vignette_sign_traded"
+          ],
+          "next": "vignette_sign_end_traded"
+        },
+        {
+          "text_id": "vignette.sign.card.trade.just",
+          "sets": [
+            "vignette_sign_read_all"
+          ],
+          "next": "vignette_sign_end_all"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_sign_end_spared": {
+      "speaker": "vignette_sign",
+      "text_id": "vignette.sign.line.end_spared",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_sign_end_all": {
+      "speaker": "vignette_sign",
+      "text_id": "vignette.sign.line.end_all",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_sign_end_traded": {
+      "speaker": "vignette_sign",
+      "text_id": "vignette.sign.line.end_traded",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.sign.journey",
+  "outcomes": [
+    "vignette_sign_read_all",
+    "vignette_sign_spared",
+    "vignette_sign_traded"
+  ]
+}

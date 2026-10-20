@@ -1040,3 +1040,78 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — Dawn vignettes: one new stranger a day, from a pool in the build
+
+GDD §16a "Dawn vignettes" ("Every real day, the Street has one new 2–4
+minute encounter from a rotating pool ... Missed days queue; nothing is
+lost"), §8 (the voice), §6 "Choice" (cards), §12 (flags, one journey
+object). Affects §16a (delivery is a folder in the build, not the backend
+the section's table names: "No backend" is the rule for the slice) and §12
+(one field on the journey).
+
+### What was built
+
+- `data/vignettes/<id>.json`, ten of them: a stranger's name id, a Kenney
+  skin, one of three fixed spots (`a`/`b`/`c`), the vignette's own dialogue
+  lines in exactly the shape of `data/dialogue/en.json`, the flags its cards
+  set (`outcomes`, each `vignette_<id>_<outcome>`) and one journey line. Ten
+  short moral situations in the voice of §8: a found ring, a vendor who
+  overcharged, a kite in a tree, a letter to carry, a cinema that is no
+  longer there, marigolds at dusk, a dog nobody feeds, a parking spot, a
+  stopped watch, a notice an old man cannot read. Every line under 20 words,
+  two or three cards or none, every line `draft`.
+- `scripts/core/vignettes.gd` (`Vignettes`, static like `Places`): loads the
+  pool sorted by id; `id_for_date` indexes it by the day count since
+  1970-01-01 modulo the pool, so the same date gives the same vignette on
+  every device and consecutive days walk the pool in order; `grant_today`
+  writes today's date, and every missed day's since the last grant, into
+  `GameState.vignette_days`; `pending` is the granted dates, oldest first,
+  each vignette once, minus those whose `vignette_<id>_done` flag is set;
+  `complete` writes that flag and the journey line.
+- `scenes/quest/VignetteSpot.tscn` + `scripts/quest/vignette_spot.gd`: at
+  ready it grants today, takes the oldest pending vignette for its letter,
+  instances `Character.tscn` with the vignette's skin, adds the vignette's
+  lines to the running `Content.dialogue` and offers *Talk*, which opens
+  the first line. A card setting an outcome finishes the vignette and closes
+  Talk; a conversation left without an outcome leaves it pending.
+- `tools/street_parts/vignette_spots.py`: the three spots, at (−3, 0.16,
+  9.5) between the fountain and the road, (26, 0.16, 21) by the crossing,
+  (−36, 0, 12) along the fence. Empty when nothing is pending.
+- `Dialogue.add_lines(dict, source)`: lines in the same shape, added to a
+  table already built; `from_dict` now builds through it. The cards UI is
+  bound to the one runner and needed no change.
+
+### Decisions
+
+- **Calendar-true, never a timer.** The pick is a pure function of the
+  date string (`Time.get_date_string_from_system`). Nothing counts down,
+  nothing expires: a vignette granted waits until it is played, and a day
+  that passes unplayed is simply another date in the queue (§16a: "No
+  streaks, no energy, no countdown timers").
+- **The queue is dates, the record is flags.** `vignette_days` says which
+  real days were granted; which vignettes were played is a flag like every
+  other mark on the journey, so the debug panel, the save file and *Play
+  again* already know about it. The backfill after an absence reaches at
+  most one pool's worth of days, because older missed days could only repeat
+  vignettes already waiting; with the slice's pool of ten, a long absence
+  queues all ten, each once.
+- **One journey line per vignette, outcome-neutral.** It says who the
+  player stopped for ("You stopped for a woman holding someone else's
+  ring."), not what they chose: the choice itself is in `choice_history`,
+  and no line praises or regrets a card (§6, no correct answer).
+- **The stranger's name is a speaker.** `giver_name_id` is
+  `speaker.vignette_<id>`, the convention the cards already resolve, so the
+  stranger's name appears over their lines like Gopal's does.
+- **Spot positions as given.** Spots `b` and `c` stand on the road's edge
+  by the generator's layout (the kerbs are 3 m wide); they read as people on
+  the kerb line. Nudge in `tools/street_parts/vignette_spots.py` if the
+  playtest minds.
+
+### Placeholders
+
+- The stranger's body: Kenney's rigged character with a Kenney skin, named
+  by the vignette (`PLACEHOLDER` in the scene and the script); replaced by
+  the painted strangers of GDD §10. The ten vignettes are the first ten of
+  §16a's 120; the format carries the rest unchanged.
