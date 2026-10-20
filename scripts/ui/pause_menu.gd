@@ -12,12 +12,16 @@ signal settings_requested
 signal map_toggled(on: bool)
 
 const MINIMAP := preload("res://scripts/ui/minimap.gd")
+const GARDEN_SCREEN := preload("res://scenes/ui/GardenScreen.tscn")
+
+var _garden_overlay: Control = null
 
 @onready var _title: Label = %Title
 @onready var _resume: Button = %ResumeButton
 @onready var _controls: Button = %ControlsButton
 @onready var _map: Button = %MapButton
 @onready var _settings: Button = %SettingsButton
+@onready var _garden: Button = %GardenButton
 @onready var _now: Label = %Now
 @onready var _journey_title: Label = %JourneyTitle
 @onready var _journey: VBoxContainer = %Journey
@@ -32,6 +36,8 @@ func _ready() -> void:
 	_controls.pressed.connect(func() -> void: controls_requested.emit())
 	_settings.text = Strings.t("pause.settings")
 	_settings.pressed.connect(func() -> void: settings_requested.emit())
+	_garden.text = Strings.t("pause.garden")
+	_garden.pressed.connect(_open_garden)
 	_refresh_map_label()
 	_map.pressed.connect(_on_map)
 	_now.text = now_line()
@@ -75,6 +81,29 @@ static func now_line() -> String:
 		if quest.status() == Quest.Status.ACTIVE and quest.current_step_id() != "":
 			return Strings.t(quest.current_objective_text_id())
 	return Strings.t("now.boy_led")
+
+
+## The garden (GDD §6 "The Garden") belongs in the Grove. Until the Grove is
+## built it opens here, over the pause menu (docs/DECISIONS.md).
+func _open_garden() -> void:
+	if _garden_overlay != null:
+		return
+	_garden_overlay = GARDEN_SCREEN.instantiate()
+	_garden_overlay.closed.connect(_close_garden)
+	add_child(_garden_overlay)
+
+
+func _close_garden() -> void:
+	if _garden_overlay == null:
+		return
+	remove_child(_garden_overlay)
+	_garden_overlay.queue_free()
+	_garden_overlay = null
+	_garden.grab_focus()
+
+
+func garden_overlay() -> Control:
+	return _garden_overlay
 
 
 func _refresh_map_label() -> void:

@@ -93,6 +93,12 @@ custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 text = "Settings"
 
+[node name="GardenButton" type="Button" parent="Panel/Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+text = "The garden"
+
 [node name="MapButton" type="Button" parent="Panel/Margin/Layout"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 96)

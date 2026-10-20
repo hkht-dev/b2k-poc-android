@@ -48,6 +48,11 @@ var spawn: String = ""
 ## (GDD §16a "Dawn vignettes": missed days queue, nothing is lost). Which of
 ## them has been played is a flag, `vignette_<id>_done`, like everything else.
 var vignette_days: Array[String] = []
+## The garden (GDD §6 "The Garden"): seeds with the day they were planted,
+## what was pulled, the creeper's watered days, the count of play-days and
+## the last date played. Kept by scripts/core/garden.gd; shown only on its
+## own screen, never as a number.
+var garden: Dictionary = Garden.empty()
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -61,6 +66,8 @@ func _init() -> void:
 
 func _ready() -> void:
 	load_journey()
+	# The first play on a new calendar date is a play-day (GDD §16a).
+	Garden.advance_day(self)
 
 
 # -- flags --------------------------------------------------------------------
@@ -132,6 +139,7 @@ func set_beat(new_beat: String) -> void:
 ## stable across locales and rewrites.
 func record_choice(line_id: String, card_index: int, sets: PackedStringArray) -> void:
 	choice_history.append({"line": line_id, "card": card_index, "sets": Array(sets)})
+	Garden.reconcile(self)
 	_save_if_enabled()
 
 
@@ -173,6 +181,7 @@ func to_dict() -> Dictionary:
 		"place": place,
 		"spawn": spawn,
 		"vignette_days": vignette_days.duplicate(),
+		"garden": garden.duplicate(true),
 	}
 
 
@@ -199,6 +208,7 @@ func from_dict(data: Dictionary) -> void:
 	vignette_days.clear()
 	for date in _string_array(data.get("vignette_days", [])):
 		vignette_days.append(date)
+	garden = Garden.normalised(data.get("garden"))
 
 
 func save() -> bool:
@@ -239,6 +249,7 @@ func wipe() -> void:
 	place = DEFAULT_PLACE
 	spawn = ""
 	vignette_days.clear()
+	garden = Garden.empty()
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)
@@ -250,7 +261,15 @@ func set_autosave(enabled: bool) -> void:
 	_autosave = enabled
 
 
+## The garden changed outside a flag or a choice (a day began, a weed was
+## pulled, the creeper was watered): save, if saving is on.
+func garden_changed() -> void:
+	_save_if_enabled()
+
+
 func _on_flag_changed(flag: String, is_set: bool) -> void:
+	if is_set:
+		Garden.on_flag(self, flag)
 	flag_changed.emit(flag, is_set)
 	_save_if_enabled()
 
