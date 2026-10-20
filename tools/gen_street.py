@@ -203,37 +203,18 @@ def collider(name, parent, size, placements) -> None:
         )
 
 
-def figure(name, parent, mat, pos=(0, 0, 0), script_props="", scale=1.0) -> None:
-    """A low-poly humanoid with the procedural walk (§B4). Pedestrians use it;
-    the player's is hand-built in Player.tscn to the same proportions."""
-    root = f"{parent}/{name}"
-    body = f"{root}/Figure"
+SKINS = ["humanMaleA", "humanFemaleA"]  # Kenney animated-characters-retro
+
+
+def figure(name, parent, skin, pos=(0, 0, 0), script_props="", scale=1.0) -> None:
+    """A rigged human (scenes/characters/Character.tscn) with the given skin.
+    Pedestrians use it; the player's and Tulu's are instanced in their scenes."""
     nodes.append(
         f'[node name="{name}" type="Node3D" parent="{parent}"]\n'
         f"transform = {xf(pos, 0.0, (scale, scale, scale))}\n{script_props}\n"
-        f'[node name="Figure" type="Node3D" parent="{root}"]\n'
-        f'script = ExtResource("7_animator")\n\n'
-        f'[node name="Torso" type="Node3D" parent="{body}"]\n\n'
+        f'[node name="Figure" parent="{parent}/{name}" instance=ExtResource("8_character")]\n'
+        f'skin = ExtResource("skin_{skin}")\n\n'
     )
-    def part(nm, parent_path, pos_, size, m, mesh="BoxMesh_unit"):
-        nodes.append(
-            f'[node name="{nm}" type="MeshInstance3D" parent="{parent_path}"]\n'
-            f"transform = {xf(pos_, 0.0, size)}\n"
-            f'mesh = SubResource("{mesh}")\n'
-            f'surface_material_override/0 = ExtResource("{MAT_ID[m]}")\n\n'
-        )
-    torso = f"{body}/Torso"
-    part("Chest", torso, (0, 1.2, 0), (0.44, 0.6, 0.25), mat)
-    part("Hips", torso, (0, 0.8, 0), (0.38, 0.22, 0.25), "tyre")
-    part("Head", torso, (0, 1.7, 0), (0.33, 0.35, 0.33), "skin", "SphereMesh_unit")
-    part("Hair", torso, (0, 1.8, 0.02), (0.36, 0.2, 0.36), "timber", "SphereMesh_unit")
-    for side, sx in (("LeftArm", 0.29), ("RightArm", -0.29)):
-        nodes.append(f'[node name="{side}" type="Node3D" parent="{body}"]\ntransform = {xf((sx, 1.45, 0))}\n\n')
-        part("Upper", f"{body}/{side}", (0, -0.3, 0), (0.11, 0.58, 0.11), mat)
-    for side, sx in (("LeftLeg", 0.11), ("RightLeg", -0.11)):
-        nodes.append(f'[node name="{side}" type="Node3D" parent="{body}"]\ntransform = {xf((sx, 0.7, 0))}\n\n')
-        part("Thigh", f"{body}/{side}", (0, -0.35, 0), (0.15, 0.68, 0.17), "tyre")
-        part("Foot", f"{body}/{side}", (0, -0.68, -0.05), (0.16, 0.08, 0.26), "timber")
 
 
 # ================================================================ the block
@@ -516,7 +497,7 @@ for i, (pts, spd) in enumerate(PED_PATHS):
         f"face_travel = true\nstart_offset = {i * 7.0:g}\n"
         f"yield_distance = 1.6\nyield_width = 0.9\n\n"
     )
-    figure(f"Pedestrian{i}", "Ambience", "cloth_pale" if i % 2 else "coat", script_props=props)
+    figure(f"Pedestrian{i}", "Ambience", SKINS[i % len(SKINS)], script_props=props)
     nodes.append(
         f'[node name="Body" type="StaticBody3D" parent="Ambience/Pedestrian{i}"]\n'
         f"collision_layer = 1\ncollision_mask = 0\n\n"
@@ -561,8 +542,12 @@ header = (
     '[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="4_player"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/player/CameraRig.tscn" id="5_rig"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="6_controls"]\n'
-    '[ext_resource type="Script" path="res://scripts/player/figure_animator.gd" id="7_animator"]\n'
-    '[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/overcast_soil_puresky.hdr" id="8_sky"]\n'
+    '[ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="8_character"]\n'
+    + "".join(
+        f'[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-retro/{skin}.png" id="skin_{skin}"]\n'
+        for skin in SKINS
+    )
+    + '[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/overcast_soil_puresky.hdr" id="8_sky"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Tulu.tscn" id="9_tulu"]\n'
     '[ext_resource type="Script" path="res://scripts/street/model_batch.gd" id="batch"]\n'
     + "".join(

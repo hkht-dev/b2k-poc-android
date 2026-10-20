@@ -65,6 +65,23 @@ def zip_url(kit: str) -> str:
     return match.group(0)
 
 
+# Files taken as shipped from a kit, by their path inside the zip:
+# kit -> (paths, where used). Kenney's animated characters are FBX (a body,
+# clips, skin PNGs); Godot 4.3 imports FBX natively, so they stay FBX.
+FILES = {
+    "animated-characters-retro": (
+        [
+            "Model/characterMedium.fbx",
+            "Animations/idle.fbx",
+            "Animations/run.fbx",
+            "Animations/jump.fbx",
+            "Skins/humanMaleA.png",
+            "Skins/humanFemaleA.png",
+        ],
+        "the player, pedestrians and Tulu: rigged body, clips, skins",
+    ),
+}
+
 # Kenney's palette has a turquoise foliage green; GDD §10 forbids peacock blue
 # in the Street, so leaves are set to a dull olive on the way in. Material
 # name -> linear RGBA baseColorFactor.
@@ -167,8 +184,27 @@ def main() -> int:
             processing = "GLB as shipped" if not steps else "GLB; " + "; ".join(steps)
             register_row(kit, model, used, path, processing)
             print(f"fetch_kenney: {kit}/{model}.glb ({path.stat().st_size // 1024} KB)")
+    for kit, (paths, used) in FILES.items():
+        kit_dir = OUT / kit
+        if args.check:
+            for rel in paths:
+                if not (kit_dir / Path(rel).name).exists():
+                    print(f"fetch_kenney: missing {kit}/{Path(rel).name}", file=sys.stderr)
+                    problems += 1
+            continue
+        archive = zipfile.ZipFile(io.BytesIO(fetch(zip_url(kit))))
+        kit_dir.mkdir(parents=True, exist_ok=True)
+        licence = next((n for n in archive.namelist() if n.lower().endswith("license.txt")), None)
+        if licence:
+            (kit_dir / "LICENSE.txt").write_bytes(archive.read(licence))
+        for rel in paths:
+            path = kit_dir / Path(rel).name
+            path.write_bytes(archive.read(rel))
+            register_row(kit, Path(rel).stem, used, path, f"as shipped ({rel})")
+            print(f"fetch_kenney: {kit}/{path.name} ({path.stat().st_size // 1024} KB)")
     if args.check and not problems:
-        print(f"fetch_kenney: {sum(len(m) for m, _, _ in KITS.values())} models present")
+        total = sum(len(m) for m, _, _ in KITS.values()) + sum(len(f) for f, _ in FILES.values())
+        print(f"fetch_kenney: {total} files present")
     return 1 if problems else 0
 
 
