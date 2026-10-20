@@ -1,0 +1,36 @@
+{
+  "_comment": "The Song as a skill (GDD §16a). Pitches are semitone offsets from G4 (root_hz); times and holds are seconds. GDD §10: Tulu's three notes G4 A4 C5 are the first three events of bar_one. tuning: the four strings' open pitches, lowest first (PLACEHOLDER tuning for the Veena). answers: the line the screen says, by the highest 'below' the quality is under; never a number.",
+  "root_hz": 392.0,
+  "tuning": [0, 5, 7, 12],
+  "lesson": ["bar_one", "bar_two"],
+  "bars": {
+    "bar_one": {
+      "taught_flag": "sarang_taught_bar",
+      "journey_line_id": "journey.sarang.first_bar",
+      "notes": [
+        {"time": 0.0, "pitch": 0, "hold": 0.6},
+        {"time": 0.7, "pitch": 2, "hold": 0.6},
+        {"time": 1.4, "pitch": 5, "hold": 1.2},
+        {"time": 2.8, "pitch": 7, "hold": 0.6},
+        {"time": 3.5, "pitch": 5, "hold": 1.1}
+      ]
+    },
+    "bar_two": {
+      "taught_flag": "sarang_taught_bar_two",
+      "journey_line_id": "journey.sarang.second_bar",
+      "notes": [
+        {"time": 0.0, "pitch": 5, "hold": 0.6},
+        {"time": 0.7, "pitch": 7, "hold": 0.6},
+        {"time": 1.4, "pitch": 9, "hold": 0.6},
+        {"time": 2.1, "pitch": 12, "hold": 1.2},
+        {"time": 3.5, "pitch": 9, "hold": 0.6},
+        {"time": 4.2, "pitch": 7, "hold": 1.2}
+      ]
+    }
+  },
+  "answers": [
+    {"below": 0.45, "text_id": "song.answer.quiet"},
+    {"below": 0.8, "text_id": "song.answer.warm"},
+    {"below": 1.01, "text_id": "song.answer.full"}
+  ]
+}

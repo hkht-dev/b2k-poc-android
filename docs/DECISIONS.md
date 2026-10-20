@@ -1040,3 +1040,80 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — The Song as a skill, and Sarang
+
+GDD §16a "Challenge and mastery: the Song as a skill" (the owner's 2026-10-20
+expansion lifted its deferral), §4 Sarang, §7 Investigate step 4 ("Sarang
+teaches you the first bar") and Mediate step 3 (the missing string), §10
+(Tulu's three notes are the first three notes of the Song), §11 (no number,
+no meter, no visible timer).
+
+### What was built
+
+- **`data/song.json`** is the Song as data: two bars of note events
+  `{time, pitch, hold}` (seconds; semitones from G4, only 0 2 5 7 9 12), the
+  order they are taught, the four strings' tuning (G4 C5 D5 G5, a
+  PLACEHOLDER for the Veena's), and for each bar the flag a lesson sets and
+  the journey line it writes. Bar one opens G4 A4 C5: Tulu's hum.
+- **`Song`** (`scripts/music/song.gd`, RefCounted) loads it, synthesises the
+  notes at run time through an `AudioStreamGenerator` (sine plus triangle
+  plucks, a 4 ms attack and a slow decay; PLACEHOLDER for the recorded veena
+  of §10, so no audio file was added), and scores a performance as one
+  quality in 0–1 from timing, pitch and hold error against the bar. The
+  quality drives effects and is never printed; `Song` has no formatting code.
+- **`SongScreen`** (`scenes/ui/SongScreen.tscn`): four strings across the
+  lower half. The bar plays once — a dot travels, the string the note is
+  played from glows — then the player plays: press for the string's pitch,
+  slide up or down to bend it (pitch is continuous across the gaps, so A4
+  sits two fifths of the way from the G string to the C string), let go to
+  end the note. Keys one to four with Up/Down, and a gamepad's face buttons
+  or d-pad with the left stick, do the same from raw events; `project.godot`
+  gains no action. When the turn ends the opener's callback gets the quality
+  and the screen says one of Sarang's three lines by band (`song.answer.*`,
+  bands in the data), then closes. At the fullest band he plays the bar back.
+- **Sarang** (`scenes/npc/Sarang.tscn`, `tools/street_parts/sarang.py`)
+  sits on a crate near (20, 0, -9), east of the chai stall, his instrument on
+  the ground with three strings and a gap, a sign on a post. His lines are
+  `entry_lines` on the node; which of them open a lesson, and on which bar,
+  is `lessons`; which are skipped while a flag holds is `skip_when`. The
+  lesson card appears once the player has heard Tulu *or* seen the shrine:
+  the dialogue's `requires` is a conjunction, so two greeting lines with the
+  same words carry one requirement each. Finishing a lesson at any quality
+  sets `sarang_taught_bar` (bar two: `sarang_taught_bar_two`) and writes the
+  journey line, both read from the song data. With `has_sarang_string` (set
+  in Nanda's flat) he sees the string; the card that hands it over sets
+  `sarang_string_given`, his thanks follow once (`sarang_thanked`), and the
+  fourth string appears on the instrument.
+
+### Decisions
+
+- **Timing is relative to the first press.** The player's clock starts when
+  they first touch a string, so a lesson judges rhythm and pitch, never the
+  nerve it took to begin, and no count-in is needed (§11: no timed input).
+- **The turn ends by what was played**, not by a timer: once as many notes
+  as the bar has were released, or by a tap above the strings / Escape /
+  Back; a long grace (twice the bar and two seconds) only stops a turn that
+  was abandoned mid-way. Nothing counts down on screen.
+- **The screen pauses the tree** the way the pause menu does, so the street
+  and its keys (Up/Down are also walking keys) hold still under it; the
+  screen itself is `PROCESS_MODE_ALWAYS` and steps its own clock, and tests
+  drive it with `advance()` without awaiting.
+- **Lines said once are data, not inference.** `skip_when` names the flag
+  that retires an entry line; the `sets` on the line (or its card) is what
+  sets it. The dialogue runner was not changed.
+- **No new quest file.** The lesson is a step of the Investigate approach of
+  *The Forgotten Song*, which is another agent's quest file; the flags here
+  are what it waits on.
+
+### What the integrator should check
+
+- `tools/check_data.py`: add `speaker.sarang`, `sign.sarang_corner`,
+  `song.hint.watch`, `song.your_turn`, `song.hint.play.{touch,desktop,gamepad}`,
+  `song.answer.{quiet,warm,full}` to `REQUIRED_STRING_IDS`; consider a
+  `check_song()` for `data/song.json` (times ascending, pitches in the set,
+  `taught_flag` present, `journey_line_id` and answer `text_id`s in strings).
+- CI: nothing new to run; the street part is covered by `gen_street.py --check`.
+- Budget: Sarang is one more skinned mesh and some twenty small boxes; the
+  web-build numbers were not re-measured here (no export in a shared box).
