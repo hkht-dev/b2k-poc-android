@@ -1040,3 +1040,74 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — The Path card (GDD §16a)
+
+GDD §16a "Path card": "at every chapter's end, a shareable image of the
+player's route and what they noticed, built for Instagram, WhatsApp and
+Shorts." Affects §6 (*Your journey* leaves the app), §11 (the end screen
+gains a second button), §12 (`route` on the journey). The owner's expansion
+lifts the slice's deferral of §16a for this one piece; nothing else of §16a
+is built.
+
+### What was built
+
+- `GameState.route`: `[x, z]` pairs in metres, oldest first. The Place base
+  samples the player's position every `route_sample_seconds` (3, an export
+  on the scene) of walking, on the street only (`GameState.ROUTE_PLACE`,
+  the street block; shop interiors are not on the card), standing still
+  adds nothing, and the first step of a walk is always on it. Capped at
+  `ROUTE_CAP` (600 points, half an hour of walking): past that the oldest
+  goes first. Saved with the journey and wiped with it. Like `play_seconds`
+  it is not autosaved per point: the next flag, event or door carries it,
+  so a journey killed mid-walk loses at most the walk since then.
+- `scripts/ui/path_card.gd` (`PathCard`): a 1080 x 1920 image, the size of a
+  phone story. Paper, the title, "Your path through Hollow Vale" (the place
+  name from `data/places.json`), the block as the minimap's footprints laid
+  down faintly (the minimap hands them over through `footprints()`; the
+  street remembers them for the card because it is gone by the time the end
+  screen draws), the route as one ink line with a ring where the walk began
+  and a dot where it ended, *Your journey*'s lines, *You noticed* with the
+  noticed sentences if the journey ever carries a `noticed` list (it does
+  not yet; the card checks and leaves the room), and the end line. No
+  number anywhere: no distance, no time, no count; a test reads every label
+  for a digit.
+- The end screen offers *Share your path* beside *Play again*. The brief's
+  §4.6 says *Play again* only; the owner's expansion overrides it with the
+  card, and the P6 test now holds two buttons and nothing else. Pressing it
+  draws the card, saves `user://path_card.png` and hands it over.
+
+### Drawn on the CPU, not in a viewport
+
+The card is drawn into an `Image`: fills for the block, a soft round brush
+stamped every three pixels along the route, and text shaped by the
+TextServer with each glyph's coverage bitmap cut from the font atlas and
+blended in the ink colour. A `SubViewport` with a `_draw` would have been
+less code, but the headless test runner has no renderer (its viewport
+texture reads back empty), so the pixel tests would be impossible there,
+and a CPU image draws the same on Android, the web and the desktop.
+
+The UI fonts follow the window's oversampling (a thirtieth of a pixel
+headless, the phone's ratio on a phone), which mangles their metrics for a
+fixed-size image; the card uses its own copies of the font files at
+oversampling 1. A full card (600 points, two lines) renders in about 30 ms
+and encodes in about 80 ms on the CI machine. Nothing is added to the
+street's frame: the sampling is one array append every three seconds.
+
+### What works where (Godot 4.3 has no share sheet without a plugin)
+
+| Platform | After *Share your path* |
+|---|---|
+| Android | The PNG is saved under the app's files and opened with `OS.shell_open`, which Godot 4.2+ routes through its FileProvider as `ACTION_VIEW`: the system's image viewer opens it, and its share button is the share sheet. The sheet itself (`ACTION_SEND`) needs an Android plugin; deferred. To be confirmed on the device run. |
+| Web | `JavaScriptBridge.download_buffer` offers the PNG as a download; the browser's download is what gets shared. |
+| Desktop | Saved under user:// and opened in the default image viewer. |
+| Headless (tests) | Saved only; there is nothing to hand it to. |
+
+No network call anywhere: the file never leaves the device by the game's
+doing.
+
+### Placeholders
+
+- The paper-and-ink look of the card stands in for the illustrated card of
+  GDD §10 once an artist draws it (`PLACEHOLDER` in `path_card.gd`).

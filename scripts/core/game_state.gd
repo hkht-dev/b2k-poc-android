@@ -20,6 +20,10 @@ const SAVE_VERSION := 1
 const HUMMED_FLAG := "hummed"
 const HUMMED_AT := 3
 const DEFAULT_PLACE := "street"
+## The Path card (GDD §16a) draws the walk about one place: the street block.
+const ROUTE_PLACE := DEFAULT_PLACE
+## Route points kept; past this the oldest goes first.
+const ROUTE_CAP := 600
 
 ## Beats are an ordered list of ids in data (GDD §12). The slice has one.
 var beat: String = ""
@@ -44,6 +48,10 @@ var play_seconds: float = 0.0
 ## which side of one the player is on.
 var place: String = DEFAULT_PLACE
 var spawn: String = ""
+## The way the player walked about the street (GDD §16a "Path card"): [x, z]
+## pairs in metres, oldest first, sampled by the place every few seconds of
+## walking. Not a number anyone sees; the card draws it as one ink line.
+var route: Array = []
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -116,6 +124,15 @@ func set_place(place_id: String, spawn_id: String) -> void:
 	_save_if_enabled()
 
 
+## Adds where the player stands to the route, dropping the oldest point past
+## the cap. Like play time, not autosaved on its own: the next flag, event or
+## door carries it.
+func add_route_point(x: float, z: float) -> void:
+	route.append([snappedf(x, 0.01), snappedf(z, 0.01)])
+	while route.size() > ROUTE_CAP:
+		route.pop_front()
+
+
 func set_beat(new_beat: String) -> void:
 	if new_beat == beat:
 		return
@@ -158,6 +175,7 @@ func to_dict() -> Dictionary:
 		"play_seconds": play_seconds,
 		"place": place,
 		"spawn": spawn,
+		"route": route.duplicate(true),
 	}
 
 
@@ -181,6 +199,12 @@ func from_dict(data: Dictionary) -> void:
 	if place.is_empty():
 		place = DEFAULT_PLACE
 	spawn = str(data.get("spawn", ""))
+	route.clear()
+	var saved_route: Variant = data.get("route", [])
+	if saved_route is Array:
+		for point in saved_route:
+			if point is Array and point.size() >= 2:
+				route.append([float(point[0]), float(point[1])])
 
 
 func save() -> bool:
@@ -220,6 +244,7 @@ func wipe() -> void:
 	play_seconds = 0.0
 	place = DEFAULT_PLACE
 	spawn = ""
+	route.clear()
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)
