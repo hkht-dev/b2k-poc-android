@@ -88,6 +88,8 @@ func _place() -> void:
 			if from.distance_to(to) > 0.01:
 				_heading = (to - from).normalized()
 				if face_travel:
-					rotation.y = atan2(_heading.x, _heading.z)
+					# -Z is forward, as for the player and Tulu: a body on this
+					# node walks the way it faces, not backwards.
+					rotation.y = atan2(-_heading.x, -_heading.z)
 			return
 		walked -= _lengths[i]

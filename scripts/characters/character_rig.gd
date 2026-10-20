@@ -7,6 +7,12 @@
 ## instances the body, paints the skin on, and fills one AnimationPlayer
 ## with the clips, rooted at the body so the clips' bone paths resolve.
 ##
+## Clips and body need not come from the same pack: each is imported through
+## a BoneMap onto Godot's humanoid profile (assets/characters/*.tres, set in
+## the file's .import), which renames the bones to the profile's names, so a
+## clip's bone tracks resolve on any body imported the same way. This node
+## re-points the tracks at the body's skeleton node.
+##
 ## Like the procedural walk it replaces, it reads movement from its own
 ## position delta: the player, pedestrians on paths and Tulu all drive it the
 ## same way, with no coupling to any of them. Which clip means what, and how
@@ -50,6 +56,7 @@ static var _clip_cache: Dictionary = {}
 @export_range(0.5, 10.0, 0.1) var run_above := 3.2
 
 var _player: AnimationPlayer
+var _skeleton: Skeleton3D
 var _state := ""
 var _last := Vector3.ZERO
 var _speed := 0.0
@@ -68,17 +75,22 @@ func _ready() -> void:
 	)
 	add_child(instance)
 	_paint(instance)
+	_skeleton = _find_skeleton(instance)
+	if _skeleton == null:
+		push_warning("CharacterRig: %s has no Skeleton3D" % body.resource_path)
+		return
 	_player = AnimationPlayer.new()
 	_player.name = "AnimationPlayer"
 	add_child(_player)
 	_player.root_node = _player.get_path_to(instance)
+	var skeleton_path := instance.get_path_to(_skeleton)
 	var library := AnimationLibrary.new()
 	for entry: Array in [
 		[STATE_IDLE, idle_scene, idle_animation],
 		[STATE_WALK, walk_scene, walk_animation],
 		[STATE_RUN, run_scene, run_animation],
 	]:
-		var clip := _clip(entry[1], entry[2])
+		var clip := _clip(entry[1], entry[2], _skeleton, skeleton_path)
 		if clip != null:
 			library.add_animation(entry[0], clip)
 	_player.add_animation_library(LIBRARY, library)
@@ -116,6 +128,10 @@ func animation_player() -> AnimationPlayer:
 	return _player
 
 
+func skeleton() -> Skeleton3D:
+	return _skeleton
+
+
 func _play(wanted: String) -> void:
 	if wanted == _state:
 		return
@@ -126,11 +142,22 @@ func _play(wanted: String) -> void:
 	_player.play(key, BLEND)
 
 
-## The named animation out of a clip scene, looped, shared through the cache.
-func _clip(scene: PackedScene, animation_name: String) -> Animation:
+## The named animation out of a clip scene, looped, its bone rotation tracks
+## pointed at `skeleton_path` (the body's skeleton, relative to the body's
+## root), shared through the cache. Everything else is dropped: a clip's own
+## root node means nothing on another body; a position track carries the
+## source rig's bone offsets (the library's hips height lifted Kenney's body
+## 1.5 m off the ground); a bone the body lacks (the library's ring and
+## little fingers on Kenney's two-finger hand) has nothing to drive.
+## Rotations alone carry a walk; the bob goes.
+func _clip(
+	scene: PackedScene, animation_name: String, target: Skeleton3D, skeleton_path: NodePath
+) -> Animation:
 	if scene == null or animation_name.is_empty():
 		return null
-	var cache_key := "%s#%s" % [scene.resource_path, animation_name]
+	var cache_key := (
+		"%s#%s@%s/%s" % [scene.resource_path, animation_name, body.resource_path, skeleton_path]
+	)
 	if _clip_cache.has(cache_key):
 		return _clip_cache[cache_key]
 	var instance: Node = scene.instantiate()
@@ -139,6 +166,17 @@ func _clip(scene: PackedScene, animation_name: String) -> Animation:
 	if source != null and source.has_animation(animation_name):
 		clip = source.get_animation(animation_name).duplicate()
 		clip.loop_mode = Animation.LOOP_LINEAR
+		for track: int in range(clip.get_track_count() - 1, -1, -1):
+			var path := clip.track_get_path(track)
+			var usable := (
+				path.get_subname_count() == 1
+				and clip.track_get_type(track) == Animation.TYPE_ROTATION_3D
+				and target.find_bone(path.get_subname(0)) >= 0
+			)
+			if usable:
+				clip.track_set_path(track, NodePath("%s:%s" % [skeleton_path, path.get_subname(0)]))
+			else:
+				clip.remove_track(track)
 	else:
 		push_warning(
 			"CharacterRig: %s has no animation '%s'" % [scene.resource_path, animation_name]
@@ -146,6 +184,17 @@ func _clip(scene: PackedScene, animation_name: String) -> Animation:
 	instance.free()
 	_clip_cache[cache_key] = clip
 	return clip
+
+
+static func _find_skeleton(node: Node) -> Skeleton3D:
+	var skeleton := node as Skeleton3D
+	if skeleton != null:
+		return skeleton
+	for child: Node in node.get_children():
+		var found := _find_skeleton(child)
+		if found != null:
+			return found
+	return null
 
 
 func _paint(instance: Node) -> void:

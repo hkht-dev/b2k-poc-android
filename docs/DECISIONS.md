@@ -703,3 +703,78 @@ fifteen boxes and spheres, each a draw call with its shadow; a skinned
 human is one mesh. The peak angle along the road is now inside the budget.
 Checked in the browser build: the body faces the way it walks, stands
 1.75 m, wears its skin, and pedestrians play the run clip on their loops.
+
+
+## 2026-10-20 — Retargeting: one humanoid profile for every body and clip
+
+The true walk comes from a different rig than the body (Quaternius'
+animation library on Kenney's human), so bodies and clips now go through
+Godot's `SkeletonProfileHumanoid` at import. Affects amendment §B4.
+
+- `assets/characters/kenney_humanoid_map.tres` and
+  `quaternius_humanoid_map.tres` are hand-written BoneMaps (Mixamo-style
+  names and Unreal-mannequin names respectively onto the profile). The
+  fetch tools write them into each model's `.import` under
+  `retarget/bone_map`, so the setting survives a refetch; the importer
+  renames the bones to the profile's names and the skeleton node to
+  `GeneralSkeleton`.
+- `CharacterRig` re-points each clip's bone tracks at the body's skeleton
+  node and drops non-bone tracks (a clip's own root node means nothing on
+  another body).
+- **`fix_silhouette` is required.** With the bone map alone (the default
+  `overwrite_axis` on, silhouette off) Kenney's own clips came out rolling
+  the arms about their length axis: the characters stood in a T-pose and
+  the hands moved 0.16 m over a run cycle against 1.21 m unretargeted.
+  Measured in a scratch project across settings, run clip on each body:
+
+  | Setting | Kenney body, hand swing | Quaternius body, hand swing |
+  |---|---|---|
+  | no retarget | 1.21 m | — |
+  | bone map only | 0.16 m | 0.05 m |
+  | + fix_silhouette | 1.11 m | 0.59 m |
+  | overwrite_axis off | 1.21 m | 0.59 m |
+
+  (The Quaternius body is 1.6 m to Kenney's 3.7 m, so 0.59 m is the same
+  swing.) `fix_silhouette` is the documented path for cross-rig clips and
+  keeps the axes normalised, so it is the one used.
+
+
+## 2026-10-20 — The true walk: Quaternius' Universal Animation Library on Kenney's body
+
+The owner asked for a true walk and fetched Quaternius' packs through a
+browser (itch.io serves nothing else) onto a release of this repository.
+Affects amendment §B4; GDD §6 (the player's body language).
+
+- `tools/fetch_quaternius.py` (new): takes the listed files out of a release
+  asset, writes the retarget `.import` for rigged files
+  (`tools/retarget_import.py`, now shared with `fetch_kenney.py`) and the
+  rights-register rows. The library is one GLB with 43 clips on the
+  universal rig; Godot drops the `_Loop` suffix on import, so the names are
+  `Idle`, `Walk`, `Jog_Fwd`, `Sprint`, `Interact`, `PickUp_Table`, …
+- `Character.tscn` now points idle, walk and run at that GLB. Kenney's own
+  `idle`/`run`/`jump` clips left the repository with the slowed-run
+  placeholder: nothing used them.
+- The free *Universal Base Characters* tier has superhero suits only, so
+  the body stays Kenney's human in a shirt and jeans (GDD §10: "an ordinary
+  coat"). The library's walk reaches it through the humanoid profile.
+- `CharacterRig` keeps only bone **rotation** tracks from a clip. Position
+  tracks carry the source rig's offsets: the library's hips height, applied
+  under Kenney's hips-control bone, lifted the body 1.5 m off the ground.
+  Rotations alone carry the walk; the vertical bob is lost, which at this
+  size is not visible.
+- Reference speeds: Walk at 1.5 m/s (its 1.33 s cycle at the player's
+  2.2 m/s plays at 1.5×, a brisk walk), Jog_Fwd at 3.6 m/s; the run
+  threshold stays 3.2 m/s.
+
+### Performance in the web build (this change)
+
+| Metric | Limit (amendment §C) | Rigged (Kenney clips) | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 108, max 176 | median 108, max 169 |
+| Primitives per frame | < 150k | median 44.6k, max 53.3k | median 44.6k, max 56.6k |
+| Web `.pck` | — | 32 MB | 32 MB |
+
+Same walk as before. The library GLB (7.4 MB on disk) replaces three Kenney
+clips of 1.7 MB; the `.pck` size held because the Kenney clips' skeletons
+went with them. Checked in the browser: idle stands relaxed, the walk
+strides, the jog runs, feet on the ground.

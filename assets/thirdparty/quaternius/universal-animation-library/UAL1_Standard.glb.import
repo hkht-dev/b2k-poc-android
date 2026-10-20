@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://binf1ea4ca8bt"
-path="res://.godot/imported/jump.fbx-fab6e5a5966ce768b1a307456e00b3b7.scn"
+uid="uid://din1t1uh4nxa6"
+path="res://.godot/imported/UAL1_Standard.glb-f3b2a2f8b3ce15bf7968442ee03c395e.scn"
 
 [deps]
 
-source_file="res://assets/thirdparty/kenney/animated-characters-retro/jump.fbx"
-dest_files=["res://.godot/imported/jump.fbx-fab6e5a5966ce768b1a307456e00b3b7.scn"]
+source_file="res://assets/thirdparty/quaternius/universal-animation-library/UAL1_Standard.glb"
+dest_files=["res://.godot/imported/UAL1_Standard.glb-f3b2a2f8b3ce15bf7968442ee03c395e.scn"]
 
 [params]
 
@@ -31,7 +31,13 @@ animation/trimming=true
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
-_subresources={}
-fbx/importer=0
-fbx/allow_geometry_helper_nodes=false
-fbx/embedded_image_handling=1
+_subresources={
+"nodes": {
+"PATH:Armature/Skeleton3D": {
+"retarget/bone_map": Resource("res://assets/characters/quaternius_humanoid_map.tres"),
+"retarget/rest_fixer/fix_silhouette/enable": true
+}
+}
+}
+gltf/naming_version=1
+gltf/embedded_image_handling=1

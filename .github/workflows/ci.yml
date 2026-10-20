@@ -65,6 +65,8 @@ jobs:
         run: python3 tools/fetch_polyhaven.py --check
       - name: Kenney kits are present (tools/fetch_kenney.py)
         run: python3 tools/fetch_kenney.py --check
+      - name: Quaternius packs are present (tools/fetch_quaternius.py)
+        run: python3 tools/fetch_quaternius.py --check
 
       - name: Generated audio is present
         run: python3 tools/gen_audio.py --check

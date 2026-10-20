@@ -162,3 +162,16 @@ func test_the_player_reaches_running_speed_while_crossing_the_block() -> void:
 	_hold_stick_forward(street)
 	await wait_frames(60)
 	assert_true(player.is_running(), "a held full tilt becomes a run (GDD §6)")
+
+
+func test_a_mover_faces_forward_along_its_travel() -> void:
+	# The rig's body faces -Z, like the player's; a mover that turned +Z
+	# toward its travel made every pedestrian walk backwards (owner report).
+	var mover: Node3D = Node3D.new()
+	mover.set_script(MOVER)
+	mover.points = PackedVector3Array([Vector3(0, 0, 0), Vector3(10, 0, 0)])
+	mover.speed = 1.0
+	add_child_autofree(mover)
+	await wait_frames(2)
+	var forward: Vector3 = -mover.global_transform.basis.z
+	assert_almost_eq(forward.x, 1.0, 0.01, "forward (-Z) points along the travel (+X)")

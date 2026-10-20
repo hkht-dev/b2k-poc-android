@@ -27,6 +27,9 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from retarget_import import write_retarget_import  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "thirdparty" / "kenney"
 REGISTER = ROOT / "docs" / "RIGHTS_REGISTER.md"
@@ -66,19 +69,22 @@ def zip_url(kit: str) -> str:
 
 
 # Files taken as shipped from a kit, by their path inside the zip:
-# kit -> (paths, where used). Kenney's animated characters are FBX (a body,
-# clips, skin PNGs); Godot 4.3 imports FBX natively, so they stay FBX.
+# kit -> (paths, where used, retarget). Kenney's animated characters are FBX
+# (a body, skin PNGs); Godot 4.3 imports FBX natively, so it stays FBX.
+# `retarget` names the skeleton node inside each FBX and the BoneMap
+# that maps its bones onto Godot's humanoid profile; the tool writes that
+# into the file's .import so a clip from another rig plays on the body.
 FILES = {
     "animated-characters-retro": (
+        # The body and skins only: its clips (idle, run, jump; no walk) gave
+        # way to Quaternius' library, tools/fetch_quaternius.py.
         [
             "Model/characterMedium.fbx",
-            "Animations/idle.fbx",
-            "Animations/run.fbx",
-            "Animations/jump.fbx",
             "Skins/humanMaleA.png",
             "Skins/humanFemaleA.png",
         ],
-        "the player, pedestrians and Tulu: rigged body, clips, skins",
+        "the player, pedestrians and Tulu: rigged body and skins",
+        ("Root/Skeleton3D", "res://assets/characters/kenney_humanoid_map.tres"),
     ),
 }
 
@@ -184,7 +190,7 @@ def main() -> int:
             processing = "GLB as shipped" if not steps else "GLB; " + "; ".join(steps)
             register_row(kit, model, used, path, processing)
             print(f"fetch_kenney: {kit}/{model}.glb ({path.stat().st_size // 1024} KB)")
-    for kit, (paths, used) in FILES.items():
+    for kit, (paths, used, retarget) in FILES.items():
         kit_dir = OUT / kit
         if args.check:
             for rel in paths:
@@ -200,10 +206,14 @@ def main() -> int:
         for rel in paths:
             path = kit_dir / Path(rel).name
             path.write_bytes(archive.read(rel))
-            register_row(kit, Path(rel).stem, used, path, f"as shipped ({rel})")
+            processing = f"as shipped ({rel})"
+            if retarget and path.suffix == ".fbx":
+                write_retarget_import(ROOT, path, *retarget)
+                processing += "; retargeted onto the humanoid profile at import"
+            register_row(kit, Path(rel).stem, used, path, processing)
             print(f"fetch_kenney: {kit}/{path.name} ({path.stat().st_size // 1024} KB)")
     if args.check and not problems:
-        total = sum(len(m) for m, _, _ in KITS.values()) + sum(len(f) for f, _ in FILES.values())
+        total = sum(len(m) for m, _, _ in KITS.values()) + sum(len(f) for f, _, _ in FILES.values())
         print(f"fetch_kenney: {total} files present")
     return 1 if problems else 0
 
