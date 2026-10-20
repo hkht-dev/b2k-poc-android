@@ -1,0 +1,53 @@
+[gd_scene load_steps=7 format=3]
+
+; The Veena of the Vale. Its long axis is local Y and its origin is where a
+; hand holds the neck, so the one scene lies across the stand
+; (scenes/quest/TowerTop.tscn) and hangs from the player's hand
+; (Player.tscn carryables, flag carrying_veena).
+; PLACEHOLDER: a timber neck, a round gourd and a small one, dark strings;
+; replaced by the custom Veena of GDD §10. Its strings turn peacock blue only
+; at beat 12, outside the slice, so nothing here is blue.
+
+[ext_resource type="Material" path="res://assets/materials/timber.tres" id="1_timber"]
+[ext_resource type="Material" path="res://assets/materials/rust_metal.tres" id="2_metal"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_neck"]
+size = Vector3(0.09, 1.1, 0.07)
+
+[sub_resource type="SphereMesh" id="SphereMesh_gourd"]
+radius = 0.21
+height = 0.42
+radial_segments = 16
+rings = 8
+
+[sub_resource type="SphereMesh" id="SphereMesh_small"]
+radius = 0.11
+height = 0.22
+radial_segments = 12
+rings = 6
+
+[sub_resource type="BoxMesh" id="BoxMesh_strings"]
+size = Vector3(0.04, 0.9, 0.006)
+
+[node name="Veena" type="Node3D"]
+
+[node name="Neck" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("BoxMesh_neck")
+surface_material_override/0 = ExtResource("1_timber")
+
+[node name="Gourd" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4, 0)
+mesh = SubResource("SphereMesh_gourd")
+surface_material_override/0 = ExtResource("1_timber")
+
+[node name="SmallGourd" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+mesh = SubResource("SphereMesh_small")
+surface_material_override/0 = ExtResource("1_timber")
+
+[node name="Strings" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.04)
+mesh = SubResource("BoxMesh_strings")
+surface_material_override/0 = ExtResource("2_metal")
+cast_shadow = 0

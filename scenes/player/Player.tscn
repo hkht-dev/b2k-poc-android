@@ -1,4 +1,5 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=8 format=3]
 
 ; The body is scenes/characters/Character.tscn (a rigged CC0 human, see there).
 ; PLACEHOLDER: replaced by the traveler form of GDD §10 "Characters" —
@@ -12,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/SoundRipple.tscn" id="5_ripple"]
 [ext_resource type="PackedScene" path="res://scenes/quest/Jasmine.tscn" id="6_jasmine"]
 [ext_resource type="PackedScene" path="res://scenes/quest/InstrumentString.tscn" id="6_string"]
+[ext_resource type="PackedScene" path="res://scenes/quest/Veena.tscn" id="6_veena"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.34
@@ -27,7 +29,8 @@ carryables = {
 "feather": ExtResource("4_feather"),
 "jasmine": ExtResource("6_jasmine"),
 "string": ExtResource("6_string"),
-"fruit": ExtResource("6_fruit")
+"fruit": ExtResource("6_fruit"),
+"veena": ExtResource("6_veena")
 }
 
 [node name="Collision" type="CollisionShape3D" parent="."]
