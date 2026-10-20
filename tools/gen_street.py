@@ -203,7 +203,16 @@ def collider(name, parent, size, placements) -> None:
         )
 
 
-SKINS = ["humanMaleA", "humanFemaleA"]  # Kenney animated-characters-retro
+# Kenney's animated-characters skins (pack -> skins), all on the same body;
+# docs/RIGHTS_REGISTER.md. The player wears humanMaleA (Player.tscn) and
+# Tulu skaterMaleA (Tulu.tscn); the pedestrians cycle through the rest.
+SKIN_PACKS = {
+    "animated-characters-retro": ["humanFemaleA", "humanMaleA"],
+    "animated-characters-protagonists": ["criminalMaleA", "skaterFemaleA", "skaterMaleA"],
+    "animated-characters-survivors": ["survivorFemaleA", "survivorMaleB"],
+}
+SKIN_PATH = {skin: f"{pack}/{skin}.png" for pack, skins in SKIN_PACKS.items() for skin in skins}
+PEDESTRIAN_SKINS = ["humanFemaleA", "criminalMaleA", "skaterFemaleA", "survivorFemaleA", "survivorMaleB", "skaterMaleA"]
 
 
 def figure(name, parent, skin, pos=(0, 0, 0), script_props="", scale=1.0) -> None:
@@ -497,7 +506,7 @@ for i, (pts, spd) in enumerate(PED_PATHS):
         f"face_travel = true\nstart_offset = {i * 7.0:g}\n"
         f"yield_distance = 1.6\nyield_width = 0.9\n\n"
     )
-    figure(f"Pedestrian{i}", "Ambience", SKINS[i % len(SKINS)], script_props=props)
+    figure(f"Pedestrian{i}", "Ambience", PEDESTRIAN_SKINS[i % len(PEDESTRIAN_SKINS)], script_props=props)
     nodes.append(
         f'[node name="Body" type="StaticBody3D" parent="Ambience/Pedestrian{i}"]\n'
         f"collision_layer = 1\ncollision_mask = 0\n\n"
@@ -544,8 +553,8 @@ header = (
     '[ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="6_controls"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="8_character"]\n'
     + "".join(
-        f'[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-retro/{skin}.png" id="skin_{skin}"]\n'
-        for skin in SKINS
+        f'[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/{path}" id="skin_{skin}"]\n'
+        for skin, path in SKIN_PATH.items()
     )
     + '[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/overcast_soil_puresky.hdr" id="8_sky"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Tulu.tscn" id="9_tulu"]\n'

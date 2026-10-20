@@ -778,3 +778,38 @@ Same walk as before. The library GLB (7.4 MB on disk) replaces three Kenney
 clips of 1.7 MB; the `.pck` size held because the Kenney clips' skeletons
 went with them. Checked in the browser: idle stands relaxed, the walk
 strides, the jog runs, feet on the ground.
+PERF_TABLE_PLACEHOLDER
+
+
+## 2026-10-20 — People dressed differently; a desktop scheme without the joystick
+
+Two owner reports after the walk landed. Affects GDD §4 (the crowd),
+amendment §A5 (schemes).
+
+### Skins
+
+Everyone wore one of two outfits. Kenney's *Protagonists* and *Survivors*
+packs share the body, so their human skins come in through
+`tools/fetch_kenney.py` (zombies and the cyborg stay out): seven skins now,
+the player in `humanMaleA`, Tulu in the skater, the pedestrians cycling
+the other six. `tools/gen_street.py` carries the list (`SKIN_PACKS`,
+`PEDESTRIAN_SKINS`); a test holds that at least six outfits are on the
+street.
+
+### Pedestrians walked backwards
+
+The path mover turned +Z toward its travel while the rig's body faces -Z
+(as the player's and Tulu's do). Fixed in `path_mover.gd`; a test holds
+that forward (-Z) points along the travel.
+
+### Desktop web and mobile web differ now
+
+`ControlsHint.detect_scheme()` already told touch, desktop and gamepad
+apart for the controls card; the controls themselves showed the joystick
+everywhere. `TouchControls.apply_scheme()` now hides the joystick on
+desktop (a browser on a PC included: `web` without a touchscreen) and
+gamepad, and the hidden joystick claims nothing, so a drag anywhere orbits
+and W A S D or the left stick move. Touch is unchanged. The scheme is
+re-read when a gamepad connects or disconnects. Tests that drive the
+joystick opt into touch explicitly, because the test runner has no
+touchscreen and would otherwise get the desktop scheme.

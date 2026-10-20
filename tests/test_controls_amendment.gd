@@ -28,6 +28,7 @@ func after_each() -> void:
 
 func _controls() -> Control:
 	var controls: Control = add_child_autofree(CONTROLS.instantiate())
+	controls.apply_scheme("touch")
 	controls.size = Vector2(1080, 1920)
 	controls.joystick().size = controls.size
 	return controls
@@ -147,6 +148,7 @@ func test_a_tap_in_the_street_walks_the_player() -> void:
 	var street: Node3D = add_child_autofree(STREET.instantiate())
 	var player: CharacterBody3D = street.get_node("%Player")
 	var controls: Control = street.get_node("%TouchControls")
+	controls.apply_scheme("touch")
 	controls.size = Vector2(1080, 1920)
 	player.global_position = Vector3(-10.0, 0.3, 16.0)
 	await wait_frames(3)
@@ -162,6 +164,7 @@ func test_the_camera_eases_behind_a_sustained_run() -> void:
 	var player: CharacterBody3D = street.get_node("%Player")
 	var rig: Node3D = street.get_node("%CameraRig")
 	var controls: Control = street.get_node("%TouchControls")
+	controls.apply_scheme("touch")
 	controls.size = Vector2(1080, 1920)
 	controls.joystick().size = controls.size
 	player.global_position = Vector3(0.0, 0.05, 40.0)
@@ -213,6 +216,7 @@ func test_the_card_names_a_scheme_and_five_lines() -> void:
 
 func test_the_hint_shows_until_the_player_first_moves() -> void:
 	var street: Node3D = add_child_autofree(STREET.instantiate())
+	street.get_node("%TouchControls").apply_scheme("touch")
 	var stick: Control = street.get_node("%TouchControls").joystick()
 	assert_true(stick.hint_visible(), "a new player sees the hint")
 	street.get_node("%Player").moved_first_time.emit()

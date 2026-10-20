@@ -5,7 +5,7 @@
 
 [ext_resource type="Script" path="res://scripts/npc/tulu.gd" id="1_tulu"]
 [ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
-[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-retro/humanFemaleA.png" id="4_skin"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-protagonists/skaterMaleA.png" id="4_skin"]
 [ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="3_interact"]
 [ext_resource type="AudioStream" path="res://assets/audio/tulu_three_notes.ogg" id="8_notes"]
 

@@ -7,6 +7,11 @@
 ## reaches neither zone. Desktop and web use the same path with the mouse
 ## emulated into touches; a right-button mouse drag also orbits (§A5), and the
 ## gamepad's right stick orbits every frame.
+##
+## The scheme decides what is on screen (§A5, owner request 2026-10-20): on
+## touch the joystick owns the left zone; on desktop (a browser on a PC
+## included) and gamepad the joystick is hidden, so a drag anywhere orbits
+## and the keys or the left stick move. ControlsHint detects the scheme.
 extends Control
 
 signal camera_dragged(delta: Vector2)
@@ -18,6 +23,10 @@ const TAP_MS := 200
 ## Gamepad right stick: radians of orbit per second at full deflection, in
 ## pixel units the camera rig expects.
 const STICK_ORBIT_PIXELS_PER_SECOND := 420.0
+const SCHEME_TOUCH := "touch"
+const CONTROLS_HINT := preload("res://scripts/ui/controls_hint.gd")
+
+var _scheme := SCHEME_TOUCH
 
 var _camera_touch := -1
 var _camera_start := Vector2.ZERO
@@ -38,6 +47,22 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_pause.pressed.connect(func() -> void: pause_pressed.emit())
+	apply_scheme(CONTROLS_HINT.detect_scheme())
+	Input.joy_connection_changed.connect(
+		func(_device: int, _connected: bool) -> void: apply_scheme(CONTROLS_HINT.detect_scheme())
+	)
+
+
+## Shows the controls for "touch", "desktop" or "gamepad". Only touch has the
+## joystick; without it, the whole screen is the camera's and a tap still
+## walks there.
+func apply_scheme(scheme: String) -> void:
+	_scheme = scheme
+	_joystick.visible = scheme == SCHEME_TOUCH
+
+
+func scheme() -> String:
+	return _scheme
 
 
 func minimap() -> Control:

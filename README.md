@@ -18,6 +18,8 @@ arrive in P3.
 
 ## Controls
 
+The layout follows the device: touch screens get the joystick and two zones; a desktop browser or build gets the keyboard, with the mouse orbiting anywhere and no joystick; a gamepad hides it too. The controls card on first play shows the scheme in use.
+
 On a phone, the first time you press *Begin* a card tells you this; after that
 it stays out of the way:
 

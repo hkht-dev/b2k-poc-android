@@ -103,7 +103,8 @@ func hint_visible() -> bool:
 
 
 func try_claim(index: int, position: Vector2) -> bool:
-	if _touch_index != -1 or not owns_point(position):
+	# Hidden (desktop, gamepad): the zone is nobody's; the camera takes it.
+	if not visible or _touch_index != -1 or not owns_point(position):
 		return false
 	_touch_index = index
 	_origin = position
