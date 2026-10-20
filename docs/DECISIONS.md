@@ -903,4 +903,12 @@ All three outcomes play from `data/quests/dry_fountain.json` and
 - Water is a dull grey-green (`assets/materials/water.tres`): peacock blue
   is forbidden in the Street.
 
-PERF_TABLE_PLACEHOLDER_P4
+### Performance in the web build (this change)
+
+| Metric | Limit (amendment §C) | Before | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 112, max 177 | median 112, max 182 |
+| Primitives per frame | < 150k | median 55.6k, max 68.3k | median 56.2k, max 70.4k |
+
+Same walk as before. Gopal (one skinned mesh), the fountain point and the
+cans on the pavement add a handful of draw calls at the shop angle.
