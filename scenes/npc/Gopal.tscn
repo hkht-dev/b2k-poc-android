@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 ; Gopal Seth behind his counter (scripts/npc/gopal.gd). The body is
 ; scenes/characters/Character.tscn. PLACEHOLDER: replaced by Gopal of GDD §4
@@ -9,6 +9,9 @@
 [ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-survivors/survivorMaleB.png" id="3_skin"]
 [ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="4_interact"]
 [ext_resource type="PackedScene" path="res://scenes/quest/WaterCan.tscn" id="5_can"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/quaternius/universal-base-characters/Superhero_Male_FullBody.gltf" id="body_q"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/quaternius/universal-base-characters/T_Superhero_Male_Dark.png" id="skin_q"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/quaternius/universal-base-hair/Hair_Buzzed.gltf" id="hair_q"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
 radius = 3.2
@@ -29,5 +32,9 @@ shape = SubResource("CylinderShape3D_near")
 
 [node name="Figure" parent="." instance=ExtResource("2_character")]
 unique_name_in_owner = true
-skin = ExtResource("3_skin")
 carried_scene = ExtResource("5_can")
+body = ExtResource("body_q")
+body_height = 1.82
+skin = ExtResource("skin_q")
+hair = ExtResource("hair_q")
+height = 1.66

@@ -3,12 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-path="res://.godot/imported/Hair_Buns.gltf-494000aa06df2ca25dce11fdb9abdff4.scn"
+uid="uid://cyuo4t7jlswen"
+path="res://.godot/imported/Hair_Buzzed.gltf-0e2d6b76ff9099110ec61df6ce051412.scn"
 
 [deps]
 
-source_file="res://assets/thirdparty/quaternius/universal-base-characters/Hair_Buns.gltf"
-dest_files=["res://.godot/imported/Hair_Buns.gltf-494000aa06df2ca25dce11fdb9abdff4.scn"]
+source_file="res://assets/thirdparty/quaternius/universal-base-hair/Hair_Buzzed.gltf"
+dest_files=["res://.godot/imported/Hair_Buzzed.gltf-0e2d6b76ff9099110ec61df6ce051412.scn"]
 
 [params]
 
@@ -26,17 +27,10 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=true
+animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
-_subresources={
-"nodes": {
-"PATH:Armature/Skeleton3D": {
-"retarget/bone_map": Resource("res://assets/characters/quaternius_humanoid_map.tres"),
-"retarget/rest_fixer/fix_silhouette/enable": true
-}
-}
-}
+_subresources={}
 gltf/naming_version=1
 gltf/embedded_image_handling=1

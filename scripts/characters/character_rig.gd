@@ -27,6 +27,8 @@ const STATE_RUN := "run"
 const STATE_POSE := "pose"
 const BLEND := 0.18
 const BODY_NAME := "Body"
+const HEAD_BONE := "Head"
+const HAIR_NAME := "Hair"
 const HAND_BONE := "RightHand"
 const CARRIED_NAME := "Carried"
 ## Slower than this, in m/s, is standing still.
@@ -39,6 +41,10 @@ static var _clip_cache: Dictionary = {}
 @export var body: PackedScene
 ## Albedo painted onto the body's one material.
 @export var skin: Texture2D
+## A hairstyle, beard or eyebrows worn on the head bone. Two bodies and two
+## skins cannot make a street of different people; the hair is what tells
+## one person from another at a distance (owner review 2026-10-20).
+@export var hair: PackedScene
 ## Metres of height the body should stand at; the body is scaled to fit.
 @export_range(0.5, 3.0, 0.01) var height := 1.75
 ## The body's own height at scale 1 (Kenney's characterMedium is 3.70 m).
@@ -86,6 +92,7 @@ func _ready() -> void:
 	if _skeleton == null:
 		push_warning("CharacterRig: %s has no Skeleton3D" % body.resource_path)
 		return
+	_wear_hair()
 	_player = AnimationPlayer.new()
 	_player.name = "AnimationPlayer"
 	add_child(_player)
@@ -189,6 +196,23 @@ func carry(on: bool, scene: PackedScene = null) -> void:
 
 func is_carrying() -> bool:
 	return _carried != null
+
+
+## Puts `hair` on the head bone, at world size like a carried thing. Called
+## once the body is built; a body with no head bone simply goes bare.
+func _wear_hair() -> void:
+	if hair == null or _skeleton == null:
+		return
+	if _skeleton.find_bone(HEAD_BONE) < 0:
+		push_warning("CharacterRig: no %s bone to wear hair on" % HEAD_BONE)
+		return
+	var attachment := BoneAttachment3D.new()
+	attachment.name = HAIR_NAME
+	attachment.bone_name = HEAD_BONE
+	_skeleton.add_child(attachment)
+	var worn: Node3D = hair.instantiate()
+	worn.scale = Vector3.ONE * (body_height / height)
+	attachment.add_child(worn)
 
 
 ## Puts another skin on a body already built (the showroom's wardrobe):

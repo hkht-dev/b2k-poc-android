@@ -3578,3 +3578,47 @@ four families; the Counting Man says he will not board a bus until he knows.
 The rewritten cards are numbered ids (`card.<line>.0`) rather than named
 ones; 67 strings the old names left behind were pruned.
 
+### The people are not one person reskinned
+
+Every human in the game was Kenney's one `characterMedium` body at 1.75 m
+with a different texture painted on it, so the whole street shared a
+silhouette — which is what the owner meant by "I hope for everybody who knew
+not use the same kind of characters."
+
+They uploaded **Characters PSX** (elbolilloduro) to the packs release for
+this. It cannot go into this repository: its terms allow commercial use with
+no attribution but forbid re-uploading the asset "either individually or as
+part of a collection" anywhere, modified or not, and this repository is
+public, so committing the files would be exactly that. It is also not CC0,
+which CLAUDE.md requires. Nothing from it is in the tree.
+
+**Quaternius' Universal Base Characters** (CC0 1.0, already on the same
+release) is used instead, through `tools/fetch_quaternius.py` as everything
+else is, with its row in docs/RIGHTS_REGISTER.md. It rides the same
+universal rig as the Universal Animation Library we already use, so the
+walk, the idle and the jog play on it with no second retarget map. It gives
+two bodies, two skin tones each, and eight head pieces; `CharacterRig` gained
+a `hair` slot, worn on the head bone the way a carried thing is worn on the
+hand, using the pack's "Origin at 0" meshes rather than its rigged ones so a
+person is still a single skeleton.
+
+The six named characters the player stands and talks to now each have their
+own body, skin, hair and height:
+
+| Who | Body | Hair | Height |
+|---|---|---|---|
+| Madhuri | female | long | 1.58 m |
+| Vasanti | female | buns | 1.72 m |
+| Dhanpal | male | parted | 1.86 m |
+| Gopal | male | buzzed | 1.66 m |
+| Sarang | male | beard | 1.78 m |
+| The Counting Man | male | cropped | 1.64 m |
+
+`tests/test_people_differ.gd` holds it: no two of them share a body, a skin
+and a hairstyle, no two stand within two centimetres of each other, and each
+is still one rigged skeleton carrying the shared clips. The player, Tulu and
+the crowd stay on the Kenney body for now — the wardrobe's outfits are
+painted for its UVs, and a child is not one of these two adult builds. Two
+placeholder families stand side by side in this build; GDD §10 replaces all
+of them with the painted characters.
+
