@@ -12,8 +12,8 @@ Layout: X east, Z south, Y up. The fountain is at the origin; the ground is
 four slabs whose gap is exactly the fountain's footprint. Repeated primitives
 (road dashes, window bars, fence rails, rooftop tanks, cables) are MultiMeshes:
 one draw call each, however many there are. Repeated models (lamp posts,
-trees, hydrants, litter — CC0 .glb files fetched by tools/fetch_kenney.py and
-tools/fetch_polyhaven.py, see docs/RIGHTS_REGISTER.md) go through
+trees, hydrants, litter — CC0 .glb files fetched by tools/fetch_quaternius.py,
+tools/fetch_kenney.py and tools/fetch_polyhaven.py, see docs/RIGHTS_REGISTER.md) go through
 scripts/street/model_batch.gd, which does the same for an imported scene.
 Budget (amendment §C): under 200 draw calls and 150k triangles per frame.
 """
@@ -44,17 +44,22 @@ MAT_ID = {m: f"{i + 10}_{m}" for i, m in enumerate(MATS)}
 # CC0 models under assets/thirdparty/, each with a row in docs/RIGHTS_REGISTER.md.
 # PLACEHOLDER: stand-ins for the painted stylised props of GDD §10.
 MODELS = {
-    "sedan": "kenney/car-kit/sedan.glb",
-    "taxi": "kenney/car-kit/taxi.glb",
-    "van": "kenney/car-kit/van.glb",
-    "truck": "kenney/car-kit/truck.glb",
-    "suv": "kenney/car-kit/suv.glb",
-    "delivery": "kenney/car-kit/delivery.glb",
-    "hatchback": "kenney/car-kit/hatchback-sports.glb",
-    "tree_default": "kenney/nature-kit/tree_default.glb",
-    "tree_oak": "kenney/nature-kit/tree_oak.glb",
-    "tree_tall": "kenney/nature-kit/tree_tall.glb",
+    # Quaternius, via tools/fetch_quaternius.py (one mesh a car; textured trees)
+    "car_normal1": "quaternius/realistic-car-pack/NormalCar1.glb",
+    "car_normal2": "quaternius/realistic-car-pack/NormalCar2.glb",
+    "car_suv": "quaternius/realistic-car-pack/SUV.glb",
+    "car_taxi": "quaternius/realistic-car-pack/Taxi.glb",
+    "car_sports": "quaternius/realistic-car-pack/SportsCar.glb",
+    "car_sports2": "quaternius/realistic-car-pack/SportsCar2.glb",
+    "tree_1": "quaternius/textured-stylized-trees/Tree_1.glb",
+    "tree_3": "quaternius/textured-stylized-trees/Tree_3.glb",
+    "tree_5": "quaternius/textured-stylized-trees/Tree_5.glb",
+    "birch_1": "quaternius/textured-stylized-trees/Birch_1.glb",
+    "birch_4": "quaternius/textured-stylized-trees/Birch_4.glb",
+    "pine_2": "quaternius/textured-stylized-trees/Pine_2.glb",
+    # Kenney, via tools/fetch_kenney.py
     "bush": "kenney/nature-kit/plant_bushLarge.glb",
+    # Poly Haven, via tools/fetch_polyhaven.py
     "lamp": "polyhaven/models/street_lamp_01/street_lamp_01.glb",
     "bench": "polyhaven/models/modular_street_seating/modular_street_seating.glb",
     "hydrant": "polyhaven/models/fire_hydrant/fire_hydrant.glb",
@@ -64,9 +69,9 @@ MODELS = {
     "manhole": "polyhaven/models/water_manhole_cover/water_manhole_cover.glb",
 }
 MODEL_ID = {m: f"model_{m}" for m in MODELS}
-# Kenney's cars are 1.5 m wide and face +Z; at this scale they are a car's
-# size, and movers face -Z, so a moving car is turned half round.
-CAR_SCALE = 1.6
+# Quaternius' cars are life-size (1.8 x 4.2 m) and face +Z (headlights at
+# +Z); movers face -Z, so a moving car is turned half round.
+CAR_SCALE = 1.0
 
 nodes: list[str] = []
 shapes: dict[tuple, str] = {}
@@ -447,26 +452,25 @@ for i in range(5):
     cables.append((((x0 + x1) / 2, 6.3, (z0 + z1) / 2 + 0.4), yaw, (0.03, 0.03, length)))
 multimesh("Cables", "Dressing", "BoxMesh_unit", "tyre", cables, shadows=False)
 
-# Trees (Kenney nature kit, 1.7 m tall at scale 1) in two kinds, with a
+# Trees (Quaternius, textured, 5-10 m tall at scale 1) in three kinds with a
 # trunk collider each; bushes along the fence and under the flats.
 tree_spots = [(-30, 25.5), (-6, 25.5), (24, 25.5), (50, 6.5), (-50, 6.5), (40, -8.5), (-62, 25.5), (54, 25.5), (-40, 6.8), (20, -30)]
-TREE_SCALE = {"tree_default": 4.2, "tree_oak": 5.2}
-for kind, picks in (("tree_default", tree_spots[0::2]), ("tree_oak", tree_spots[1::2])):
-    sc = TREE_SCALE[kind]
+TREE_SCALE = 0.85
+for kind, picks in (("tree_3", tree_spots[0::3]), ("birch_1", tree_spots[1::3]), ("pine_2", tree_spots[2::3])):
     batch(f"Trees_{kind}", "Dressing", kind,
-          [((x, 0.0, z), (x * 0.7 + z * 0.3) % 6.28, (sc, sc, sc)) for x, z in picks])
+          [((x, 0.0, z), (x * 0.7 + z * 0.3) % 6.28, (TREE_SCALE,) * 3) for x, z in picks])
 collider("TreeTrunks", "Dressing", (0.6, 4.0, 0.6), [((x, 2.0, z), 0.0) for x, z in tree_spots])
 bush_spots = [(-42, 6.3), (-36, 6.3), (-26, 6.3), (-60, 25.6), (-14, 25.6), (34, 25.6), (46, 25.6), (38.5, -16), (38.5, -28)]
 batch("Bushes", "Dressing", "bush",
       [((x, 0.0, z), (x * 1.3) % 6.28, (4.0, 3.6, 4.0)) for x, z in bush_spots], shadows=False)
 
-# Parked at the kerb: Kenney cars, and Poly Haven's car under a tarp.
-PARKED = [("suv", (-24, 0, 11.3), math.pi / 2), ("hatchback", (40, 0, 20.7), -math.pi / 2),
-          ("delivery", (-12, 0, 11.4), math.pi / 2), ("truck", (34.2, 0, -20), 0.0)]
+# Parked at the kerb: Quaternius cars, and Poly Haven's car under a tarp.
+PARKED = [("car_normal2", (-24, 0, 11.3), math.pi / 2), ("car_sports", (40, 0, 20.7), -math.pi / 2),
+          ("car_sports2", (-12, 0, 11.4), math.pi / 2), ("car_suv", (34.2, 0, -20), 0.0)]
 for i, (kind, pos, yaw) in enumerate(PARKED):
     model(f"ParkedCar{i}", "Dressing", kind, pos, yaw, CAR_SCALE)
 model("CoveredCar", "Dressing", "covered_car", (52, 0, 11.3), math.pi / 2)
-collider("ParkedBody", "Dressing", (2.4, 1.7, 4.4),
+collider("ParkedBody", "Dressing", (2.0, 1.5, 4.3),
          [((x, 0.85, z), yaw) for _, (x, _, z), yaw in PARKED] + [((52, 0.85, 11.3), math.pi / 2)])
 
 # Pavement furniture and litter.
@@ -516,9 +520,9 @@ for i, (pts, spd) in enumerate(PED_PATHS):
     )
 
 VEH_PATHS = [
-    ([(-60, 0, 17.5), (60, 0, 17.5)], 7.5, "taxi"),
-    ([(60, 0, 14.5), (-60, 0, 14.5)], 6.2, "van"),
-    ([(30, 0, -40), (30, 0, 44)], 8.0, "sedan"),
+    ([(-60, 0, 17.5), (60, 0, 17.5)], 7.5, "car_taxi"),
+    ([(60, 0, 14.5), (-60, 0, 14.5)], 6.2, "car_normal1"),
+    ([(30, 0, -40), (30, 0, 44)], 8.0, "car_suv"),
 ]
 for i, (pts, spd, kind) in enumerate(VEH_PATHS):
     pts_s = ", ".join(f"{c:g}" for p in pts for c in p)
@@ -531,7 +535,7 @@ for i, (pts, spd, kind) in enumerate(VEH_PATHS):
     )
     v = f"Ambience/Vehicle{i}"
     model("Model", v, kind, (0, 0, 0), math.pi, CAR_SCALE)
-    collider("Body", v, (2.4, 1.7, 4.4), [((0, 0.85, 0), 0.0)])
+    collider("Body", v, (2.0, 1.5, 4.3), [((0, 0.75, 0), 0.0)])
 
 # ================================================================ assembly
 

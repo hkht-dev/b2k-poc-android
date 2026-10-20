@@ -5,8 +5,8 @@
 extends GutTest
 
 const LAMP := preload("res://assets/thirdparty/polyhaven/models/street_lamp_01/street_lamp_01.glb")
-const SEDAN := preload("res://assets/thirdparty/kenney/car-kit/sedan.glb")
-const TREE := preload("res://assets/thirdparty/kenney/nature-kit/tree_default.glb")
+const CAR := preload("res://assets/thirdparty/quaternius/realistic-car-pack/NormalCar1.glb")
+const BUSH := preload("res://assets/thirdparty/kenney/nature-kit/plant_bushLarge.glb")
 const STREET := preload("res://scenes/street/Street.tscn")
 
 
@@ -51,8 +51,8 @@ func test_one_multimesh_per_mesh_in_the_model_however_many_copies() -> void:
 	var placements: Array[Transform3D] = []
 	for i: int in 20:
 		placements.append(Transform3D(Basis.IDENTITY, Vector3(i * 3.0, 0.0, 0.0)))
-	var batch := _batch(SEDAN, placements)
-	var prototype: Node = SEDAN.instantiate()
+	var batch := _batch(CAR, placements)
+	var prototype: Node = CAR.instantiate()
 	var meshes := _mesh_instances(prototype).size()
 	prototype.free()
 	assert_gt(meshes, 0, "the car has meshes")
@@ -63,18 +63,18 @@ func test_one_multimesh_per_mesh_in_the_model_however_many_copies() -> void:
 
 
 func test_a_mesh_offset_inside_the_model_is_read_before_the_scene_is_in_the_tree() -> void:
-	# Kenney's tree mesh sits under a parent node with its own offset; the
+	# Kenney's bush mesh sits under a parent node with its own offset; the
 	# batch composes that offset with each placement rather than dropping it.
 	# (The headless renderer does not store MultiMesh transforms, so the maths
 	# is checked here and the composition is placement * local.)
-	var prototype: Node = TREE.instantiate()
+	var prototype: Node = BUSH.instantiate()
 	var found_offset := false
 	for mesh_instance: MeshInstance3D in _mesh_instances(prototype):
 		var local := ModelBatch.local_transform_within(mesh_instance, prototype)
 		if not local.origin.is_zero_approx():
 			found_offset = true
 	prototype.free()
-	assert_true(found_offset, "the tree mesh sits off the model's origin")
+	assert_true(found_offset, "the bush mesh sits off the model's origin")
 
 
 func test_a_nested_offset_composes_parent_then_child() -> void:
@@ -102,7 +102,7 @@ func test_the_street_draws_its_lamps_trees_and_cars_as_batches() -> void:
 	var street: Node3D = add_child_autofree(STREET.instantiate())
 	var lamps: ModelBatch = street.get_node("Lamps/LampPosts")
 	assert_gt(lamps.instance_count(), 10, "a block of lamp posts")
-	assert_not_null(street.get_node_or_null("Dressing/Trees_tree_default"))
+	assert_not_null(street.get_node_or_null("Dressing/Trees_tree_3"))
 	assert_not_null(street.get_node_or_null("Dressing/ParkedCar0"))
 	assert_not_null(
 		street.get_node_or_null("Ambience/Vehicle0/Model"), "moving cars are the model too"
