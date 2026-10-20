@@ -1,0 +1,52 @@
+[gd_scene load_steps=7 format=3]
+
+; A drifting bubble (scripts/grove/bubble.gd): a translucent sphere with a
+; small dark world turning inside, and a Look area the player stands under.
+; PLACEHOLDER: replaced by the painted bubble with a city inside of GDD §3
+; Act 1 "The whisper".
+
+[ext_resource type="Script" path="res://scripts/grove/bubble.gd" id="1_bubble"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+[ext_resource type="Material" path="res://assets/materials/bubble.tres" id="3_bubble"]
+[ext_resource type="Material" path="res://assets/materials/far_figure.tres" id="4_world"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_bubble"]
+radius = 0.45
+height = 0.9
+radial_segments = 20
+rings = 10
+
+[sub_resource type="SphereMesh" id="SphereMesh_world"]
+radius = 0.16
+height = 0.3
+radial_segments = 10
+rings = 5
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_under"]
+radius = 1.6
+height = 3.6
+
+[node name="Bubble" type="Node3D"]
+script = ExtResource("1_bubble")
+
+[node name="Skin" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_bubble")
+surface_material_override/0 = ExtResource("3_bubble")
+cast_shadow = 0
+
+; The tiny world inside: a city, a crowd, a tower, as a dark turning sphere.
+[node name="World" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0.3, 0, -0.3, 1, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("SphereMesh_world")
+surface_material_override/0 = ExtResource("4_world")
+cast_shadow = 0
+
+[node name="Look" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.look"
+
+[node name="Shape" type="CollisionShape3D" parent="Look"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, 0)
+shape = SubResource("CylinderShape3D_under")

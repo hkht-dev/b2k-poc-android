@@ -1,0 +1,105 @@
+[gd_scene load_steps=12 format=3]
+
+; The calf of the Grove (scripts/grove/calf.gd). PLACEHOLDER: a calf from
+; boxes in the street's cream plaster and timber; replaced by the licensed
+; cows of GDD §10 "Asset sourcing plan" and the painted calf of GDD §3.
+; The body faces -Z, Godot's forward, like every mover here.
+
+[ext_resource type="Script" path="res://scripts/grove/calf.gd" id="1_calf"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+[ext_resource type="Material" path="res://assets/materials/plaster_cream.tres" id="3_cream"]
+[ext_resource type="Material" path="res://assets/materials/timber.tres" id="4_timber"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_body"]
+size = Vector3(0.5, 0.5, 0.95)
+
+[sub_resource type="BoxMesh" id="BoxMesh_head"]
+size = Vector3(0.3, 0.32, 0.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_muzzle"]
+size = Vector3(0.22, 0.16, 0.12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ear"]
+size = Vector3(0.14, 0.05, 0.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_leg"]
+size = Vector3(0.12, 0.5, 0.12)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
+radius = 1.7
+height = 2.4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(0.6, 1.0, 1.1)
+
+[node name="Calf" type="Node3D" groups=["sound_source"]]
+script = ExtResource("1_calf")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, 0)
+mesh = SubResource("BoxMesh_body")
+surface_material_override/0 = ExtResource("3_cream")
+
+[node name="Head" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -0.5)
+
+[node name="Skull" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.14)
+mesh = SubResource("BoxMesh_head")
+surface_material_override/0 = ExtResource("3_cream")
+
+[node name="Muzzle" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, -0.38)
+mesh = SubResource("BoxMesh_muzzle")
+surface_material_override/0 = ExtResource("4_timber")
+
+[node name="EarL" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.12, -0.1)
+mesh = SubResource("BoxMesh_ear")
+surface_material_override/0 = ExtResource("4_timber")
+
+[node name="EarR" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.12, -0.1)
+mesh = SubResource("BoxMesh_ear")
+surface_material_override/0 = ExtResource("4_timber")
+
+[node name="LegFL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.25, -0.35)
+mesh = SubResource("BoxMesh_leg")
+surface_material_override/0 = ExtResource("4_timber")
+
+[node name="LegFR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.25, -0.35)
+mesh = SubResource("BoxMesh_leg")
+surface_material_override/0 = ExtResource("4_timber")
+
+[node name="LegBL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.25, 0.35)
+mesh = SubResource("BoxMesh_leg")
+surface_material_override/0 = ExtResource("4_timber")
+
+[node name="LegBR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.25, 0.35)
+mesh = SubResource("BoxMesh_leg")
+surface_material_override/0 = ExtResource("4_timber")
+
+; One step down from the sound source, so a pat is not a Listen (calf.gd).
+[node name="Reach" type="Node3D" parent="."]
+
+[node name="Pet" type="Area3D" parent="Reach"]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.pet"
+
+[node name="Shape" type="CollisionShape3D" parent="Reach/Pet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+shape = SubResource("CylinderShape3D_near")
+
+[node name="Solid" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Solid"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_body")

@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The flower garden's petals (GDD §5): one MultiMesh of small quads whose
+; colour is per instance (marigold, jasmine white, rose), so one draw call
+; carries every flower. PLACEHOLDER: flat quads; replaced by the painted
+; petal billboards of GDD §5 "Environment art targets".
+
+[resource]
+resource_name = "petal"
+cull_mode = 2
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 1)
+roughness = 0.9

@@ -3,9 +3,16 @@
 ; The stars over the riverbank (GDD §3 Act 5 "rises through stars"): unlit,
 ; warm white, outside the fog so the far dome stays sharp.
 ; PLACEHOLDER: the painted night of the Pool of Worlds, GDD §10.
+; The stars in the Grove's dusk sky (GDD §5 "a sky with visible stars"):
+; tiny unlit quads on a dome, brightness per instance. Unshaded is the
+; emissive here: the dusk light never touches them. Warm white, never blue.
+; PLACEHOLDER: replaced by the painted sky of GDD §10.
 
 [resource]
 resource_name = "star"
 shading_mode = 0
 disable_fog = true
 albedo_color = Color(1, 0.96, 0.9, 1)
+cull_mode = 2
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 1)

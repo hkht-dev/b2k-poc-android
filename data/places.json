@@ -34,5 +34,9 @@
   "home": {
     "scene": "res://scenes/places/Home.tscn",
     "name_id": "place.home"
+  },
+  "grove": {
+    "scene": "res://scenes/places/Grove.tscn",
+    "name_id": "place.grove"
   }
 }

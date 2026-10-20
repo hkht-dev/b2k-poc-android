@@ -2851,3 +2851,93 @@ post and the Veena's four meshes: about 15 draw calls at the tower's angle
 and under a thousand triangles. Not measured in the web build in this pass
 (no exports in the parallel brief); the integrator's measurement replaces
 this estimate.
+
+
+## 2026-10-20 — The Grove riverbank, Act 1
+
+GDD §3 Act 1, §3a Act 1 table, §4 (Lalita, Kuvera), §5 "The Grove
+riverbank", §6 "Carry" and "Call", §7 micro-interactions ("pet the calf",
+"push the swing"), §8 Scene A "The whisper". Affects §10 (the Grove's
+palette, see below) and §12 (two more doors in the journey's `place`/`spawn`).
+
+### A generated place, like the shop insides
+
+- `tools/gen_grove.py` writes `scenes/places/Grove.tscn` through
+  `tools/scenegen.py`, the way `gen_interiors.py` does: the same player,
+  camera and HUD, the Place base script with `place_id = "grove"`, a row in
+  `data/places.json`. ≈80 × 60 m playable, fenced by invisible walls; the
+  river along the north edge is a plane of the fountain's water with a far
+  bank beyond it that cannot be reached (GDD §3: "The player can approach
+  the water but cannot cross"). The walls sit on layer 1 like every solid,
+  so the camera pulls in at the very edge of the meadow; accepted.
+- Lighting is the rose-gold dusk: a `ProceduralSkyMaterial` from a rose
+  zenith to an amber horizon, a low pink-gold `DirectionalLight3D` in the
+  north-north-east (behind the figure across the water, GDD §3 "the sun low
+  and pink behind"), warm fog, ambient from the sky. The stars are one
+  MultiMesh of 240 unlit quads on a 140 m dome (inside the camera's 160 m
+  far plane), brightness per instance through `use_colors`.
+- GDD §10 gives the Grove a "magenta sky" and peacock blue for Krishna.
+  CLAUDE.md forbids both colours in the Street, and the task kept them out
+  of the Grove too, so the sky is rose and amber and the figure across the
+  water is a warm dark silhouette. `tests/test_grove.gd` walks every
+  albedo, light, sky and fog colour and every MultiMesh instance colour and
+  fails on a saturated hue in the teal-to-blue or purple-to-magenta bands.
+  The true colours arrive with the final art and a decision on §10.
+- Lalita and Kuvera are `scenes/npc/Shopkeeper.tscn` with `entry_lines`
+  (the first line whose `requires` hold opens), as the shop insides do.
+  Kuvera says Scene A: "Who was looking at you?", cards *It doesn't matter*
+  / *…no one*, both setting `whispered_kuvera`; a variant line mentions the
+  water once `grove_pot_placed` is set; afterwards he says where the bubble
+  went. Lalita asks for water, sees the pot coming (`carrying_pot`, the
+  player's own flag), and thanks.
+- The water-pot task is `data/quests/grove_water.json`: steps *hear*
+  (`lalita_asked_water`, set by her greeting, or the pot already picked
+  up), *fetch* (`event:pot_picked_up`, the feather's `pickup_item.gd` on a
+  pot at the river), *carry* (`event:pot_placed`, `scripts/grove/
+  pot_place.gd` beside her). Ending sets `grove_pot_placed` and writes one
+  line to *Your journey*. "pot" is a third carryable on `Player.tscn`
+  (`scenes/quest/Pot.tscn`).
+- The calf (`scenes/grove/Calf.tscn`, `scripts/grove/calf.gd`) wanders its
+  meadow, comes when the player hums (it is in `sound_source` and answers
+  `hear_hum()` like Tulu), and follows at two metres once petted: *Pet*
+  sets `pet_calf` and nothing else (GDD §7: no giver, no reward). Its *Pet*
+  area hangs one node below the sound source so the Place's *Listen*
+  subtitle does not fire for a pat.
+- The swing on the kadamba tree (`scripts/grove/swing.gd`): *Push* sets
+  `swing_pushed`, rocks the seat for four swings, and shows *[Lalita
+  laughs]* as a subtitle through the HUD of the Place it hangs in (GDD §11:
+  every vocal sound subtitled). Six bubbles (`scenes/grove/Bubble.tscn`)
+  drift on slow closed curves; *Look* opens `bubble_look`, which sets
+  `looked_bubble`.
+- The Pool is a 12 m dark near-mirror disc at the east edge with a low
+  collider so nobody walks on it. A Door at its edge, *Dive*, leads into
+  the Veil's fall (place "veil_down", built apart) and names the street's
+  new "fountain_basin" spawn as where the fall ends
+  (`tools/street_parts/basin_spawn.py`: where a fresh journey surfaces).
+  The Grove's own arrival point is the spawn "pool_bank", west of the Pool,
+  which the Veil's ascent ("veil_up") names. The *Stay*/*Dive* prompt is
+  Act 1's last beat and not built. For development the street has a Door
+  back into the Grove on the basin floor (`tools/street_parts/grove_door.py`,
+  verb *Step in*, spawn "pool_bank"), gated on `gave_dry_fountain` through
+  a new `requires` export on `door.gd` that passes to the Door's
+  Interactable; a playtester never meets it by accident. Act 2 is one way in
+  the fiction; this door is a tool.
+
+### Placeholders
+
+Grass is the cream plaster texture tinted green (`grass.tres`); the river
+is the fountain's grey-green water (`water.tres`); the Pool is a dark
+metallic disc (`pool.tres`); petals and stars are vertex-coloured quads
+(`petal.tres`, `star.tres`); the calf is boxes; the kadamba is Quaternius'
+Tree_1 scaled up; the figure across the water is the shared body painted
+with `far_figure.tres` and the Glimpse's flute; the Grove's friends wear the
+street's skins. Each carries a PLACEHOLDER comment naming the GDD asset.
+
+### Budget
+
+Not measured in the web build for this change (parallel agents share the
+machine and exports are off); by construction the Grove draws about 70
+calls: one per MultiMesh (petals, stems, stars, stones), one per surface
+per tree batch, six skinned bodies, six bubbles of two meshes, the calf's
+nine boxes, the feast's dozen primitives. The integrator's web profile
+should confirm this under the 200-call limit before the PR merges.
