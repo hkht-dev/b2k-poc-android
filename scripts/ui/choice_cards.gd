@@ -29,7 +29,6 @@ const CARD_GAP := 12
 const CARD_GAP_TOUCH := 16
 ## The keys that choose a card, in card order; each list is one card's keys.
 const CARD_KEYS := [[KEY_1, KEY_KP_1], [KEY_2, KEY_KP_2], [KEY_3, KEY_KP_3]]
-const DISMISS_KEY := KEY_ESCAPE
 ## Actions that, with nothing focused, put the focus on a card first.
 const FOCUS_FORWARD_ACTIONS := ["ui_down", "ui_focus_next"]
 const FOCUS_BACKWARD_ACTIONS := ["ui_up", "ui_focus_prev"]
@@ -162,11 +161,14 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				card_pressed.emit(index)
 				return
-		if event.keycode == DISMISS_KEY and _card_count == 0:
+	# A line with nothing to choose is dismissed by the cancel action, so
+	# Escape and a pad's B both close it; a raw keycode left a pad stuck.
+	if _card_count == 0:
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("contextual"):
 			get_viewport().set_input_as_handled()
 			dismissed.emit()
-			return
-	if _card_count == 0 or focused_card() != -1:
+		return
+	if focused_card() != -1:
 		return
 	for action: String in FOCUS_FORWARD_ACTIONS:
 		if event.is_action_pressed(action):

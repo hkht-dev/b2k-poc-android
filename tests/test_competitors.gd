@@ -5,6 +5,11 @@
 ## here reads a path.
 extends GutTest
 
+## tools/check_data.py MAX_WORDS. GDD §8 kept a line under twenty words;
+## the owner lifted it to thirty-four after the expansion, because the
+## shorthand had stopped making sense (docs/DECISIONS.md "Conversations").
+const LINE_WORD_CAP := 35
+
 const STREET := preload("res://scenes/street/Street.tscn")
 const SCRATCH := "user://test_competitors_journey.json"
 
@@ -130,8 +135,10 @@ func test_taking_the_key_while_she_sleeps_sets_the_flag_and_the_line_closes() ->
 	var street := _street()
 	await _talk(street, RUKMA_SPOT, "Rukma")
 	var dialogue: Dialogue = Content.dialogue
-	assert_eq(_cards_setting("rukma_greet", "rukma_key_taken"), 1, "the greeting carries the take")
-	dialogue.choose(1)  # her bag is open
+	assert_eq(_cards_setting("rukma_key", "rukma_key_taken"), 1, "the key line carries the take")
+	dialogue.choose(1)  # her bag is open, and the key is in it
+	assert_eq(dialogue.current_line_id(), "rukma_key", "what taking it means is said first")
+	dialogue.choose(0)  # take it
 	assert_true(GameState.has_flag("rukma_key_taken"), "the card sets it (GDD §7 Compete)")
 	assert_eq(dialogue.current_line_id(), "rukma_key_pocketed")
 	assert_false(GameState.has_flag("rukma_heard"), "she slept through it")
@@ -218,6 +225,8 @@ func test_sitting_with_nanda_through_three_lines_sets_nanda_listened() -> void:
 	dialogue.choose(0)  # I'd rather sit here a while
 	assert_eq(dialogue.current_line_id(), "nanda_sit_1")
 	dialogue.choose(1)  # the top of it?
+	assert_eq(dialogue.current_line_id(), "nanda_top")
+	dialogue.choose(0)  # what happened to him
 	assert_eq(dialogue.current_line_id(), "nanda_sit_2")
 	assert_false(GameState.has_flag("nanda_listened"), "not until he has finished")
 	dialogue.choose(0)  # I'll read it
@@ -284,7 +293,11 @@ func test_no_card_is_marked_and_no_line_runs_long() -> void:
 		):
 			continue
 		var line := dialogue.get_line(line_id)
-		assert_lt(Strings.t(line["text_id"]).split(" ").size(), 20, "%s under 20 words" % line_id)
+		assert_lt(
+			Strings.t(line["text_id"]).split(" ").size(),
+			LINE_WORD_CAP,
+			"%s is inside the cap" % line_id
+		)
 		var count: int = line["cards"].size()
 		assert_true(count == 0 or count == 2 or count == 3, "%s: two or three cards" % line_id)
 		for card: Dictionary in line["cards"]:

@@ -36,6 +36,8 @@ const SONG_SCREEN := preload("res://scenes/ui/SongScreen.tscn")
 ## The flag the hand-over sets, and the string that appears on his
 ## instrument when it does (a node beside him in the generated street).
 @export var string_flag := "sarang_string_given"
+## The item the player is holding when they give it (`carryables`).
+@export var string_item := "string"
 @export var mended_string: NodePath
 
 var _screen: Control = null
@@ -83,9 +85,18 @@ func _on_talk(_player: Node3D) -> void:
 			return
 
 
-func _on_flag_changed(flag: String, _is_set: bool) -> void:
-	if flag == string_flag:
-		_show_mended_string()
+func _on_flag_changed(flag: String, is_set: bool) -> void:
+	if flag != string_flag:
+		return
+	_show_mended_string()
+	# The card gives him the string; the hand it came out of is this half.
+	# Without it the player walks away still holding what they handed over,
+	# and a full hand withdraws every pick-up for the rest of the journey.
+	if not is_set:
+		return
+	var player := _find_player()
+	if player != null and player.is_carrying(string_item):
+		player.put_down()
 
 
 ## The world's answer to the string: the gap in the instrument is strung.
@@ -124,3 +135,8 @@ func _on_screen_closed() -> void:
 	_screen = null
 	# As it was: a lesson opened under the pause menu leaves the menu's pause.
 	get_tree().paused = _was_paused
+
+
+func _find_player() -> Node3D:
+	var players := get_tree().get_nodes_in_group("player")
+	return players[0] if not players.is_empty() else null

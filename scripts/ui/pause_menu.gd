@@ -8,6 +8,8 @@
 extends Control
 
 signal resumed
+## The player asked to leave the journey and go back to the title.
+signal quit_requested
 signal controls_requested
 signal settings_requested
 signal map_toggled(on: bool)
@@ -27,6 +29,7 @@ var _garden_overlay: Control = null
 @onready var _garden: Button = %GardenButton
 @onready var _lamp: Button = %LampButton
 @onready var _now: Label = %Now
+@onready var _quit: Button = %QuitButton
 @onready var _journey_title: Label = %JourneyTitle
 @onready var _journey: VBoxContainer = %Journey
 @onready var _noticed_title: Label = %NoticedTitle
@@ -46,12 +49,22 @@ func _ready() -> void:
 	_garden.pressed.connect(_open_garden)
 	_lamp.text = Strings.t("pause.set_lamp")
 	_lamp.pressed.connect(func() -> void: lamp_requested.emit())
+	_quit.text = Strings.t("pause.quit")
+	_quit.pressed.connect(func() -> void: quit_requested.emit())
 	_refresh_map_label()
 	_map.pressed.connect(_on_map)
 	_now.text = now_line()
 	_fill_journey()
 	_fill_noticed()
 	_resume.grab_focus()
+
+
+## The control that opened the menu closes it. Place cannot do this: it
+## pauses with the tree, so its own input handler stops running.
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
+		resumed.emit()
+		get_viewport().set_input_as_handled()
 
 
 ## *Your journey* (GDD §6 "Choice", CLAUDE_CODE_BRIEF.md §4.5): the lines the

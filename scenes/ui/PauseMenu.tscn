@@ -122,3 +122,12 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 text = "Set a lamp here"
+
+; GDD §11 lists quit among the pause menu's contents and it was never built,
+; so from inside a place the only ways out were finishing the slice at the
+; bus stop or killing the app.
+[node name="QuitButton" type="Button" parent="Panel/Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+text = "Leave the journey"

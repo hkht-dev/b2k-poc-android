@@ -179,7 +179,7 @@ func test_no_option_is_labelled_and_no_score_meter_or_marker_appears() -> void:
 	await _put(street, Vector3(-13.2, 0.16, 3.0))
 	await _press(street)
 	var cards: Control = street.cards()
-	assert_eq(cards.card_count(), 2, "two full-sentence cards")
+	assert_eq(cards.card_count(), 3, "three full-sentence cards")
 	for i: int in cards.card_count():
 		var a: PanelContainer = cards.card_button(i)
 		assert_eq(a.get_class(), cards.card_button(0).get_class(), "every card drawn the same")

@@ -167,13 +167,19 @@ func test_the_carving_on_the_second_landing_offers_look_and_sets_read_carving() 
 	Content.dialogue.dismiss()
 
 
-func test_look_is_not_offered_at_the_stand_while_carrying() -> void:
+func test_the_stand_is_closed_by_the_veena_itself_not_by_a_full_hand() -> void:
+	# A player who walked up here holding a feather must still be able to
+	# make the dawn choice; only the Veena in hand closes the stand.
 	var street := _street()
 	var top := _top(street)
 	await wait_frames(2)
 	_player(street).carry("can")
 	await _put(street, top.global_position + Vector3(0.0, 0.05, 1.4))
-	assert_ne(_button(street).current_verb(), "verb.look", "hands full")
+	assert_eq(_button(street).current_verb(), "verb.look", "a can does not cost the dawn")
+	_player(street).put_down()
+	_player(street).carry("veena")
+	await wait_frames(4)
+	assert_ne(_button(street).current_verb(), "verb.look", "the Veena is already in hand")
 
 
 func test_playing_it_for_the_street_is_recorded_and_the_stand_offers_nothing_more() -> void:

@@ -24,6 +24,9 @@ signal hummed
 const FADE_SPEED := 8.0
 ## How long a press with nothing near must last to become a hum.
 const HUM_HOLD := 0.5
+## The one verb a hold reaches past: emptying the hand is a tap, and the
+## Call must stay available wherever the player is standing.
+const PUT_DOWN_VERB := "verb.put_down"
 ## With nothing near, the button stays as a faint mark so a hold has somewhere
 ## to land (GDD §6 "Call": "hold the interact button with nothing nearby").
 const IDLE_ALPHA := 0.35
@@ -56,7 +59,7 @@ func _process(delta: float) -> void:
 	var wanted := 1.0 if _verb_id != "" else IDLE_ALPHA
 	_shown = move_toward(_shown, wanted, FADE_SPEED * delta)
 	modulate.a = _shown
-	if _holding and _verb_id == "" and not _hum_fired:
+	if _holding and _hums_through() and not _hum_fired:
 		_held += delta
 		if _held >= HUM_HOLD:
 			_hum_fired = true
@@ -71,6 +74,12 @@ func _on_down() -> void:
 
 func _on_up() -> void:
 	_holding = false
+
+
+## True when a hold on the button is the Call rather than the verb: with
+## nothing near, and with the *Put down* fallback, which is a tap only.
+func _hums_through() -> bool:
+	return _verb_id == "" or _verb_id == PUT_DOWN_VERB
 
 
 ## Simulates a held press for tests and the desktop E key.

@@ -132,3 +132,10 @@ func _store(key: String, value: Variant) -> void:
 		GameState.settings[key] = value
 	GameState.save()
 	changed.emit(key)
+
+
+## Escape, or a pad's B, closes the screen as the Back button does.
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		closed.emit()
+		get_viewport().set_input_as_handled()

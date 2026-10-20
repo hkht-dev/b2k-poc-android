@@ -171,7 +171,7 @@ func test_talking_gopal_through_to_carrying_sets_the_flags_the_quest_needs() -> 
 func test_leaving_early_sets_nothing() -> void:
 	watch_signals(_dialogue)
 	_dialogue.start("gopal_greet")
-	_dialogue.choose(1)
+	_dialogue.choose(2)  # Tomorrow, then: the card that walks away
 	assert_signal_emitted(_dialogue, "finished")
 	assert_eq(_state.flags.size(), 0)
 

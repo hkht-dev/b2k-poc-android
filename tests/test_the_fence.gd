@@ -67,6 +67,9 @@ func _meet_her(street: Node3D) -> void:
 	Content.dialogue.choose(1)  # the gate's hanging off
 	assert_eq(Content.dialogue.current_line_id(), "vasanti_fence")
 	Content.dialogue.choose(0)  # I'll see to it
+	# She answers now rather than leaving the job unacknowledged.
+	assert_eq(Content.dialogue.current_line_id(), "vasanti_see_to_it")
+	Content.dialogue.dismiss()
 	assert_false(Content.dialogue.is_running())
 
 

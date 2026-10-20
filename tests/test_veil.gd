@@ -5,6 +5,11 @@
 ## nothing else does anything; the colours end where the GDD puts them.
 extends GutTest
 
+## tools/check_data.py MAX_WORDS. GDD §8 kept a line under twenty words;
+## the owner lifted it to thirty-four after the expansion, because the
+## shorthand had stopped making sense (docs/DECISIONS.md "Conversations").
+const LINE_WORD_CAP := 35
+
 const VEIL := preload("res://scenes/places/Veil.tscn")
 const VEIL_DOWN := preload("res://scenes/places/VeilDown.tscn")
 const VEIL_UP := preload("res://scenes/places/VeilUp.tscn")
@@ -94,7 +99,7 @@ func test_the_lines_are_data_and_only_the_way_down_has_them() -> void:
 	assert_eq(down.line_ids.size(), 3, "§8 Scene B: three lines, one at a time")
 	for id: String in down.line_ids:
 		assert_true(Strings.has_id(id), "%s is in the string table" % id)
-		assert_lt(Strings.t(id).split(" ").size(), 20, "§8: lines under 20 words")
+		assert_lt(Strings.t(id).split(" ").size(), LINE_WORD_CAP, "§8: inside the cap")
 	assert_true(up.line_ids.is_empty(), "nothing is said on the way home")
 	assert_eq(down.next_place, "street", "down lands in the Street")
 	assert_eq(up.next_place, "grove", "up lands in the Grove")

@@ -39,7 +39,9 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	var player := _find_player()
-	_look.enabled = not is_chosen() and player != null and not player.is_carrying()
+	# Only the Veena itself closes the stand: a player who walked up here
+	# holding a feather must still be able to make the dawn choice.
+	_look.enabled = not is_chosen() and player != null and not player.is_carrying(take_item)
 
 
 func is_chosen() -> bool:
@@ -72,7 +74,22 @@ func _on_flag_changed(flag: String, is_set: bool) -> void:
 		_veena.visible = false
 		var player := _find_player()
 		if player != null:
+			# Both hands for the Veena: whatever was held is set down here.
+			if player.is_carrying():
+				var place := _place()
+				if place != null:
+					place.put_down_carried()
+				else:
+					player.put_down()
 			player.carry(take_item)
+
+
+## The Place this stand is in, or null outside one.
+func _place() -> Place:
+	var node := get_parent()
+	while node != null and not node is Place:
+		node = node.get_parent()
+	return node as Place
 
 
 func _find_player() -> Node3D:

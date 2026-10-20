@@ -140,7 +140,7 @@ REQUIRED_STRING_IDS = [
     "journey.dawn.played",
     "journey.dawn.kept",
     "place.grove",
-    *[f"verb.{k}" for k in ("dive", "descend", "pet", "push", "climb_down")],
+    *[f"verb.{k}" for k in ("dive", "descend", "pet", "push", "climb_down", "put_down")],
     "sub.lalita_laughs",
     "speaker.lalita",
     "speaker.kuvera",
@@ -170,7 +170,14 @@ LINE_REQUIRED = ["speaker", "text_id", "cards", "review_status"]
 CARD_REQUIRED = ["text_id", "next"]
 REVIEW_STATUSES = {"draft", "panel_approved", "final"}
 # GDD §8 "Writing rules": lines under 20 words.
-MAX_WORDS = 19
+# GDD §8 kept a spoken line under twenty words. The owner, after playing the
+# expansion (2026-10-20): "the conversations also should be smooth and
+# understandable in the context. Sometimes, just to make it short, the
+# context is not understood." The cap was doing that: 29% of spoken strings
+# were five words or fewer, Madhuri's monologue had lost the sentence the
+# game turns on, and GDD §8's own sample scripts are longer than what shipped.
+# Thirty-four words is the tale panels' register, which reads as speech.
+MAX_WORDS = 34
 TERM = re.compile(r"^(not )?(true|false|flag:\S+|event:\S+)$")
 
 
@@ -246,7 +253,7 @@ def check_strings() -> dict | None:
     for key, text in english.items():
         spoken = key.startswith(("line.", "card.")) or re.match(r"^vignette\.[^.]+\.(line|card)\.", key)
         if spoken and len(str(text).split()) > MAX_WORDS:
-            fail(f"'{key}' is {len(str(text).split())} words; GDD §8 keeps lines under 20")
+            fail(f"'{key}' is {len(str(text).split())} words; the cap is {MAX_WORDS} (GDD §8)")
             problems += 1
     for locale, table in tables.items():
         if locale == "en" or table is None:

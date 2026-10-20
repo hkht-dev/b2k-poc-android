@@ -17,9 +17,13 @@ from scenegen import xf
 
 EXT = '[ext_resource type="Material" path="res://assets/materials/pool.tres" id="mat_pool"]\n'
 
-# On the basin floor (y −0.5), west of where the player surfaces, clear of
-# the column and of the spot the P4 tests stand on.
-POSITION = (-2.6, -0.5, 2.6)
+# On the north-east corner step (y −0.15), not on the basin floor: the lip
+# is 0.6 m above the pavement and the climb out is one-way, so a door on the
+# floor could never be reached once the player has left it
+# (tools/street_parts/home_door.py says the same of the way Home). The
+# south-east step is Act 4's and the way Home, the north-west one the tale
+# seat's; this corner is free.
+POSITION = (5.55, -0.15, -5.55)
 
 
 def build(b) -> None:

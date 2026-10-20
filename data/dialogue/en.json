@@ -14,12 +14,17 @@
     "text_id": "line.gopal_greet",
     "cards": [
       {
-        "text_id": "card.gopal_greet.why",
+        "text_id": "card.gopal_greet.0",
         "sets": [],
         "next": "gopal_fear_1"
       },
       {
-        "text_id": "card.gopal_greet.tomorrow",
+        "text_id": "card.gopal_greet.1",
+        "sets": [],
+        "next": "gopal_medicine"
+      },
+      {
+        "text_id": "card.gopal_greet.2",
         "sets": [],
         "next": ""
       }
@@ -32,12 +37,12 @@
     "text_id": "line.gopal_fear_1",
     "cards": [
       {
-        "text_id": "card.gopal_fear_1.how_many",
+        "text_id": "card.gopal_fear_1.0",
         "sets": [],
         "next": "gopal_fear_2"
       },
       {
-        "text_id": "card.gopal_fear_1.street",
+        "text_id": "card.gopal_fear_1.1",
         "sets": [],
         "next": "gopal_fear_2"
       }
@@ -50,12 +55,12 @@
     "text_id": "line.gopal_fear_2",
     "cards": [
       {
-        "text_id": "card.gopal_fear_2.a_lot",
+        "text_id": "card.gopal_fear_2.0",
         "sets": [],
         "next": "gopal_admit"
       },
       {
-        "text_id": "card.gopal_fear_2.check",
+        "text_id": "card.gopal_fear_2.1",
         "sets": [],
         "next": "gopal_admit"
       }
@@ -68,23 +73,23 @@
     "text_id": "line.gopal_admit",
     "cards": [
       {
-        "text_id": "card.gopal_admit.carry_one",
+        "text_id": "card.gopal_admit.0",
         "sets": [
-          "gopal_admitted_fear",
           "gopal_will_carry"
         ],
         "next": "gopal_agree"
       },
       {
-        "text_id": "card.gopal_admit.keep_them",
-        "sets": [
-          "gopal_admitted_fear"
-        ],
+        "text_id": "card.gopal_admit.1",
+        "sets": [],
         "next": "gopal_decline"
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": [
+      "gopal_admitted_fear"
+    ]
   },
   "gopal_agree": {
     "speaker": "gopal",
@@ -127,14 +132,14 @@
     "text_id": "line.storekeeper_greet",
     "cards": [
       {
-        "text_id": "card.storekeeper_greet.looking",
-        "sets": [],
-        "next": ""
-      },
-      {
-        "text_id": "card.storekeeper_greet.water",
+        "text_id": "card.storekeeper_greet.0",
         "sets": [],
         "next": "storekeeper_water"
+      },
+      {
+        "text_id": "card.storekeeper_greet.1",
+        "sets": [],
+        "next": ""
       }
     ],
     "requires": [],
@@ -152,14 +157,19 @@
     "text_id": "line.tailor_greet",
     "cards": [
       {
-        "text_id": "card.tailor_greet.thanks",
-        "sets": [],
-        "next": ""
-      },
-      {
-        "text_id": "card.tailor_greet.who_made",
+        "text_id": "card.tailor_greet.0",
         "sets": [],
         "next": "tailor_who_made"
+      },
+      {
+        "text_id": "card.tailor_greet.1",
+        "sets": [],
+        "next": "tailor_glass"
+      },
+      {
+        "text_id": "card.tailor_greet.2",
+        "sets": [],
+        "next": ""
       }
     ],
     "requires": [],
@@ -175,53 +185,53 @@
   "counting_man_greet": {
     "speaker": "counting_man",
     "text_id": "line.counting_man_greet",
-    "sets": [
-      "counting_man_met"
-    ],
     "cards": [
       {
-        "text_id": "card.counting_man_greet.count",
+        "text_id": "card.counting_man_greet.0",
         "sets": [
           "counting_man_counting"
         ],
         "next": ""
       },
       {
-        "text_id": "card.counting_man_greet.coin",
+        "text_id": "card.counting_man_greet.1",
         "sets": [
           "counting_man_given_coin"
         ],
         "next": "counting_man_coin"
       },
       {
-        "text_id": "card.counting_man_greet.leave",
+        "text_id": "card.counting_man_greet.2",
         "sets": [],
         "next": ""
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": [
+      "counting_man_met"
+    ]
   },
   "counting_man_again": {
     "speaker": "counting_man",
     "text_id": "line.counting_man_again",
     "cards": [
       {
-        "text_id": "card.counting_man_greet.count",
+        "text_id": "card.counting_man_again.0",
         "sets": [
           "counting_man_counting"
         ],
         "next": ""
       },
       {
-        "text_id": "card.counting_man_greet.coin",
+        "text_id": "card.counting_man_again.1",
         "sets": [
           "counting_man_given_coin"
         ],
         "next": "counting_man_coin"
       },
       {
-        "text_id": "card.counting_man_greet.leave",
+        "text_id": "card.counting_man_again.2",
         "sets": [],
         "next": ""
       }
@@ -243,49 +253,49 @@
   "dhanpal_greet": {
     "speaker": "dhanpal",
     "text_id": "line.dhanpal_greet",
-    "sets": [
-      "met_dhanpal"
-    ],
     "cards": [
       {
-        "text_id": "card.dhanpal_greet.accept",
+        "text_id": "card.dhanpal_greet.0",
         "sets": [
           "accepted_contest"
         ],
         "next": "dhanpal_accepted"
       },
       {
-        "text_id": "card.dhanpal_greet.who_else",
+        "text_id": "card.dhanpal_greet.1",
         "sets": [],
-        "next": "dhanpal_who_else"
+        "next": "dhanpal_what_veena"
       },
       {
-        "text_id": "card.dhanpal_greet.not_today",
+        "text_id": "card.dhanpal_greet.2",
         "sets": [],
         "next": "dhanpal_not_today"
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": [
+      "met_dhanpal"
+    ]
   },
   "dhanpal_who_else": {
     "speaker": "dhanpal",
     "text_id": "line.dhanpal_who_else",
     "cards": [
       {
-        "text_id": "card.dhanpal_who_else.why_name",
+        "text_id": "card.dhanpal_who_else.0",
         "sets": [],
         "next": "dhanpal_why_name"
       },
       {
-        "text_id": "card.dhanpal_who_else.accept",
+        "text_id": "card.dhanpal_who_else.1",
         "sets": [
           "accepted_contest"
         ],
         "next": "dhanpal_accepted"
       },
       {
-        "text_id": "card.dhanpal_who_else.not_today",
+        "text_id": "card.dhanpal_who_else.2",
         "sets": [],
         "next": "dhanpal_not_today"
       }
@@ -298,14 +308,14 @@
     "text_id": "line.dhanpal_why_name",
     "cards": [
       {
-        "text_id": "card.dhanpal_why_name.accept",
+        "text_id": "card.dhanpal_why_name.0",
         "sets": [
           "accepted_contest"
         ],
         "next": "dhanpal_accepted"
       },
       {
-        "text_id": "card.dhanpal_why_name.not_today",
+        "text_id": "card.dhanpal_why_name.1",
         "sets": [],
         "next": "dhanpal_not_today"
       }
@@ -361,19 +371,19 @@
     "text_id": "line.chai_greet",
     "cards": [
       {
-        "text_id": "card.chai_greet.tulu",
+        "text_id": "card.chai_greet.0",
         "sets": [],
         "next": "chai_about_tulu"
       },
       {
-        "text_id": "card.chai_greet.door",
+        "text_id": "card.chai_greet.1",
         "sets": [],
         "next": "chai_about_door"
       },
       {
-        "text_id": "card.chai_greet.chai",
+        "text_id": "card.chai_greet.2",
         "sets": [],
-        "next": ""
+        "next": "chai_just_chai"
       }
     ],
     "requires": [],
@@ -384,12 +394,12 @@
     "text_id": "line.chai_about_tulu",
     "cards": [
       {
-        "text_id": "card.chai_about_tulu.shrine",
+        "text_id": "card.chai_about_tulu.0",
         "sets": [],
         "next": "chai_about_door"
       },
       {
-        "text_id": "card.chai_about_tulu.thanks",
+        "text_id": "card.chai_about_tulu.1",
         "sets": [],
         "next": ""
       }
@@ -400,24 +410,29 @@
   "chai_about_door": {
     "speaker": "chai_seller",
     "text_id": "line.chai_about_door",
-    "sets": [
-      "told_about_shrine"
-    ],
     "cards": [],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": [
+      "told_about_shrine"
+    ]
   },
   "tulu_door": {
     "speaker": "tulu",
     "text_id": "line.tulu_door",
     "cards": [
       {
-        "text_id": "card.tulu_door.inside",
+        "text_id": "card.tulu_door.0",
         "sets": [],
         "next": "tulu_door_lamp"
       },
       {
-        "text_id": "card.tulu_door.go_on",
+        "text_id": "card.tulu_door.1",
+        "sets": [],
+        "next": "tulu_who_taught"
+      },
+      {
+        "text_id": "card.tulu_door.2",
         "sets": [],
         "next": ""
       }
@@ -430,7 +445,18 @@
   "tulu_door_lamp": {
     "speaker": "tulu",
     "text_id": "line.tulu_door_lamp",
-    "cards": [],
+    "cards": [
+      {
+        "text_id": "card.tulu_door_lamp.0",
+        "sets": [],
+        "next": "tulu_door_who"
+      },
+      {
+        "text_id": "card.tulu_door_lamp.1",
+        "sets": [],
+        "next": ""
+      }
+    ],
     "requires": [],
     "review_status": "draft"
   },
@@ -489,90 +515,101 @@
   "madhuri_greet": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_greet",
-    "sets": [
-      "met_madhuri"
-    ],
     "cards": [
       {
-        "text_id": "card.madhuri_greet.tulu",
+        "text_id": "card.madhuri_greet.0",
         "sets": [],
         "next": "madhuri_tulu"
       },
       {
-        "text_id": "card.madhuri_greet.humming",
+        "text_id": "card.madhuri_greet.1",
         "sets": [],
         "next": "madhuri_tulu"
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": [
+      "met_madhuri"
+    ]
   },
   "madhuri_tulu": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_tulu",
-    "sets": [],
     "cards": [
       {
-        "text_id": "card.madhuri_tulu.what",
+        "text_id": "card.madhuri_tulu.0",
         "sets": [],
         "next": "madhuri_song"
       },
       {
-        "text_id": "card.madhuri_tulu.room",
+        "text_id": "card.madhuri_tulu.1",
         "sets": [],
         "next": "madhuri_room"
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": []
   },
   "madhuri_song": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_song",
-    "sets": [],
     "cards": [
       {
-        "text_id": "card.madhuri.and_the_lamp",
+        "text_id": "card.madhuri_song.0",
         "sets": [],
         "next": "madhuri_ask_water"
       },
       {
-        "text_id": "card.madhuri.thanks",
+        "text_id": "card.madhuri_song.1",
         "sets": [],
         "next": ""
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": []
   },
   "madhuri_room": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_room",
-    "sets": [],
     "cards": [
       {
-        "text_id": "card.madhuri.and_the_lamp",
+        "text_id": "card.madhuri_room.0",
         "sets": [],
         "next": "madhuri_ask_water"
       },
       {
-        "text_id": "card.madhuri_room.look",
+        "text_id": "card.madhuri_room.1",
         "sets": [],
         "next": ""
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": []
   },
   "madhuri_ask_water": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_ask_water",
-    "sets": [],
-    "cards": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri_ask_water.0",
+        "sets": [],
+        "next": "madhuri_where_water"
+      },
+      {
+        "text_id": "card.madhuri_ask_water.1",
+        "sets": [],
+        "next": ""
+      }
+    ],
     "requires": [
       "met_madhuri"
     ],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": []
   },
   "madhuri_after_water": {
     "speaker": "madhuri",
@@ -600,37 +637,37 @@
   "madhuri_valley": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_valley",
-    "sets": [],
     "cards": [
       {
-        "text_id": "card.madhuri_valley.tower",
+        "text_id": "card.madhuri_valley.0",
         "sets": [],
         "next": "madhuri_tower"
       },
       {
-        "text_id": "card.madhuri.thanks",
+        "text_id": "card.madhuri_valley.1",
         "sets": [],
         "next": ""
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": []
   },
   "madhuri_tower": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_tower",
-    "sets": [],
     "cards": [],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": []
   },
   "madhuri_only_water": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_only_water",
-    "sets": [],
     "cards": [],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": []
   },
   "photo_fountain": {
     "speaker": "photo",
@@ -709,19 +746,17 @@
     "text_id": "line.rukma_greet",
     "cards": [
       {
-        "text_id": "card.rukma_greet.wake",
+        "text_id": "card.rukma_greet.0",
         "sets": [],
         "next": "rukma_why"
       },
       {
-        "text_id": "card.rukma_greet.key",
-        "sets": [
-          "rukma_key_taken"
-        ],
-        "next": "rukma_key_pocketed"
+        "text_id": "card.rukma_greet.1",
+        "sets": [],
+        "next": "rukma_key"
       },
       {
-        "text_id": "card.rukma_greet.leave",
+        "text_id": "card.rukma_greet.2",
         "sets": [],
         "next": ""
       }
@@ -732,23 +767,23 @@
   "rukma_why": {
     "speaker": "rukma",
     "text_id": "line.rukma_why",
-    "sets": [
-      "rukma_heard"
-    ],
     "cards": [
       {
-        "text_id": "card.rukma_why.anyone",
+        "text_id": "card.rukma_why.0",
         "sets": [],
         "next": "rukma_enough"
       },
       {
-        "text_id": "card.rukma_why.then_win",
+        "text_id": "card.rukma_why.1",
         "sets": [],
-        "next": ""
+        "next": "rukma_watching"
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": [
+      "rukma_heard"
+    ]
   },
   "rukma_enough": {
     "speaker": "rukma",
@@ -789,16 +824,16 @@
     "text_id": "line.rukma_greet_can",
     "cards": [
       {
-        "text_id": "card.rukma_greet_can.trade",
+        "text_id": "card.rukma_greet_can.0",
         "sets": [
           "rukma_key_traded"
         ],
         "next": "rukma_traded"
       },
       {
-        "text_id": "card.rukma_greet_can.why",
+        "text_id": "card.rukma_greet_can.1",
         "sets": [],
-        "next": "rukma_why"
+        "next": "rukma_watching"
       }
     ],
     "requires": [
@@ -838,12 +873,12 @@
     "text_id": "line.bhima_greet",
     "cards": [
       {
-        "text_id": "card.bhima_greet.why",
+        "text_id": "card.bhima_greet.0",
         "sets": [],
         "next": "bhima_daughter"
       },
       {
-        "text_id": "card.bhima_greet.luck",
+        "text_id": "card.bhima_greet.1",
         "sets": [],
         "next": ""
       }
@@ -856,14 +891,14 @@
     "text_id": "line.bhima_daughter",
     "cards": [
       {
-        "text_id": "card.bhima_daughter.ask",
+        "text_id": "card.bhima_daughter.0",
         "sets": [
           "bhima_asked"
         ],
         "next": "bhima_asked"
       },
       {
-        "text_id": "card.bhima_daughter.climb",
+        "text_id": "card.bhima_daughter.1",
         "sets": [],
         "next": ""
       }
@@ -904,12 +939,12 @@
     "text_id": "line.nanda_greet",
     "cards": [
       {
-        "text_id": "card.nanda_greet.sit",
+        "text_id": "card.nanda_greet.0",
         "sets": [],
         "next": "nanda_sit_1"
       },
       {
-        "text_id": "card.nanda_greet.leave",
+        "text_id": "card.nanda_greet.1",
         "sets": [],
         "next": ""
       }
@@ -956,14 +991,14 @@
     "text_id": "line.nanda_sit_1",
     "cards": [
       {
-        "text_id": "card.nanda_sit_1.happened",
+        "text_id": "card.nanda_sit_1.0",
         "sets": [],
         "next": "nanda_sit_2"
       },
       {
-        "text_id": "card.nanda_sit_1.top",
+        "text_id": "card.nanda_sit_1.1",
         "sets": [],
-        "next": "nanda_sit_2"
+        "next": "nanda_top"
       }
     ],
     "requires": [],
@@ -974,12 +1009,12 @@
     "text_id": "line.nanda_sit_2",
     "cards": [
       {
-        "text_id": "card.nanda_sit_2.read",
+        "text_id": "card.nanda_sit_2.0",
         "sets": [],
         "next": "nanda_sit_3"
       },
       {
-        "text_id": "card.nanda_sit_2.sorry",
+        "text_id": "card.nanda_sit_2.1",
         "sets": [],
         "next": "nanda_sit_3"
       }
@@ -990,17 +1025,39 @@
   "nanda_sit_3": {
     "speaker": "nanda",
     "text_id": "line.nanda_sit_3",
+    "cards": [
+      {
+        "text_id": "card.nanda_sit_3.0",
+        "sets": [],
+        "next": "nanda_string"
+      },
+      {
+        "text_id": "card.nanda_sit_3.1",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft",
     "sets": [
       "nanda_listened"
-    ],
-    "cards": [],
-    "requires": [],
-    "review_status": "draft"
+    ]
   },
   "nanda_after_listen": {
     "speaker": "nanda",
     "text_id": "line.nanda_after_listen",
-    "cards": [],
+    "cards": [
+      {
+        "text_id": "card.nanda_after_listen.0",
+        "sets": [],
+        "next": "nanda_sit_3"
+      },
+      {
+        "text_id": "card.nanda_after_listen.1",
+        "sets": [],
+        "next": ""
+      }
+    ],
     "requires": [
       "nanda_listened"
     ],
@@ -1036,42 +1093,42 @@
   "vasanti_greet": {
     "speaker": "vasanti",
     "text_id": "line.vasanti_greet",
-    "sets": [
-      "talked_vasanti"
-    ],
     "cards": [
       {
-        "text_id": "card.vasanti_greet.who",
+        "text_id": "card.vasanti_greet.0",
         "sets": [],
         "next": "vasanti_who"
       },
       {
-        "text_id": "card.vasanti_greet.fence",
+        "text_id": "card.vasanti_greet.1",
         "sets": [],
         "next": "vasanti_fence"
       },
       {
-        "text_id": "card.vasanti_greet.lock",
+        "text_id": "card.vasanti_greet.2",
         "sets": [],
         "next": "vasanti_lock"
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": [
+      "talked_vasanti"
+    ]
   },
   "vasanti_who": {
     "speaker": "vasanti",
     "text_id": "line.vasanti_who",
     "cards": [
       {
-        "text_id": "card.vasanti_who.hungry",
+        "text_id": "card.vasanti_who.0",
         "sets": [],
         "next": ""
       },
       {
-        "text_id": "card.vasanti_who.listen",
+        "text_id": "card.vasanti_who.1",
         "sets": [],
-        "next": ""
+        "next": "vasanti_fence"
       }
     ],
     "requires": [],
@@ -1082,12 +1139,14 @@
     "text_id": "line.vasanti_fence",
     "cards": [
       {
-        "text_id": "card.vasanti_fence.see_to_it",
-        "sets": [],
-        "next": ""
+        "text_id": "card.vasanti_fence.0",
+        "sets": [
+          "talked_vasanti"
+        ],
+        "next": "vasanti_see_to_it"
       },
       {
-        "text_id": "card.vasanti_fence.later",
+        "text_id": "card.vasanti_fence.1",
         "sets": [],
         "next": ""
       }
@@ -1228,23 +1287,28 @@
   "lalita_greet": {
     "speaker": "lalita",
     "text_id": "line.lalita_greet",
-    "sets": [
-      "lalita_asked_water"
-    ],
     "cards": [
       {
-        "text_id": "card.lalita_greet.bring",
+        "text_id": "card.lalita_greet.0",
         "sets": [],
-        "next": ""
+        "next": "lalita_which"
       },
       {
-        "text_id": "card.lalita_greet.calf",
+        "text_id": "card.lalita_greet.1",
         "sets": [],
-        "next": ""
+        "next": "lalita_feast"
+      },
+      {
+        "text_id": "card.lalita_greet.2",
+        "sets": [],
+        "next": "lalita_calf"
       }
     ],
     "requires": [],
-    "review_status": "draft"
+    "review_status": "draft",
+    "sets": [
+      "lalita_asked_water"
+    ]
   },
   "lalita_carrying": {
     "speaker": "lalita",
@@ -1269,14 +1333,14 @@
     "text_id": "line.kuvera_whisper",
     "cards": [
       {
-        "text_id": "card.kuvera_whisper.matter",
+        "text_id": "card.kuvera_whisper.0",
         "sets": [
           "whispered_kuvera"
         ],
         "next": "kuvera_place"
       },
       {
-        "text_id": "card.kuvera_whisper.no_one",
+        "text_id": "card.kuvera_whisper.1",
         "sets": [
           "whispered_kuvera"
         ],
@@ -1291,14 +1355,14 @@
     "text_id": "line.kuvera_whisper_water",
     "cards": [
       {
-        "text_id": "card.kuvera_whisper.matter",
+        "text_id": "card.kuvera_whisper_water.0",
         "sets": [
           "whispered_kuvera"
         ],
         "next": "kuvera_place"
       },
       {
-        "text_id": "card.kuvera_whisper.no_one",
+        "text_id": "card.kuvera_whisper_water.1",
         "sets": [
           "whispered_kuvera"
         ],
@@ -1313,7 +1377,18 @@
   "kuvera_place": {
     "speaker": "kuvera",
     "text_id": "line.kuvera_place",
-    "cards": [],
+    "cards": [
+      {
+        "text_id": "card.kuvera_place.0",
+        "sets": [],
+        "next": "kuvera_vale"
+      },
+      {
+        "text_id": "card.kuvera_place.1",
+        "sets": [],
+        "next": "kuvera_here"
+      }
+    ],
     "requires": [
       "whispered_kuvera"
     ],
@@ -1397,17 +1472,17 @@
     "text_id": "line.sarang_after",
     "cards": [
       {
-        "text_id": "card.sarang_after.again",
+        "text_id": "card.sarang_after.0",
         "sets": [],
         "next": "sarang_lesson"
       },
       {
-        "text_id": "card.sarang_after.next",
+        "text_id": "card.sarang_after.1",
         "sets": [],
         "next": "sarang_lesson_two"
       },
       {
-        "text_id": "card.sarang_after.later",
+        "text_id": "card.sarang_after.2",
         "sets": [],
         "next": ""
       }
@@ -1462,12 +1537,17 @@
     "text_id": "line.sarang_greet",
     "cards": [
       {
-        "text_id": "card.sarang_greet.broken",
+        "text_id": "card.sarang_greet.0",
         "sets": [],
         "next": "sarang_broken"
       },
       {
-        "text_id": "card.sarang_greet.keep_at_it",
+        "text_id": "card.sarang_greet.1",
+        "sets": [],
+        "next": "sarang_who"
+      },
+      {
+        "text_id": "card.sarang_greet.2",
         "sets": [],
         "next": ""
       }
@@ -1496,6 +1576,255 @@
     "requires": [
       "sarang_taught_bar"
     ],
+    "review_status": "draft"
+  },
+  "lalita_which": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_which",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "lalita_feast": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_feast",
+    "cards": [
+      {
+        "text_id": "card.lalita_feast.0",
+        "sets": [],
+        "next": "lalita_which"
+      },
+      {
+        "text_id": "card.lalita_feast.1",
+        "sets": [],
+        "next": "lalita_everyone"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "lalita_everyone": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_everyone",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "lalita_calf": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_calf",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "kuvera_vale": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_vale",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "kuvera_here": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_here",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tulu_who_taught": {
+    "speaker": "tulu",
+    "text_id": "line.tulu_who_taught",
+    "cards": [
+      {
+        "text_id": "card.tulu_who_taught.0",
+        "sets": [],
+        "next": "tulu_nobody"
+      },
+      {
+        "text_id": "card.tulu_who_taught.1",
+        "sets": [],
+        "next": "tulu_remember"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tulu_nobody": {
+    "speaker": "tulu",
+    "text_id": "line.tulu_nobody",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tulu_remember": {
+    "speaker": "tulu",
+    "text_id": "line.tulu_remember",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tulu_door_who": {
+    "speaker": "tulu",
+    "text_id": "line.tulu_door_who",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "chai_just_chai": {
+    "speaker": "chai_seller",
+    "text_id": "line.chai_just_chai",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_where_water": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_where_water",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_what_veena": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_what_veena",
+    "cards": [
+      {
+        "text_id": "card.dhanpal_what_veena.0",
+        "sets": [
+          "accepted_contest"
+        ],
+        "next": "dhanpal_accepted"
+      },
+      {
+        "text_id": "card.dhanpal_what_veena.1",
+        "sets": [],
+        "next": "dhanpal_who_else"
+      },
+      {
+        "text_id": "card.dhanpal_what_veena.2",
+        "sets": [],
+        "next": "dhanpal_not_today"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "gopal_medicine": {
+    "speaker": "gopal",
+    "text_id": "line.gopal_medicine",
+    "cards": [
+      {
+        "text_id": "card.gopal_medicine.0",
+        "sets": [
+          "gopal_will_carry"
+        ],
+        "next": "gopal_agree_medicine"
+      },
+      {
+        "text_id": "card.gopal_medicine.1",
+        "sets": [],
+        "next": "gopal_admit"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "gopal_agree_medicine": {
+    "speaker": "gopal",
+    "text_id": "line.gopal_agree_medicine",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_watching": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_watching",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_key": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_key",
+    "cards": [
+      {
+        "text_id": "card.rukma_key.0",
+        "sets": [
+          "rukma_key_taken"
+        ],
+        "next": "rukma_key_pocketed"
+      },
+      {
+        "text_id": "card.rukma_key.1",
+        "sets": [],
+        "next": "rukma_left_key"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_left_key": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_left_key",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_top": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_top",
+    "cards": [
+      {
+        "text_id": "card.nanda_top.0",
+        "sets": [],
+        "next": "nanda_sit_2"
+      },
+      {
+        "text_id": "card.nanda_top.1",
+        "sets": [],
+        "next": "nanda_sit_3"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_string": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_string",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "sarang_who": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_who",
+    "cards": [
+      {
+        "text_id": "card.sarang_who.0",
+        "sets": [],
+        "next": "sarang_broken"
+      },
+      {
+        "text_id": "card.sarang_who.1",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_see_to_it": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_see_to_it",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tailor_glass": {
+    "speaker": "tailor",
+    "text_id": "line.tailor_glass",
+    "cards": [],
+    "requires": [],
     "review_status": "draft"
   }
 }
