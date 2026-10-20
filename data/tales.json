@@ -1,0 +1,72 @@
+{
+  "tales": [
+    {
+      "id": "puranjana",
+      "title_id": "tale.puranjana.title",
+      "source_id": "tale.puranjana.source",
+      "journey_line_id": "journey.tale.puranjana",
+      "review_status": "draft",
+      "sittings": [
+        [
+          "tale.puranjana.1.1",
+          "tale.puranjana.1.2",
+          "tale.puranjana.1.3",
+          "tale.puranjana.1.4",
+          "tale.puranjana.1.5",
+          "tale.puranjana.1.6"
+        ],
+        [
+          "tale.puranjana.2.1",
+          "tale.puranjana.2.2",
+          "tale.puranjana.2.3",
+          "tale.puranjana.2.4",
+          "tale.puranjana.2.5",
+          "tale.puranjana.2.6"
+        ],
+        [
+          "tale.puranjana.3.1",
+          "tale.puranjana.3.2",
+          "tale.puranjana.3.3",
+          "tale.puranjana.3.4",
+          "tale.puranjana.3.5",
+          "tale.puranjana.3.6",
+          "tale.puranjana.3.7"
+        ]
+      ]
+    },
+    {
+      "id": "prahlada",
+      "title_id": "tale.prahlada.title",
+      "source_id": "tale.prahlada.source",
+      "journey_line_id": "journey.tale.prahlada",
+      "review_status": "draft",
+      "sittings": [
+        [
+          "tale.prahlada.1.1",
+          "tale.prahlada.1.2",
+          "tale.prahlada.1.3",
+          "tale.prahlada.1.4",
+          "tale.prahlada.1.5",
+          "tale.prahlada.1.6"
+        ]
+      ]
+    },
+    {
+      "id": "dhruva",
+      "title_id": "tale.dhruva.title",
+      "source_id": "tale.dhruva.source",
+      "journey_line_id": "journey.tale.dhruva",
+      "review_status": "draft",
+      "sittings": [
+        [
+          "tale.dhruva.1.1",
+          "tale.dhruva.1.2",
+          "tale.dhruva.1.3",
+          "tale.dhruva.1.4",
+          "tale.dhruva.1.5",
+          "tale.dhruva.1.6"
+        ]
+      ]
+    }
+  ]
+}
