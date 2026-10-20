@@ -16,7 +16,7 @@ const POT_PLACE := Vector3(-11.4, 0.1, 8.6)
 const KUVERA_TALK := Vector3(13.0, 0.1, -27.2)
 const SWING := Vector3(23.2, 0.1, -5.0)
 const DIVE_DOOR := Vector3(24.3, 0.1, 17.0)
-const STREET_GROVE_DOOR := Vector3(-2.6, -0.4, 2.6)
+const STREET_GROVE_DOOR := Vector3(5.55, 0.1, -5.55)
 
 var _real_path := ""
 
@@ -188,6 +188,10 @@ func test_the_pot_quest_runs_from_pick_up_to_placed() -> void:
 	assert_true(GameState.has_flag("lalita_asked_water"), "the line's `sets` landed")
 	assert_eq(quest.current_step_id(), "fetch")
 	Content.dialogue.choose(0)
+	# Her first answer now says which pot and where: the player's first
+	# choice in the game is answered rather than ending the exchange.
+	assert_eq(Content.dialogue.current_line_id(), "lalita_which")
+	Content.dialogue.dismiss()
 	assert_false(Content.dialogue.is_running())
 	# The pot at the river.
 	await _put(grove, POT_PICKUP)

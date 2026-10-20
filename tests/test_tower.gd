@@ -39,6 +39,15 @@ func _player(street: Node3D) -> CharacterBody3D:
 	return street.get_node("%Player")
 
 
+## Waits for `done` to come true, up to `frames`; returns whether it did.
+func _until(done: Callable, frames: int) -> bool:
+	for _i in frames:
+		if done.call():
+			return true
+		await wait_frames(1)
+	return done.call()
+
+
 func _button(street: Node3D) -> Button:
 	return street.get_node("%TouchControls").contextual_button()
 
@@ -158,13 +167,19 @@ func test_the_carving_on_the_second_landing_offers_look_and_sets_read_carving() 
 	Content.dialogue.dismiss()
 
 
-func test_look_is_not_offered_at_the_stand_while_carrying() -> void:
+func test_the_stand_is_closed_by_the_veena_itself_not_by_a_full_hand() -> void:
+	# A player who walked up here holding a feather must still be able to
+	# make the dawn choice; only the Veena in hand closes the stand.
 	var street := _street()
 	var top := _top(street)
 	await wait_frames(2)
 	_player(street).carry("can")
 	await _put(street, top.global_position + Vector3(0.0, 0.05, 1.4))
-	assert_ne(_button(street).current_verb(), "verb.look", "hands full")
+	assert_eq(_button(street).current_verb(), "verb.look", "a can does not cost the dawn")
+	_player(street).put_down()
+	_player(street).carry("veena")
+	await wait_frames(4)
+	assert_ne(_button(street).current_verb(), "verb.look", "the Veena is already in hand")
 
 
 func test_playing_it_for_the_street_is_recorded_and_the_stand_offers_nothing_more() -> void:
@@ -279,3 +294,53 @@ func test_holding_the_stick_toward_the_wall_chains_the_segments_onto_the_roof() 
 	)
 	assert_lt(player.global_position.x, -23.0, "and on west, off the landing")
 	assert_true(GameState.has_flag("on_the_tower"), "onto the roof")
+
+
+func test_every_landing_above_the_first_offers_a_way_down() -> void:
+	var street := _street()
+	for index: int in [1, 2, 3]:
+		var down: Node3D = street.get_node("Tower/Landing%d/Down" % index)
+		assert_not_null(down, "landing %d can be left" % index)
+		var below: Node3D = street.get_node("Tower/Landing%d/Exit" % (index - 1))
+		assert_almost_eq(
+			down.exit_position().y, below.global_position.y, 0.01, "it leads to the landing below"
+		)
+	assert_null(street.get_node_or_null("Tower/Landing0/Down"), "the first landing has the stair")
+
+
+func test_the_roof_can_be_left_by_climbing_down_to_the_first_landing() -> void:
+	var street := _street()
+	var player: CharacterBody3D = street.get_node("%Player")
+	for index: int in [3, 2, 1]:
+		# Walk to the rungs on that landing, as a player would.
+		var down: Node3D = street.get_node("Tower/Landing%d/Down" % index)
+		player.global_position = down.global_position + Vector3(0.0, 0.2, 0.0)
+		await wait_frames(8)
+		assert_eq(
+			_button(street).current_verb(),
+			"verb.climb_down",
+			"the button offers the way down from landing %d" % index
+		)
+		_button(street).pressed.emit()
+		await wait_frames(2)
+		assert_true(player.is_climbing(), "the body climbs down from landing %d" % index)
+		assert_true(
+			await _until(func() -> bool: return not player.is_climbing(), 120), "the climb ended"
+		)
+		var landing: Node3D = street.get_node("Tower/Landing%d/Exit" % (index - 1))
+		assert_lt(
+			player.global_position.distance_to(landing.global_position),
+			1.2,
+			"stood on landing %d" % (index - 1)
+		)
+	assert_lt(player.global_position.y, LANDING_HEIGHTS[0] + 0.6, "down at the first landing")
+
+
+func test_the_carving_is_still_read_from_the_landing_itself() -> void:
+	var street := _street()
+	await _put(street, _landing(street, 1).global_position + Vector3(0.0, 0.05, 0.0))
+	assert_eq(
+		_button(street).current_verb(),
+		"verb.look",
+		"standing on the second landing reads the name, not the ladder"
+	)

@@ -20,6 +20,8 @@ extends Node3D
 
 ## The player used a door: this place has faded; Main shows the next one.
 signal place_requested(place_id: String, spawn_id: String)
+## The player left the journey from the pause menu; Main shows the title.
+signal quit_requested
 
 const PAUSE_MENU := preload("res://scenes/ui/PauseMenu.tscn")
 const PLAYER_HUM := preload("res://assets/audio/player_hum.ogg")
@@ -27,6 +29,7 @@ const PLAYER_HUM := preload("res://assets/audio/player_hum.ogg")
 const HUM_REACH := 40.0
 const CONTROLS_HINT := preload("res://scenes/ui/ControlsHint.tscn")
 const CHOICE_CARDS := preload("res://scenes/ui/ChoiceCards.tscn")
+const DROPPED_ITEM := preload("res://scenes/quest/DroppedItem.tscn")
 const SETTINGS_SCREEN := preload("res://scenes/ui/SettingsScreen.tscn")
 # -- lamps (GDD §16a): the block at the end of this file ------------------------
 const LAMP_LINES_SCREEN := preload("res://scenes/ui/LampLinesScreen.tscn")
@@ -43,6 +46,10 @@ const TOUCH_SENSITIVITY := 0.5
 const DESKTOP_SENSITIVITY := 1.0
 ## Through a door the view goes black over this long, and comes back as long.
 const DOOR_FADE_SECONDS := 0.45
+## The verb the one button shows with a full hand and nothing else near.
+const PUT_DOWN_VERB := "verb.put_down"
+## How far in front of the feet a set-down thing lands.
+const DROP_REACH := 0.7
 ## Arriving through a door, the place's name is the first subtitle, this long
 ## (GDD §11 allows subtitles; owner request 2026-10-20 "where am I").
 const PLACE_NAME_SECONDS := 2.5
@@ -213,11 +220,38 @@ func _scan_interactables() -> void:
 			best = area
 			best_distance = distance
 	_near = best
-	_controls.contextual_button().show_verb(best.verb_id if best != null else "")
+	if best != null:
+		_controls.contextual_button().show_verb(best.verb_id)
+		return
+	# Nothing usable here. A full hand can always be emptied, so no item is
+	# ever carried with no way back (docs/DECISIONS.md "Nothing is carried
+	# for ever"); a hold is still the Call.
+	var free_hand: bool = _player.is_carrying() and not _player.is_climbing() and not _leaving
+	_controls.contextual_button().show_verb(PUT_DOWN_VERB if free_hand else "")
 
 
 func near() -> Interactable:
 	return _near
+
+
+## The hand is emptied where the player stands, and what was in it lies
+## there to be picked up again (scenes/quest/DroppedItem.tscn). The item's
+## look is the scene the hand was holding, so this knows no item by name.
+func put_down_carried() -> Node3D:
+	var item: String = _player.carried_item()
+	if item.is_empty():
+		return null
+	var dropped: Node3D = DROPPED_ITEM.instantiate()
+	dropped.item = item
+	dropped.model = _player.carryables.get(item)
+	add_child(dropped)
+	var ahead := -_player.global_transform.basis.z
+	ahead.y = 0.0
+	if ahead.length() < 0.01:
+		ahead = Vector3.FORWARD
+	dropped.global_position = _player.global_position + ahead.normalized() * DROP_REACH
+	_player.put_down()
+	return dropped
 
 
 func cards() -> Control:
@@ -233,7 +267,11 @@ func _on_verb_used(verb_id: String) -> void:
 		if verb_id == _car.exit_verb_id and not is_paused():
 			leave_car()
 		return
-	if _near == null or is_paused() or _input_locked:
+	if is_paused() or _input_locked:
+		return
+	if _near == null:
+		if verb_id == PUT_DOWN_VERB:
+			put_down_carried()
 		return
 	var target := _near
 	if (
@@ -290,6 +328,14 @@ func _on_door_used(target_place: String, spawn_id: String) -> void:
 	var tween := create_tween()
 	tween.tween_property(_fade, "color:a", 1.0, DOOR_FADE_SECONDS)
 	tween.tween_callback(func() -> void: place_requested.emit(target_place, spawn_id))
+
+
+## The player asked to leave the journey: the world unpauses and Main is
+## told, so the title screen comes back. Nothing is wiped — the journey is
+## saved and waiting (GDD §11 lists quit among the pause menu's contents).
+func _on_quit_requested() -> void:
+	resume()
+	quit_requested.emit()
 
 
 func is_leaving() -> bool:
@@ -429,6 +475,7 @@ func pause() -> void:
 	_pause_menu.controls_requested.connect(_show_controls)
 	_pause_menu.settings_requested.connect(_show_settings)
 	_pause_menu.lamp_requested.connect(_show_lamp_lines)  # lamps
+	_pause_menu.quit_requested.connect(_on_quit_requested)
 	_pause_menu.map_toggled.connect(
 		func(_on: bool) -> void: _controls.minimap().refresh_visibility()
 	)
@@ -436,13 +483,29 @@ func pause() -> void:
 	get_tree().paused = true
 
 
+## Resuming takes the screens the pause menu opened with it. They are
+## children of the HUD, not of the menu, so before the owner's second review
+## a *Resume* clicked behind an open Settings left that screen over a running
+## street with nothing under it listening (docs/DECISIONS.md "The loops
+## close").
 func resume() -> void:
 	if _pause_menu == null:
 		return
+	_close_pause_screens()
 	_ui.remove_child(_pause_menu)
 	_pause_menu.queue_free()
 	_pause_menu = null
 	get_tree().paused = false
+
+
+func _close_pause_screens() -> void:
+	for screen: Control in [_controls_overlay, _settings_overlay, _lamp_lines_overlay]:
+		if screen != null:
+			_ui.remove_child(screen)
+			screen.queue_free()
+	_controls_overlay = null
+	_settings_overlay = null
+	_lamp_lines_overlay = null
 
 
 func _show_controls() -> void:

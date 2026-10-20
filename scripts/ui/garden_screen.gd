@@ -275,3 +275,24 @@ func _draw_wall(wall: Rect2) -> void:
 		_plot.draw_line(from, to, VINE, 5.0)
 		_plot.draw_circle(to, 8.0, LEAF)
 		from = to
+
+
+## Escape, or a pad's B, closes the plot as the Close button does; the arrows,
+## the d-pad and the left stick step from plant to plant, so the plot is not a
+## screen only a finger or a mouse can read (GDD §11).
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		closed.emit()
+		get_viewport().set_input_as_handled()
+		return
+	var step := 0
+	if event.is_action_pressed("ui_right"):
+		step = 1
+	elif event.is_action_pressed("ui_left"):
+		step = -1
+	if step == 0 or _positions.is_empty():
+		return
+	get_viewport().set_input_as_handled()
+	var ids: Array = _positions.keys()
+	var index := ids.find(_focused)
+	focus_plant(str(ids[posmod(index + step, ids.size()) if index >= 0 else 0]))

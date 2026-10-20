@@ -48,7 +48,9 @@ func _draw() -> void:
 
 
 func _on_gui_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept"):
+	# The world's own button answers a card too: a pad player uses A for
+	# every verb and should not have to find another button here.
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("contextual"):
 		accept_event()
 		pressed.emit()
 		return

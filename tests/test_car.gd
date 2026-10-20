@@ -241,3 +241,34 @@ func test_the_verbs_and_the_controls_lines_are_in_the_string_table() -> void:
 	assert_eq(Strings.t("verb.exit"), "Get out")
 	for scheme: String in ["touch", "desktop", "gamepad"]:
 		assert_true(Strings.has_id("controls.%s.drive" % scheme), "%s has a drive line" % scheme)
+
+
+# -- where the player is put down (owner review 2026-10-20) --------------------
+
+
+## Every candidate door point has to be clear of walls *and* over ground.
+## Before the review the fallback was the left door whether or not anything
+## was there, so getting out with the left side over a drop put the player
+## into the fall they had just driven away from.
+func test_the_door_point_is_over_ground_and_never_a_blind_fallback() -> void:
+	var street := _street()
+	var car: DriveableCar = street.get_node_or_null("%Car")
+	assert_not_null(car, "the street has its car")
+	await wait_frames(3)
+	var point := car.door_point()
+	var space := car.get_world_3d().direct_space_state
+	var from := point + Vector3.UP * car.GROUND_PROBE_UP
+	var down := PhysicsRayQueryParameters3D.create(
+		from, from + Vector3.DOWN * (car.GROUND_PROBE_UP + car.GROUND_PROBE_DOWN), 1
+	)
+	down.exclude = [car.get_rid()]
+	assert_false(space.intersect_ray(down).is_empty(), "there is road under the door point")
+
+
+## With nothing under it at all, the car's own middle is the only place it
+## can honestly put someone: it is standing there itself.
+func test_with_no_ground_anywhere_the_player_is_put_where_the_car_is() -> void:
+	var car: DriveableCar = add_child_autofree(CAR.instantiate())
+	car.global_position = Vector3(0.0, 400.0, 0.0)
+	await wait_frames(3)
+	assert_eq(car.door_point(), car.global_position, "not a step out into nothing")

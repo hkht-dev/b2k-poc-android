@@ -51,6 +51,52 @@ PACKS = {
         "files": ["Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"],
         "retarget": ("Armature/Skeleton3D", "res://assets/characters/quaternius_humanoid_map.tres"),
     },
+    "universal-base-characters": {
+        "asset": "Universal.Base.Characters.Standard.zip",
+        "page": "https://quaternius.itch.io/universal-base-characters",
+        "used": "the people: two bodies and eight hairstyles, one look per character",
+        # The same universal rig as the animation library above, so the walk,
+        # the idle and the jog play on these without a second retarget map.
+        # Owner review 2026-10-20: "I hope for everybody who knew not use the
+        # same kind of characters" — the Kenney body with a swapped texture
+        # was every person in the game.
+        "files": [
+            "Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Male_FullBody.gltf",
+            "Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Male_FullBody.bin",
+            "Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Female_FullBody.gltf",
+            "Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Female_FullBody.bin",
+            "Universal Base Characters[Standard]/Base Characters/Textures/T_Superhero_Male_Dark.png",
+            "Universal Base Characters[Standard]/Base Characters/Textures/T_Superhero_Male_Ligh.png",
+            "Universal Base Characters[Standard]/Base Characters/Textures/T_Superhero_Female_Dark_BaseColor.png",
+            "Universal Base Characters[Standard]/Base Characters/Textures/T_Superhero_Female_Light_BaseColor.png",
+            "Universal Base Characters[Standard]/Base Characters/Textures/T_Eye_Brown.png",
+        ],
+        "retarget": ("Armature/Skeleton3D", "res://assets/characters/quaternius_humanoid_map.tres"),
+    },
+    "universal-base-hair": {
+        "asset": "Universal.Base.Characters.Standard.zip",
+        "page": "https://quaternius.itch.io/universal-base-characters",
+        "used": "hairstyles and beards, one per named character, worn on the head bone",
+        # The "Origin at 0" cut, not the rigged one: a BoneAttachment3D on the
+        # body's head bone carries a plain mesh, and the rigged version would
+        # bring a second Skeleton3D into every person.
+        "files": [
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_Beard.gltf",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_Beard.bin",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_Buns.gltf",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_Buns.bin",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_Buzzed.gltf",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_Buzzed.bin",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_BuzzedFemale.gltf",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_BuzzedFemale.bin",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_Long.gltf",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_Long.bin",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_SimpleParted.gltf",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/Hair_SimpleParted.bin",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/T_Hair_1_BaseColor.png",
+            "Universal Base Characters[Standard]/Hairstyles/Origin at 0/glTF (Godot)/T_Hair_2_BaseColor.png",
+        ],
+    },
     "textured-stylized-trees": {
         "asset": "Textured.Stylized.Trees.-.May.2020.zip",
         "page": "https://quaternius.itch.io/textured-lowpoly-trees",

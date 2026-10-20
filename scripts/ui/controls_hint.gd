@@ -11,7 +11,7 @@ signal dismissed
 
 const SETTING_SEEN := "controls_seen"
 ## The card's lines in order; each is the string id `controls.<scheme>.<key>`.
-const LINE_KEYS := ["move", "look", "walk_there", "use", "hum", "places", "drive"]
+const LINE_KEYS := ["move", "look", "walk_there", "use", "hum", "climb", "places", "drive", "pause"]
 
 ## Opened from the pause menu: the button says Close and nothing is recorded.
 var from_pause := false
@@ -65,3 +65,10 @@ func _on_button() -> void:
 		GameState.settings[SETTING_SEEN] = true
 		GameState.save()
 	dismissed.emit()
+
+
+## Escape, or a pad's B, puts the card away as the button does.
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		dismissed.emit()
+		get_viewport().set_input_as_handled()

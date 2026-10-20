@@ -32,6 +32,12 @@ func _ready() -> void:
 ## Counts presses on the title. Five inside the window open the debug panel;
 ## anything slower is just someone poking the screen.
 func _on_title_input(event: InputEvent) -> void:
+	# One real press arrives twice: the project emulates touch from the mouse
+	# (project.godot "pointing/emulate_touch_from_mouse"), so the emulated
+	# twin comes first and the original follows. Counting both made five taps
+	# out of three. The twin carries the emulation device id; it is ignored.
+	if event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
 	var pressed: bool = (
 		(event is InputEventMouseButton and event.pressed)
 		or (event is InputEventScreenTouch and event.pressed)

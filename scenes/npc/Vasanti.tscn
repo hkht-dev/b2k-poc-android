@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=11 format=3]
 
 ; Vasanti, padlocking the community garden gate (scripts/npc/vasanti.gd; GDD
 ; §4, §7 "The Fence"). The same rigged body as everyone else in Kenney's
@@ -11,6 +11,9 @@
 [ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="3_interact"]
 [ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-protagonists/skaterFemaleA.png" id="4_skin"]
 [ext_resource type="PackedScene" path="res://scenes/quest/Fruit.tscn" id="5_fruit"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/quaternius/universal-base-characters/Superhero_Female_FullBody.gltf" id="body_q"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/quaternius/universal-base-characters/T_Superhero_Female_Light_BaseColor.png" id="skin_q"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/quaternius/universal-base-hair/Hair_Buns.gltf" id="hair_q"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
 radius = 1.8
@@ -47,7 +50,11 @@ shape = SubResource("CylinderShape3D_near")
 
 [node name="Figure" parent="." instance=ExtResource("2_character")]
 unique_name_in_owner = true
-skin = ExtResource("4_skin")
+body = ExtResource("body_q")
+body_height = 1.78
+skin = ExtResource("skin_q")
+hair = ExtResource("hair_q")
+height = 1.72
 
 [node name="Body" type="StaticBody3D" parent="."]
 collision_layer = 1

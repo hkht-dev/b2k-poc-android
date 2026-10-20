@@ -7,6 +7,11 @@
 ## line is the current step's text.
 extends GutTest
 
+## tools/check_data.py MAX_WORDS. GDD §8 kept a line under twenty words;
+## the owner lifted it to thirty-four after the expansion, because the
+## shorthand had stopped making sense (docs/DECISIONS.md "Conversations").
+const LINE_WORD_CAP := 35
+
 const STREET := preload("res://scenes/street/Street.tscn")
 const PAUSE_MENU := preload("res://scenes/ui/PauseMenu.tscn")
 const PAUSE_MENU_SCRIPT := preload("res://scripts/ui/pause_menu.gd")
@@ -293,6 +298,8 @@ func test_who_else_and_not_today_leave_the_contest_unaccepted() -> void:
 	_state.set_flag("heard_tulu")
 	assert_true(_dialogue.start("dhanpal_greet"))
 	assert_true(_state.has_flag("met_dhanpal"))
+	_dialogue.choose(1)  # What's a Veena?
+	assert_eq(_dialogue.current_line_id(), "dhanpal_what_veena")
 	_dialogue.choose(1)  # Who else is climbing?
 	assert_eq(_dialogue.current_line_id(), "dhanpal_who_else")
 	_dialogue.choose(0)  # Why does the name matter?
@@ -322,7 +329,11 @@ func test_dhanpal_cards_carry_no_cue_and_lines_stay_short() -> void:
 		var line := _dialogue.get_line(line_id)
 		if line["speaker"] != "dhanpal":
 			continue
-		assert_lt(Strings.t(line["text_id"]).split(" ").size(), 20, "%s under 20 words" % line_id)
+		assert_lt(
+			Strings.t(line["text_id"]).split(" ").size(),
+			LINE_WORD_CAP,
+			"%s is inside the cap" % line_id
+		)
 		var cards: Array = line["cards"]
 		assert_true(cards.size() == 0 or cards.size() >= 2, "%s: two or three cards" % line_id)
 		for card in cards:

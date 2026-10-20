@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=10 format=3]
 
 ; Sarang, the musician whose instrument has a string missing
 ; (scripts/npc/sarang.gd): the shared rigged body, sitting, a Talk area round
@@ -10,6 +10,9 @@
 [ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
 [ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="3_interact"]
 [ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-protagonists/skaterMaleA.png" id="4_skin"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/quaternius/universal-base-characters/Superhero_Male_FullBody.gltf" id="body_q"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/quaternius/universal-base-characters/T_Superhero_Male_Dark.png" id="skin_q"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/quaternius/universal-base-hair/Hair_Beard.gltf" id="hair_q"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
 radius = 2.4
@@ -36,10 +39,14 @@ shape = SubResource("CylinderShape3D_near")
 [node name="Figure" parent="." instance=ExtResource("2_character")]
 unique_name_in_owner = true
 transform = Transform3D(0.92, 0, 0, 0, 1, 0, 0, 0, 0.92, 0, 0, 0)
-skin = ExtResource("4_skin")
 idle_animation = "Sitting_Idle"
 walk_animation = "Sitting_Idle"
 run_animation = "Sitting_Idle"
+body = ExtResource("body_q")
+body_height = 1.82
+skin = ExtResource("skin_q")
+hair = ExtResource("hair_q")
+height = 1.78
 
 [node name="Body" type="StaticBody3D" parent="."]
 collision_layer = 1

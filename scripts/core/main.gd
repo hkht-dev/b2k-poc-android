@@ -71,6 +71,8 @@ func _connect_screen(screen: Node) -> void:
 		screen.connect("slice_ended", _on_slice_ended)
 	if screen.has_signal("play_again_pressed"):
 		screen.connect("play_again_pressed", _on_back_pressed)
+	if screen.has_signal("quit_requested"):
+		screen.connect("quit_requested", _on_back_pressed)
 	if screen.has_signal("place_requested"):
 		screen.connect("place_requested", _on_place_requested)
 

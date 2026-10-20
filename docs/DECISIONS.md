@@ -3469,3 +3469,204 @@ The `.pck` grew by the world's textures and sounds (owner override: the
 install budget no longer binds). The three-device run (GDD §13) stays the
 owner's, from the release APK.
 
+
+## 2026-10-20 — The loops close: the owner's second review
+
+The owner played the merged expansion and reported: "On the tower, after
+climbing up, there is no way to climb down. And after taking up a can of
+water, there is no way to put the can back into the fountain. The loops are
+not complete." They also asked for a controls review, conversations that can
+be followed, and characters who are not all the same person reskinned. Three
+read-only audits (loops, controls, writing) ran over the merged branch; what
+they found and what was done is below. Affects GDD §3a, §6, §8, §11.
+
+### The two the owner met
+
+- **The tower.** Landings above the first are railed on every open side and
+  the wall is west, so walking into the rungs — which climbs up — was the
+  only move. The roof was a room with no door; `ladder.gd` had always said
+  "a landing's open side is a drop", but the generator railed every side.
+  Every landing above the first, and the roof, now offers *Climb down* to the
+  landing below, on the one contextual button, using the same climb that
+  brought the player up. The second landing's carving moved to the rail half
+  of the deck so the button never chooses between reading the name and
+  leaving; the nearest-wins rule ranks by an area's own origin, not by its
+  shape, so the area moved, not just its box.
+- **The can.** This was not a design branch, it was geometry. The fountain's
+  *Place* and *Look* reached 5.2 m from the centre; the lip seals the basin
+  at 7 m and stands 0.6 m above the pavement, over the player's 0.36 m step,
+  and the one climb point faces outward. So the verb could only ever be used
+  in the first minute of the game, before the player climbs out of the basin
+  they arrive in. The reach is 8.6 m now: offered from the step and the near
+  pavement, which is where a person stands to put a can into a fountain.
+  Everything that waited on `gave_dry_fountain` was unreachable with it — the
+  Grove, the traffic-light Glimpse, Acts 4 and 5 — and the Grove's own door
+  sat on that same sealed floor; it is on the north-east step now.
+
+### Nothing is carried for ever
+
+`put_down()` had four callers: the fountain, the shrine lamp, the Grove's
+stand and Vasanti. A feather or a jasmine from a Glimpse, a gift fruit, a
+kept Veena or a string already handed over therefore stayed in the hand for
+the rest of the journey, and a full hand withdrew every verb that wants an
+empty one — including the Veena's *Look*, which is the dawn choice, so
+picking up a feather could end the main quest. With a full hand and nothing
+usable near, the one button now offers *Put down*; what was held lies where
+the player stood (`scenes/quest/DroppedItem.tscn`, wearing the same scene the
+hand was holding) and can be picked up again. A hold is still the Call: the
+button reaches past that one verb. The stand on the tower is closed by the
+Veena itself rather than by a full hand, and taking the Veena sets down
+whatever was held. Giving Sarang the string empties the hand, which the card
+alone never did.
+
+### Controls: what was not there
+
+Godot 4.3 ships `ui_accept` and `ui_cancel` with no gamepad button, and every
+`Button` in the engine fires on `ui_accept`. The project never overrode them,
+so **a gamepad could not press Begin on the title screen** — nor choose a
+card, close a screen, or leave the wardrobe, which holds the body still. A
+is accept and B is cancel now, written into `project.godot` beside the
+keyboard events, which naming an action there replaces. That one data row
+fixes every screen at once. Beyond it:
+
+- The pause menu closes with the control that opened it. `Place.pause()`
+  pauses the tree, which stops `Place` receiving input, so its own
+  "press again to resume" branch was dead code; the menu runs
+  `PROCESS_MODE_ALWAYS` and answers for itself.
+- Settings, the garden, the controls card and the debug panel took no
+  cancel at all. They do now.
+- A line with nothing to choose was dismissed by a raw Escape keycode,
+  which a pad cannot send; it answers the cancel action, and the contextual
+  button, so A both uses the world and answers a card.
+- The garden plot was pointer-only; the arrows, the d-pad and the stick
+  step from plant to plant.
+- The five-tap debug gesture fired on three: the project emulates touch
+  from the mouse, so each click arrived twice. The emulated twin is ignored.
+- The controls card gained a line for pausing and a line for climbing and
+  falling, in all three schemes: four implemented verbs (the automatic
+  climb, the vault, the cable, the stumble) were on no card at all.
+- `tests/test_controls_coverage.gd` reads the input map itself and presses
+  real pad buttons. The suite drives input with `InputEventAction`, which
+  bypasses the map, so a missing binding looked exactly like a passing test.
+
+### Conversations
+
+The audit counted 305 spoken strings at a mean of 8.7 words, 29% of them
+five words or fewer, 58 of 163 nodes ending with nothing to say, and the
+deepest conversation in the game five lines long. `MAX_WORDS` was 19, and it
+applied only to `line.*` and `card.*` — the tale panels, which are capped at
+40, read like speech while the dialogue read like notes. GDD §8's own sample
+scripts are longer than what shipped: Madhuri's monologue had lost the
+sentence the game turns on ("Then someone built a tower so that everyone
+would see who was playing"), and with it the line about the tower facing the
+wrong way is a non-sequitur. The cap is 34 words, the tales' register.
+
+What the rewrite adds, beyond length: Lalita's opening says where we are and
+what the feast is, and answers the player's first choice instead of ending on
+it; Kuvera names what he is offering and where the way down is; Tulu says who
+taught him the notes and who is behind the door; the chai keeper gives her
+own name; Madhuri's monologue is whole again and she answers "where would I
+get water?"; Dhanpal says what the prize is and what a Veena is, which the
+GDD offered as a card and the data never had; Gopal names the shortage, the
+can and the fountain, and Bhima's "I'll ask Gopal about the medicine" now
+leads to a line of Gopal's instead of nowhere; Rukma's two prizes are one
+prize; taking her key is its own line, so the player sees what they are
+taking before they take it; Nanda has room to react between his brother's
+death and the carving, and offers the string Sarang has been asking for;
+Sarang says who he is and names his instrument; Vasanti says the garden feeds
+four families; the Counting Man says he will not board a bus until he knows.
+The rewritten cards are numbered ids (`card.<line>.0`) rather than named
+ones; 67 strings the old names left behind were pruned.
+
+### The people are not one person reskinned
+
+Every human in the game was Kenney's one `characterMedium` body at 1.75 m
+with a different texture painted on it, so the whole street shared a
+silhouette — which is what the owner meant by "I hope for everybody who knew
+not use the same kind of characters."
+
+They uploaded **Characters PSX** (elbolilloduro) to the packs release for
+this. It cannot go into this repository: its terms allow commercial use with
+no attribution but forbid re-uploading the asset "either individually or as
+part of a collection" anywhere, modified or not, and this repository is
+public, so committing the files would be exactly that. It is also not CC0,
+which CLAUDE.md requires. Nothing from it is in the tree.
+
+**Quaternius' Universal Base Characters** (CC0 1.0, already on the same
+release) is used instead, through `tools/fetch_quaternius.py` as everything
+else is, with its row in docs/RIGHTS_REGISTER.md. It rides the same
+universal rig as the Universal Animation Library we already use, so the
+walk, the idle and the jog play on it with no second retarget map. It gives
+two bodies, two skin tones each, and eight head pieces; `CharacterRig` gained
+a `hair` slot, worn on the head bone the way a carried thing is worn on the
+hand, using the pack's "Origin at 0" meshes rather than its rigged ones so a
+person is still a single skeleton.
+
+The six named characters the player stands and talks to now each have their
+own body, skin, hair and height:
+
+| Who | Body | Hair | Height |
+|---|---|---|---|
+| Madhuri | female | long | 1.58 m |
+| Vasanti | female | buns | 1.72 m |
+| Dhanpal | male | parted | 1.86 m |
+| Gopal | male | buzzed | 1.66 m |
+| Sarang | male | beard | 1.78 m |
+| The Counting Man | male | cropped | 1.64 m |
+
+`tests/test_people_differ.gd` holds it: no two of them share a body, a skin
+and a hairstyle, no two stand within two centimetres of each other, and each
+is still one rigged skeleton carrying the shared clips. The player, Tulu and
+the crowd stay on the Kenney body for now — the wardrobe's outfits are
+painted for its UVs, and a child is not one of these two adult builds. Two
+placeholder families stand side by side in this build; GDD §10 replaces all
+of them with the painted characters.
+
+
+### The last four, found by audit and left open for a day
+
+The loop audit that found the tower and the full hand found five more things.
+One closed itself: the fruit tree hands out five fruit where Vasanti wants
+one, which was a soft dead end only while nothing could be put down. Four
+were real and are closed here.
+
+**Act 5's rise had no entrance.** `veil_up` — the ascent back through the
+Pool of Worlds, GDD §3 Act 5 "Rising" — sat in `data/places.json` with a
+scene, a name and a test, and nothing in the game named it. The street's
+*Step into the water* went straight to `home`, so the rise could not play at
+all. The door now leads into `veil_up`, and `veil_up` hands the player on to
+`home`/`bank` when the stars have gone by; `check_data.py` already followed
+passages, so the chain is checked. The sequence reads as the GDD writes it:
+remember at the fountain, step into the water, rise ninety seconds through
+the stars with the Song coming back a layer at a time, wade to the bank,
+garland Him.
+
+**Getting out of the car could put the player in a wall or in a fall.**
+`door_point()` tried the left door, then the right, and returned the left
+either way if both were blocked — and it never asked whether there was ground
+under the point at all. Parked along the fountain's lip or at the block's
+edge, a door point can be clear of walls and still hang over nothing. It now
+tries left, right and behind the boot, requires each to be both clear and
+over ground within a step of the car's own floor, and falls back to the car's
+own middle, which cannot be either of those things because the car is
+standing in it.
+
+**Resume left Settings on the screen.** The pause menu opens *Controls*,
+*Settings* and *Set a lamp here* as children of the HUD, not of itself, so a
+*Resume* reached behind one of them unpaused the street and left that screen
+over it. `Place.resume()` now closes them first.
+
+**A gamepad could not leave a tale.** The scroll's *Back* and *Close* are
+`FOCUS_NONE` by design — Enter and A turn the page, and the buttons are for
+thumbs and mice — and the screen left `ui_cancel` alone because, as the note
+there said, Godot 4.3's `ui_cancel` had no pad button. It has one now (B),
+bound in this same review, so cancel rolls the scroll up, as cancel leaves
+every other screen in the game. On a keyboard Escape rolls it up and then
+pauses, in that order; on a pad the pause is still Back/Select.
+
+**Not changed:** the Veil holds the player for twenty seconds before a held
+touch will end it. That is deliberate (GDD §11 asks that nobody be held in a
+cinematic they cannot leave; the twenty seconds are so that the leaving is a
+decision and not a reflex), it is data on the scene, and the hold darkens the
+view while the finger is down so it says what it is doing. `Home` has no door
+out, and needs none: the embrace ends the chapter.

@@ -48,9 +48,13 @@ func test_a_line_shows_speaker_text_and_one_button_per_card_from_data() -> void:
 	assert_true(cards.visible)
 	assert_eq(cards.get_node("%Speaker").text, Strings.t("speaker.gopal"))
 	assert_eq(cards.get_node("%Line").text, Strings.t("line.gopal_greet"))
-	assert_eq(cards.card_count(), 2)
-	assert_eq(cards.card_button(0).text, Strings.t("card.gopal_greet.why"))
-	assert_eq(cards.card_button(1).text, Strings.t("card.gopal_greet.tomorrow"))
+	assert_eq(cards.card_count(), 3)
+	for index: int in cards.card_count():
+		assert_eq(
+			cards.card_button(index).text,
+			Strings.t(line["cards"][index]["text_id"]),
+			"each button wears its own card's words, from the table"
+		)
 
 
 func test_every_card_is_drawn_the_same_way() -> void:
@@ -211,7 +215,7 @@ func test_begin_shows_the_controls_card_on_a_fresh_journey() -> void:
 	assert_true(["touch", "desktop", "gamepad"].has(scheme), "a known scheme: %s" % scheme)
 	var lines: VBoxContainer = hint.get_node("%Lines")
 	await wait_frames(1)
-	assert_eq(hint.LINE_KEYS.size(), 7, "the amendment's six lines and the car's")
+	assert_eq(hint.LINE_KEYS.size(), 9, "the amendment's lines, the car's, the climb and the pause")
 	assert_eq(lines.get_child_count(), hint.LINE_KEYS.size(), "a line per key")
 	assert_eq(lines.get_child(0).text, Strings.t("controls.%s.move" % scheme), "its words are data")
 

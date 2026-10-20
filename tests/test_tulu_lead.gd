@@ -124,11 +124,14 @@ func test_talk_is_absent_before_the_door_and_present_at_it() -> void:
 	assert_eq(_button(street).text, Strings.t("verb.talk"))
 	_button(street).pressed.emit()
 	assert_eq(Content.dialogue.current_line_id(), "tulu_door")
-	assert_eq(street.cards().card_count(), 2)
+	assert_eq(street.cards().card_count(), 3, "what is in there, where the notes came from, go on")
 	assert_eq(street.cards().get_node("%Speaker").text, "Tulu")
 	Content.dialogue.choose(0)
 	assert_eq(Content.dialogue.current_line_id(), "tulu_door_lamp")
-	assert_eq(Strings.t("line.tulu_door_lamp"), "She keeps a lamp. She knows the whole song.")
+	assert_true(
+		Strings.t("line.tulu_door_lamp").contains("Madhuri"),
+		"he names who is behind the door, not just 'she'"
+	)
 	Content.dialogue.dismiss()
 	assert_false(Content.dialogue.is_running())
 
@@ -141,7 +144,7 @@ func test_go_on_then_ends_the_line() -> void:
 	watch_signals(tulu)
 	tulu.get_node("%Talk").use(street.get_node("%Player"))
 	assert_signal_emitted_with_parameters(tulu, "talked", ["tulu_door"])
-	Content.dialogue.choose(1)
+	Content.dialogue.choose(2)
 	assert_false(Content.dialogue.is_running(), "Go on, then: nothing more to say")
 
 

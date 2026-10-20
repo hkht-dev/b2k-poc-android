@@ -116,6 +116,27 @@ look_down={
 ]
 }
 
+; Godot 4.3 ships ui_accept and ui_cancel with no gamepad button at all
+; (Enter/Space and Escape only), and every Button in the engine fires on
+; ui_accept: without these two rows a pad could not press Begin on the title
+; screen, choose a card, close a screen or leave the wardrobe. A is accept,
+; as it already is for `contextual`; B is cancel. The keyboard events are
+; repeated here because naming an action in this file replaces its default.
+ui_accept={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"keycode":4194309,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"keycode":4194310,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"keycode":32,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"button_index":0,"pressure":0.0,"pressed":true,"script":null)
+]
+}
+ui_cancel={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"keycode":4194305,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"button_index":1,"pressure":0.0,"pressed":true,"script":null)
+]
+}
+
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true

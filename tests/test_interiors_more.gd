@@ -4,6 +4,11 @@
 ## (GDD §7 "Mediate", step 3).
 extends GutTest
 
+## tools/check_data.py MAX_WORDS. GDD §8 kept a line under twenty words;
+## the owner lifted it to thirty-four after the expansion, because the
+## shorthand had stopped making sense (docs/DECISIONS.md "Conversations").
+const LINE_WORD_CAP := 35
+
 const STREET := preload("res://scenes/street/Street.tscn")
 const OFFICE := preload("res://scenes/places/Office.tscn")
 const NANDA := preload("res://scenes/places/NandaFlat.tscn")
@@ -171,7 +176,7 @@ func test_each_photograph_of_the_tower_has_a_thought_of_its_own() -> void:
 		var line := Content.dialogue.get_line(line_id)
 		assert_eq(line["speaker"], "thought")
 		assert_true(line["cards"].is_empty())
-		assert_lt(Strings.t(line["text_id"]).split(" ").size(), 20, "GDD §8: under 20 words")
+		assert_lt(Strings.t(line["text_id"]).split(" ").size(), LINE_WORD_CAP, "inside the cap")
 		assert_false(seen.has(line_id), "each photograph its own thought")
 		seen[line_id] = true
 	var middle: Node3D = office.get_node("Fittings/PhotoLook1")
@@ -211,7 +216,11 @@ func test_picking_up_the_string_sets_the_flag_and_the_player_carries_it() -> voi
 	assert_false(pickup.visible, "the string left the shelf")
 	assert_true(GameState.has_event("sarang_string_picked_up"))
 	await wait_frames(2)
-	assert_eq(_button(flat).current_verb(), "", "nothing more to pick up there")
+	assert_eq(
+		_button(flat).current_verb(),
+		"verb.put_down",
+		"nothing more to pick up there, and the string can be set down again"
+	)
 
 
 func test_a_loaded_journey_does_not_lay_the_string_down_again() -> void:
