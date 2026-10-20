@@ -1268,3 +1268,71 @@ the section's table names: "No backend" is the rule for the slice) and §12
   by the vignette (`PLACEHOLDER` in the scene and the script); replaced by
   the painted strangers of GDD §10. The ten vignettes are the first ten of
   §16a's 120; the format carries the rest unchanged.
+
+
+## 2026-10-20 — Stray cows, the slice's smallest form
+
+GDD §3a Act 3 ("Walk ahead of two cows and hum to steer them through
+traffic", *Stray cows*: care for what nobody else sees) and §16a "Stray
+cows" (guiding them through traffic to the fountain is a timing-and-path
+puzzle; the forty handmade layouts and the generator are not this). Affects
+§6 (the hum has a second answerer), §7 (one more quest file), §12 (two
+events, one flag).
+
+### Two cows, one road, the hum as the only guide
+
+- `scenes/street/Cow.tscn` + `scripts/street/cow.gd` (`class_name Cow`, a
+  `CharacterBody3D` on layer 1 so the player bumps into it, groups `cow` and
+  `sound_source`). A cow grazes within 3 m of a home spot. The player's hum
+  (`Place.hum`, through `sound_source`) calls it: it walks toward where the
+  player stood, at most 8 m, then settles there and grazes again, so each
+  hum is one leg of the path and the player walks ahead, as the GDD says.
+  Reaching within 9 m of the fountain (its outer step) fires
+  `cow_reached_fountain_<n>`, an export on the node, and the cow stays: it
+  has arrived and later hums do not move it.
+- `tools/street_parts/cows.py` places them at (40, 5) and (42.5, 2.5): the
+  north pavement east of the north-south road, so the shortest way to the
+  fountain crosses one road. `rest_position` on each node is where a loaded
+  journey puts a cow whose event has fired (positions are not saved; events
+  are).
+- `data/quests/stray_cows.json`: no giver (`"street"`), starts on
+  `heard_tulu`, one step waiting on both events, ends setting `cows_home`
+  with the journey line *"You walked two cows through the traffic to the
+  fountain."* The pause menu's one line says *"Two cows nobody sees. Hum,
+  and walk them to the fountain."* while it is the first active quest
+  (`dry_fountain` sorts first and wins while it is active).
+
+### Lanes are where the traffic drives; nobody waits on anybody
+
+- The roads are not written into the cow. A path mover whose
+  `yield_distance` is 5 m or more (the three cars; pedestrians stop at
+  1.6 m) joins the `vehicle` group in `_ready`, and a lane is the strip 4 m
+  either side of a vehicle's loop. With the two east-west cars at z = 14.5
+  and 17.5 that is exactly the road's 11 m; the north-south car gives the
+  other road. Move a car's loop and the cows respect the new lane.
+- A cow does not step off the kerb while any vehicle is within 6 m (its
+  nose, 1 m ahead of its centre, is where it looks). Once in the road it
+  keeps walking: if a called walk would end in a lane it goes on, a metre at
+  a time, until it is out. Vehicles yield to cows exactly as to the player
+  (`YIELD_GROUPS` in `path_mover.gd`). The two rules together mean a cow and
+  a car never wait on each other: a cow only waits on the pavement, where
+  no car yields to it, and a car only yields to a cow that is moving.
+- A grazing cow rejects grazing spots inside a lane, so it never drifts
+  into traffic on its own; a called cow that cannot get on (a wall, a parked
+  car) gives up after 2 s standing still and settles.
+
+### Placeholders and budget
+
+- The cow is boxes: body, four legs, head, muzzle, tail and two horns,
+  2.2 m long, 1.3 m to the head and 1.5 m to the horn tips. The hide is
+  `cloth_pale` tinted a dusty cream (ochre/dust palette, GDD §10 Hollow Vale
+  row) in a material inside the scene; the horns are the street's `timber`.
+  Each cow is two `MultiMeshInstance3D`s, so two draw calls a cow, four in
+  all. PLACEHOLDER for the licensed cow model of GDD §10 "Asset sourcing
+  plan".
+- No sound: a cow hears, turns and walks, which is the whole answer. A low
+  or a cowbell (GDD §10 lists cowbells as the Grove's bed, not the Vale's)
+  can come with the asset.
+- The web budget was not re-measured in this change (no export from the
+  parallel worktrees); the addition is four draw calls and some two hundred
+  triangles, against a measured max of 177 calls in P6.
