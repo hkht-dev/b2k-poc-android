@@ -1335,5 +1335,165 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "sarang_string": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_string",
+    "cards": [
+      {
+        "text_id": "card.sarang_string.here",
+        "sets": [
+          "sarang_string_given"
+        ],
+        "next": "sarang_thanks"
+      },
+      {
+        "text_id": "card.sarang_string.not_yet",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "has_sarang_string"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_thanks": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_thanks",
+    "sets": [
+      "sarang_thanked"
+    ],
+    "cards": [
+      {
+        "text_id": "card.sarang_thanks.play",
+        "sets": [],
+        "next": "sarang_thanks_play"
+      },
+      {
+        "text_id": "card.sarang_thanks.welcome",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "sarang_string_given"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_thanks_play": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_thanks_play",
+    "cards": [],
+    "requires": [
+      "sarang_string_given"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_after": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_after",
+    "cards": [
+      {
+        "text_id": "card.sarang_after.again",
+        "sets": [],
+        "next": "sarang_lesson"
+      },
+      {
+        "text_id": "card.sarang_after.next",
+        "sets": [],
+        "next": "sarang_lesson_two"
+      },
+      {
+        "text_id": "card.sarang_after.later",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "sarang_taught_bar"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_greet_tulu": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_greet_lesson",
+    "cards": [
+      {
+        "text_id": "card.sarang_greet.teach",
+        "sets": [],
+        "next": "sarang_lesson"
+      },
+      {
+        "text_id": "card.sarang_greet.broken",
+        "sets": [],
+        "next": "sarang_broken"
+      }
+    ],
+    "requires": [
+      "heard_tulu"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_greet_shrine": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_greet_lesson",
+    "cards": [
+      {
+        "text_id": "card.sarang_greet.teach",
+        "sets": [],
+        "next": "sarang_lesson"
+      },
+      {
+        "text_id": "card.sarang_greet.broken",
+        "sets": [],
+        "next": "sarang_broken"
+      }
+    ],
+    "requires": [
+      "saw_shrine"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_greet": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_greet",
+    "cards": [
+      {
+        "text_id": "card.sarang_greet.broken",
+        "sets": [],
+        "next": "sarang_broken"
+      },
+      {
+        "text_id": "card.sarang_greet.keep_at_it",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "sarang_broken": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_broken",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "sarang_lesson": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_lesson",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "sarang_lesson_two": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_lesson_two",
+    "cards": [],
+    "requires": [
+      "sarang_taught_bar"
+    ],
+    "review_status": "draft"
   }
 }

@@ -19,7 +19,7 @@ EXT = '[ext_resource type="PackedScene" path="res://scenes/quest/TaleSeat.tscn" 
 # StepSE), where the step shows between the lip's torus and the pavement.
 # docs/DECISIONS.md: (0, -0.15, 6.9) lies inside the lip, so the seat moved
 # round to the corner at the same height.
-SEAT = (5.4, -0.15, 5.4)
+SEAT = (-5.4, -0.15, 5.4)  # the south-west step; the south-east one is Act 4's
 # The sign faces the pavement corner the player arrives from (+X, +Z).
 SIGN_YAW = math.pi / 4
 

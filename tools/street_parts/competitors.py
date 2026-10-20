@@ -43,7 +43,7 @@ GROUP = "Competitors"
 # for the hips to meet it.
 BENCH_SEAT_Y = 0.61
 HIP_HEIGHT = 0.59
-RUKMA_POS = (10.6, BENCH_SEAT_Y - HIP_HEIGHT, 21.0)
+RUKMA_POS = (7.3, BENCH_SEAT_Y - HIP_HEIGHT, 21.0)  # the bench's west end; the Counting Man has the east
 # Pavement by the shop's east end, looking across at the dry fountain he is
 # waiting on; his Talk reaches no part of the can stack's Pick up box.
 BHIMA_POS = (-7.6, 0.0, 6.0)

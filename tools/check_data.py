@@ -150,6 +150,12 @@ REQUIRED_STRING_IDS = [
     "end.card_noticed",
     "controls.key.desktop_use",
     "controls.key.gamepad_use",
+    "speaker.sarang",
+    "sign.sarang_corner",
+    "song.hint.watch",
+    "song.your_turn",
+    *[f"song.hint.play.{scheme}" for scheme in ("touch", "desktop", "gamepad")],
+    *[f"song.answer.{k}" for k in ("quiet", "warm", "full")],
 ]
 MAX_PANEL_WORDS = 40
 SKINS = {"humanFemaleA", "humanMaleA", "criminalMaleA", "skaterFemaleA", "skaterMaleA", "survivorFemaleA", "survivorMaleB"}

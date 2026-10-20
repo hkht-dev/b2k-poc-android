@@ -34,7 +34,10 @@ var _sound: AudioStreamPlayer3D = null
 func _ready() -> void:
 	add_to_group(GROUP)
 	_use.verb_id = verb_id
-	_use.requires = requires
+	# A scene may set the gate on %Use directly (a child override); the
+	# door's own export only adds to that when it says something.
+	if not requires.is_empty():
+		_use.requires = requires
 	var box := BoxShape3D.new()
 	box.size = reach
 	_shape.shape = box
