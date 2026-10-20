@@ -171,5 +171,334 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "rukma_greet": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_greet",
+    "cards": [
+      {
+        "text_id": "card.rukma_greet.wake",
+        "sets": [],
+        "next": "rukma_why"
+      },
+      {
+        "text_id": "card.rukma_greet.key",
+        "sets": [
+          "rukma_key_taken"
+        ],
+        "next": "rukma_key_pocketed"
+      },
+      {
+        "text_id": "card.rukma_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_why": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_why",
+    "sets": [
+      "rukma_heard"
+    ],
+    "cards": [
+      {
+        "text_id": "card.rukma_why.anyone",
+        "sets": [],
+        "next": "rukma_enough"
+      },
+      {
+        "text_id": "card.rukma_why.then_win",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_enough": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_enough",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_key_pocketed": {
+    "speaker": "thought",
+    "text_id": "line.rukma_key_pocketed",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_after_key": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_after_key",
+    "cards": [
+      {
+        "text_id": "card.rukma_greet.wake",
+        "sets": [],
+        "next": "rukma_why"
+      },
+      {
+        "text_id": "card.rukma_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "rukma_key_taken"
+    ],
+    "review_status": "draft"
+  },
+  "rukma_greet_can": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_greet_can",
+    "cards": [
+      {
+        "text_id": "card.rukma_greet_can.trade",
+        "sets": [
+          "rukma_key_traded"
+        ],
+        "next": "rukma_traded"
+      },
+      {
+        "text_id": "card.rukma_greet_can.why",
+        "sets": [],
+        "next": "rukma_why"
+      }
+    ],
+    "requires": [
+      "carrying_can"
+    ],
+    "review_status": "draft"
+  },
+  "rukma_traded": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_traded",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_after_trade": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_after_trade",
+    "cards": [
+      {
+        "text_id": "card.rukma_after_trade.why",
+        "sets": [],
+        "next": "rukma_why"
+      },
+      {
+        "text_id": "card.rukma_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "rukma_key_traded"
+    ],
+    "review_status": "draft"
+  },
+  "bhima_greet": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_greet",
+    "cards": [
+      {
+        "text_id": "card.bhima_greet.why",
+        "sets": [],
+        "next": "bhima_daughter"
+      },
+      {
+        "text_id": "card.bhima_greet.luck",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "bhima_daughter": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_daughter",
+    "cards": [
+      {
+        "text_id": "card.bhima_daughter.ask",
+        "sets": [
+          "bhima_asked"
+        ],
+        "next": "bhima_asked"
+      },
+      {
+        "text_id": "card.bhima_daughter.climb",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "bhima_asked": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_asked",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "bhima_waiting": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_waiting",
+    "cards": [],
+    "requires": [
+      "bhima_asked"
+    ],
+    "review_status": "draft"
+  },
+  "bhima_thanks": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_thanks",
+    "sets": [
+      "bhima_medicine_given"
+    ],
+    "cards": [],
+    "requires": [
+      "gave_dry_fountain"
+    ],
+    "review_status": "draft"
+  },
+  "nanda_greet": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_greet",
+    "cards": [
+      {
+        "text_id": "card.nanda_greet.sit",
+        "sets": [],
+        "next": "nanda_sit_1"
+      },
+      {
+        "text_id": "card.nanda_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_greet_contest": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_greet_contest",
+    "cards": [
+      {
+        "text_id": "card.nanda_greet.sit",
+        "sets": [],
+        "next": "nanda_sit_1"
+      },
+      {
+        "text_id": "card.nanda_greet_contest.stairs",
+        "sets": [
+          "nanda_told_shortcut"
+        ],
+        "next": "nanda_shortcut"
+      },
+      {
+        "text_id": "card.nanda_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "accepted_contest"
+    ],
+    "review_status": "draft"
+  },
+  "nanda_shortcut": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_shortcut",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_sit_1": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_sit_1",
+    "cards": [
+      {
+        "text_id": "card.nanda_sit_1.happened",
+        "sets": [],
+        "next": "nanda_sit_2"
+      },
+      {
+        "text_id": "card.nanda_sit_1.top",
+        "sets": [],
+        "next": "nanda_sit_2"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_sit_2": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_sit_2",
+    "cards": [
+      {
+        "text_id": "card.nanda_sit_2.read",
+        "sets": [],
+        "next": "nanda_sit_3"
+      },
+      {
+        "text_id": "card.nanda_sit_2.sorry",
+        "sets": [],
+        "next": "nanda_sit_3"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_sit_3": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_sit_3",
+    "sets": [
+      "nanda_listened"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_after_listen": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_after_listen",
+    "cards": [],
+    "requires": [
+      "nanda_listened"
+    ],
+    "review_status": "draft"
+  },
+  "nanda_after_shortcut": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_after_shortcut",
+    "cards": [
+      {
+        "text_id": "card.nanda_greet.sit",
+        "sets": [],
+        "next": "nanda_sit_1"
+      },
+      {
+        "text_id": "card.nanda_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "nanda_told_shortcut"
+    ],
+    "review_status": "draft"
+  },
+  "nanda_door_look": {
+    "speaker": "thought",
+    "text_id": "line.nanda_door_look",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
   }
 }
