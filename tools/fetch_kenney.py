@@ -86,6 +86,18 @@ FILES = {
         "the player, pedestrians and Tulu: rigged body and skins",
         ("Root/Skeleton3D", "res://assets/characters/kenney_humanoid_map.tres"),
     ),
+    # The same body with other clothes: skins only. (The zombies and the
+    # cyborg stay out; Hollow Vale is an ordinary street.)
+    "animated-characters-protagonists": (
+        ["Skins/criminalMaleA.png", "Skins/skaterFemaleA.png", "Skins/skaterMaleA.png"],
+        "pedestrian and Tulu skins",
+        None,
+    ),
+    "animated-characters-survivors": (
+        ["Skins/survivorFemaleA.png", "Skins/survivorMaleB.png"],
+        "pedestrian skins",
+        None,
+    ),
 }
 
 # Kenney's palette has a turquoise foliage green; GDD §10 forbids peacock blue
