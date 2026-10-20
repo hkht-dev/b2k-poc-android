@@ -1040,3 +1040,66 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+## 2026-10-20 — The world grows: places, doors, a compass (owner expansion, E1)
+
+The owner, after P6: "environment & capabilities should extend", a heading on
+the navigation, "different screens of the game's interface", shops to go
+into, cars to drive, a showroom to try clothes on, an interface that is easy
+on every device; then the whole macro design (docs/GDD.md) built in parallel.
+This lifts the brief's "do not scaffold out-of-scope systems" for those
+systems. The rules that are about the game's nature (no score, meter, badge,
+marker, timer, notification; every flag and string in data; no network) stay.
+Affects GDD §5 (four enterable interiors), §6, §11.
+
+### A place is a screen
+
+- `scripts/places/place.gd` is what `street.gd` was: the seam between input
+  and the player, the camera and the HUD, pause, settings, the hum, and now
+  doors. The street extends it and keeps only its own (bed, moods, the bus
+  stop). Every walkable place has the same `%Player`, `%CameraRig`,
+  `UI/%TouchControls` footer, written by its generator.
+- A door is a node (`scenes/places/Door.tscn`) carrying the place it leads
+  to, the spawn point to land on and its verb; a spawn point is a marker
+  with an id. Both are data from the generators. Using a door fades to black
+  in 0.45 s, records `GameState.place`/`spawn`, and Main swaps the scene
+  named in `data/places.json`. The next place fades in from black and puts
+  the player on the spawn point facing the marker's way, camera behind.
+- The journey remembers the place and the last spawn, so an autosave inside
+  a shop resumes inside it, and *Play again* resets both. A fresh journey
+  has no spawn and starts in the basin as before.
+- One scene at a time: the street is freed while the player is inside a
+  shop and rebuilt on the way out. It costs a load, and it keeps every place
+  independent (an interior has no sun, no bed, no Tulu). If the load shows
+  on a phone, the alternative is to hide the street instead of freeing it.
+
+### Two shop interiors, generated
+
+- `tools/gen_interiors.py` writes `scenes/places/Showroom.tscn` and
+  `Store.tscn` from the same textures and CC0 models as the street through
+  the shared `tools/scenegen.py` (the street generator was refactored onto
+  it; its output is unchanged). Shop fronts on the south flats come from
+  `tools/street_parts/shop_fronts.py`.
+- Signs are `Label3D` nodes with `scripts/lib/label_from_id.gd`: the words
+  come from the string table at run time, so no text is baked into a scene
+  and a locale changes the signs too.
+- A storekeeper and a tailor with a line each (`scenes/npc/Shopkeeper.tscn`,
+  generic: Talk and `entry_lines`), two or three cards, nothing for sale.
+  PLACEHOLDER for the people of GDD §4.
+
+### The compass is a heading, not a marker
+
+- GDD §6 rules out "a map with markers". The compass strip
+  (`scripts/ui/compass.gd`) shows which way the player faces, nothing else:
+  no destination, no distance, no objective. It is the same information as
+  the minimap's facing line, readable without opening the map. On by
+  default; a settings row hides it. Letters from the string table.
+
+### Generators take parts
+
+- Twenty-odd features are being built in parallel. A registration line in
+  one generator would be the one line every branch edits, so the generators
+  discover parts instead: `tools/street_parts/*.py` (`build(b)`, optional
+  `EXT`), `tools/interiors/*.py`, `tools/audio_parts/*.py`,
+  `tools/texture_parts/*.py`, loaded in name order by
+  `scenegen.load_parts`. One feature, one file, no line to collide on.

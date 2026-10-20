@@ -15,6 +15,16 @@ Status key: **built** · *in progress* · planned.
 | P5 | The Glimpse and the feather | **built** |
 | P6 | End screen, audio bed, lighting, accessibility | **built** |
 
+**Owner expansion (2026-10-20)**, beyond the slice; see `DECISIONS.md` "The
+world grows":
+
+| Stage | Deliverable | Status |
+|---|---|---|
+| E1 | Places behind doors (two shop interiors), the saved place, the heading compass, shop fronts and signs | **built** |
+| E2 | A car to enter and drive | *in progress* |
+| E3 | The showroom wardrobe: try on outfits | *in progress* |
+| E4+ | The macro design in parallel: shrine, main quest, competitors, The Fence, The Counting Man, Tells, Glimpse points, wisdom cards, the Garden, lamps, daylight, rooftops, cows, the Song, the tower, the Grove, the Veil, tales, vignettes, path card, assets, UI polish, more interiors, Act 4/5, Tulu's lead | *in progress* |
+
 ---
 
 ## 1. The street block (grey-box) — P1

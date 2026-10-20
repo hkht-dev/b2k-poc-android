@@ -37,3 +37,6 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# agent worktrees (Agent tool isolation)
+.claude/worktrees/
