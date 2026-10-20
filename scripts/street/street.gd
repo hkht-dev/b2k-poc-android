@@ -11,6 +11,9 @@
 ## every thumb on the joystick swing the camera.
 extends Node3D
 
+## The slice is over: the street has faded; Main shows the end screen.
+signal slice_ended(reason: String)
+
 const PAUSE_MENU := preload("res://scenes/ui/PauseMenu.tscn")
 const PLAYER_HUM := preload("res://assets/audio/player_hum.ogg")
 const STREET_BED := preload("res://assets/audio/street_bed.ogg")
@@ -18,6 +21,11 @@ const STREET_BED := preload("res://assets/audio/street_bed.ogg")
 const HUM_REACH := 40.0
 const CONTROLS_HINT := preload("res://scenes/ui/ControlsHint.tscn")
 const CHOICE_CARDS := preload("res://scenes/ui/ChoiceCards.tscn")
+const SETTINGS_SCREEN := preload("res://scenes/ui/SettingsScreen.tscn")
+## §4.6: fade to black over this long, then the end screen.
+const FADE_SECONDS := 1.6
+const SIT_POSE := "Sitting_Idle"
+const LARGE_TEXT_SCALE := 1.2
 ## The street's light answers the Dry Fountain (CLAUDE_CODE_BRIEF.md §4.4):
 ## a step darker after a can is taken, a step warmer after one is given.
 ## Data: flag -> (sun colour, ambient energy factor).
@@ -36,6 +44,9 @@ var _near: Interactable = null
 var _hum_player: AudioStreamPlayer = null
 var _bed_player: AudioStreamPlayer = null
 var _cards: Control = null
+var _settings_overlay: Control = null
+var _fade: ColorRect = null
+var _ending := false
 var _base_sun_colour := Color.WHITE
 var _base_ambient := 1.0
 var _mood_tween: Tween = null
@@ -45,6 +56,7 @@ var _mood_tween: Tween = null
 @onready var _controls: Control = %TouchControls
 @onready var _ui: CanvasLayer = $UI
 @onready var _sun: DirectionalLight3D = $Sun
+@onready var _bus_stop: Node3D = %BusStopPoint
 @onready var _environment: WorldEnvironment = $Environment
 
 
@@ -75,11 +87,19 @@ func _ready() -> void:
 		if GameState.has_flag(flag):
 			_apply_mood(flag, 0.0)
 	GameState.flag_changed.connect(_on_flag_changed)
+	_bus_stop.slice_ended.connect(_on_slice_ended)
+	_fade = ColorRect.new()
+	_fade.color = Color(0, 0, 0, 0)
+	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ui.add_child(_fade)
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	if not is_paused() and not _ending:
+		GameState.add_play_time(delta)
 	_scan_interactables()
-	if _player.is_climbing():
+	if _player.is_climbing() or _ending:
 		_player.set_move_input(Vector2.ZERO, 0.0)
 		return
 	_player.set_move_input(
@@ -156,6 +176,9 @@ func hum() -> void:
 		return
 	_hum_player.play()
 	_controls.subtitle("sub.player_hum")
+	var ripple: SoundRipple = _player.get_node_or_null("%Ripple")
+	if ripple != null:
+		ripple.pulse()
 	GameState.record_hum()
 	for node in get_tree().get_nodes_in_group(Interactable.SOUND_SOURCE_GROUP):
 		var source := node as Node3D
@@ -191,6 +214,36 @@ func _apply_settings() -> void:
 	stick.side = str(settings.get("joystick_side", "left"))
 	stick.radius = float(settings.get("joystick_size", stick.radius))
 	stick.max_opacity = float(settings.get("joystick_opacity", stick.max_opacity))
+	_controls.set_subtitle_box(bool(settings.get("subtitle_box", false)))
+	get_tree().root.content_scale_factor = (
+		LARGE_TEXT_SCALE if bool(settings.get("large_text", false)) else 1.0
+	)
+	var cues := bool(settings.get("sound_cues", false))
+	for node in get_tree().get_nodes_in_group(SoundRipple.GROUP):
+		(node as SoundRipple).enabled = cues
+
+
+## The bus stop said it is over (CLAUDE_CODE_BRIEF.md §4.6): the player sits
+## if they sat, the street fades to black, and Main takes it from there.
+func _on_slice_ended(reason: String) -> void:
+	if _ending:
+		return
+	_ending = true
+	_player.set_move_input(Vector2.ZERO, 0.0)
+	if reason == "sat":
+		var rig: CharacterRig = _player.get_node("%Mesh")
+		rig.hold_pose(SIT_POSE)
+	var tween := create_tween()
+	tween.tween_property(_fade, "color:a", 1.0, FADE_SECONDS)
+	tween.tween_callback(func() -> void: slice_ended.emit(reason))
+
+
+func is_ending() -> bool:
+	return _ending
+
+
+func fade_alpha() -> float:
+	return _fade.color.a
 
 
 func tap_to_walk_enabled() -> bool:
@@ -207,6 +260,7 @@ func pause() -> void:
 	_pause_menu = PAUSE_MENU.instantiate()
 	_pause_menu.resumed.connect(resume)
 	_pause_menu.controls_requested.connect(_show_controls)
+	_pause_menu.settings_requested.connect(_show_settings)
 	_pause_menu.map_toggled.connect(
 		func(_on: bool) -> void: _controls.minimap().refresh_visibility()
 	)
@@ -235,6 +289,24 @@ func _show_controls() -> void:
 			_controls_overlay = null
 	)
 	_ui.add_child(_controls_overlay)
+
+
+func _show_settings() -> void:
+	if _settings_overlay != null:
+		return
+	_settings_overlay = SETTINGS_SCREEN.instantiate()
+	_settings_overlay.changed.connect(func(_key: String) -> void: _apply_settings())
+	_settings_overlay.closed.connect(
+		func() -> void:
+			_ui.remove_child(_settings_overlay)
+			_settings_overlay.queue_free()
+			_settings_overlay = null
+	)
+	_ui.add_child(_settings_overlay)
+
+
+func settings_overlay() -> Control:
+	return _settings_overlay
 
 
 func _on_camera_dragged(delta: Vector2) -> void:

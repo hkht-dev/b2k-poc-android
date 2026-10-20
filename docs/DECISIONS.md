@@ -956,3 +956,75 @@ mesh and one omni light for five seconds once a journey, and the measured
 walk never sets `gave_dry_fountain`). The numbers are within noise of P4's:
 the silhouette scene, hidden, costs nothing, and the feather pick-up is one
 quad. Frames per second remain unmeasured here (software renderer only).
+
+
+## 2026-10-20 — P6: the end of the slice, settings and sound cues
+
+CLAUDE_CODE_BRIEF.md §4.6 and §7, GDD §11. Affects §3 (the bus stop as the
+end), §11 (accessibility), §12 (`settings` on the journey).
+
+### The ending is a place, with its conditions as data
+
+- `scenes/quest/BusStopPoint.tscn` sits at the bus stop (generator id
+  `15_bus_stop`). An `Area3D` ends the slice when the player walks in with
+  any of `ending_flags` set (`gave_dry_fountain`, `took_dry_fountain` on the
+  scene, not in code); an `Interactable` *Sit* appears once
+  `GameState.play_seconds` passes `sit_after` (90). Both are exports, so the
+  playtest can change them without a code change.
+- Play time is counted by the street while it is not paused and saved with
+  the journey (`play_seconds`), so a resumed journey keeps its ninety
+  seconds. It is not shown anywhere: it is not a timer in the brief's sense
+  (nothing counts down, nothing is lost), it only unlocks a verb.
+- The bus stop says "it is over" and nothing more. The street stops input,
+  sits the player if they sat (`CharacterRig.hold_pose("Sitting_Idle")`, the
+  same clip the Glimpse uses), fades a full-screen `ColorRect` to black over
+  1.6 s and emits `slice_ended(reason)`; `Main` swaps the street for
+  `scenes/ui/EndScreen.tscn`. One line, white, 24 px, *Play again* and
+  nothing else. *Play again* calls `GameState.wipe()` and returns to the
+  title screen, which starts the street afresh.
+- No ending screen is a score, a summary or a list: the line is the only
+  text (brief §4.6).
+
+### Settings as rows of data
+
+- `scripts/ui/settings_screen.gd` holds `ROWS`: key, kind, default and
+  range. The screen builds a label and a `CheckButton` or `HSlider` per row
+  from it, reads `GameState.settings` and writes back on every change, which
+  autosaves. The street listens for `changed` and re-applies everything in
+  `_apply_settings()`, the one place settings become behaviour.
+- Joystick side is stored as `"left"`/`"right"` (what the joystick reads);
+  the toggle shows "right-handed". Large text sets the root
+  `content_scale_factor` to 1.2 rather than per-label sizes: one knob, every
+  label, the layouts already flex. The subtitle box is a `StyleBoxFlat` on
+  the subtitle label, 70 % dark, 10 px padding.
+- Screen-reader labels: Godot 4.3 has no accessibility tree (it arrives in
+  4.5). Every control carries its row's label as `tooltip_text`, the one
+  field assistive tools on the desktop can read today, and the label sits
+  beside it. Recorded as a known gap for the engine upgrade, not a workaround
+  to defend.
+
+### Sound cues as ripples
+
+- `scenes/ui/SoundRipple.tscn` is a flat unlit ring (`sound_ripple.tres`,
+  additive, warm white) that scales from 0.4 m to 2.4 m and fades over 1.4 s.
+  Tulu's is `continuous` (his hum loops); the player's pulses once per hum.
+  Every ripple is in the `sound_cue` group and the street turns the group on
+  or off from the setting; off by default, invisible when off.
+- 1.4 s a ring is 0.7 Hz, well below the 3 Hz flashing limit (GDD §11); a
+  test pins the constant.
+- Not a marker: it sits at the sound, at ground level, only while the sound
+  plays, and only when the player asked for it. The brief's rule against
+  markers is about guidance; this is the sound itself made visible.
+
+### What P6 does not do
+
+- The audio bed and the lighting steps were built in P3 and P4
+  (`street_bed.ogg`, `MOODS`); nothing more was needed for the gate.
+- The lightmap bake (§B5) stays editor-only and is not in this PR; the web
+  budget still holds without it (table below).
+- "Crash-free on three test devices (document which)" is the owner's to run
+  from the release APK; `PLAYTEST_PROTOCOL.md` has the room for it.
+
+### Budget, as measured in the web build
+
+PERF_TABLE_P6

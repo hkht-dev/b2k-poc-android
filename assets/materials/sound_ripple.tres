@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The ripple that shows a sound (brief §7). Warm, unlit, never blue.
+
+[resource]
+resource_name = "sound_ripple"
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.96, 0.78, 0.45, 0.8)
+no_depth_test = true

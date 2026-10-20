@@ -87,6 +87,12 @@ custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 text = "Controls"
 
+[node name="SettingsButton" type="Button" parent="Panel/Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+text = "Settings"
+
 [node name="MapButton" type="Button" parent="Panel/Margin/Layout"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 96)
