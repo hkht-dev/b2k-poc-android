@@ -61,6 +61,10 @@ func known_flags() -> PackedStringArray:
 		names.append_array(quests[id].known_flags())
 	names.append_array(dialogue.known_flags())
 	names.append_array(GameState.flags.all())
+	# The expansion's data files (docs/DECISIONS.md "The world grows").
+	names.append_array(Garden.known_flags())
+	names.append_array(Wisdom.known_flags())
+	names.append_array(Tales.known_flags())
 	return _unique_sorted(names)
 
 

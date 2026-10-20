@@ -103,7 +103,44 @@ REQUIRED_STRING_IDS = [
     "speaker.chai_seller",
     "speaker.tulu",
     "sub.tulu_points",
+    *[f"veil.line.{k}" for k in ("easy", "harder", "never_closed")],
+    "speaker.vasanti",
+    "verb.fix",
+    "sign.garden",
+    "sign.garden_rule",
+    "verb.drive",
+    "verb.exit",
+    *[f"controls.{scheme}.drive" for scheme in ("touch", "desktop", "gamepad")],
+    "sign.nanda",
+    "speaker.rukma",
+    "speaker.bhima",
+    "speaker.nanda",
+    "speaker.thought",
+    "speaker.madhuri",
+    "speaker.photo",
+    "place.shrine",
+    "sub.madhuri_chant",
+    "sign.office",
+    "place.office",
+    "place.nanda_flat",
+    "wisdom.close",
+    "wisdom.read_more",
+    "wisdom.lotus",
+    *[f"scroll.{k}" for k in ("back", "close", "turn", "roll_up")],
+    "sign.tale_seat",
+    *[f"tale.sitting.{n}" for n in (1, 2, 3)],
+    "verb.hum_here",
+    "verb.step_in",
+    "verb.garland",
+    "place.home",
+    "journey.act4.street_listened",
+    "journey.act4.alone",
+    "journey.act5.home",
+    "sign.nanda_brother",
+    "journey.dawn.played",
+    "journey.dawn.kept",
 ]
+MAX_PANEL_WORDS = 40
 SKINS = {"humanFemaleA", "humanMaleA", "criminalMaleA", "skaterFemaleA", "skaterMaleA", "survivorFemaleA", "survivorMaleB"}
 VIGNETTE_REQUIRED = ["id", "giver_name_id", "skin", "spot", "lines", "journey_line_id", "outcomes"]
 SEED_SOURCE = re.compile(r"^(flag:\S+|choice:\S+:\d+)$")
@@ -161,6 +198,8 @@ def main() -> int:
     problems += check_outfits(strings)
     problems += check_lamp_lines(strings)
     problems += check_tells(strings)
+    problems += check_wisdom(strings)
+    problems += check_tales(strings)
     if problems:
         fail(f"{problems} problem(s)")
         return 1
@@ -645,6 +684,96 @@ def check_tells(strings: dict) -> int:
             problems += 1
     if not problems:
         print(f"ok  data/tells.json ({len(ids)} tells)")
+    return problems
+
+def check_wisdom(strings: dict) -> int:
+    """data/wisdom.json: optional cards, each with a trigger and four strings."""
+    path = DATA / "wisdom.json"
+    if not path.exists():
+        return 0
+    data = load(path)
+    if data is None:
+        return 1
+    problems = 0
+    cards = data.get("cards")
+    if not isinstance(cards, list) or not cards:
+        fail("data/wisdom.json: 'cards' must be a non-empty list")
+        return 1
+    ids = set()
+    for card in cards:
+        if not isinstance(card, dict) or not card.get("id"):
+            fail("data/wisdom.json: every card needs an id")
+            problems += 1
+            continue
+        cid = card["id"]
+        if cid in ids:
+            fail(f"data/wisdom.json: card id '{cid}' repeats")
+            problems += 1
+        ids.add(cid)
+        for key in ("trigger", "verse_id", "meaning_id", "more_id", "source_id"):
+            if key not in card:
+                fail(f"data/wisdom.json: card '{cid}' is missing '{key}'")
+                problems += 1
+        if not condition_ok(str(card.get("trigger", ""))):
+            fail(f"data/wisdom.json: card '{cid}' has a bad trigger")
+            problems += 1
+        for key in ("verse_id", "meaning_id", "more_id", "source_id"):
+            if card.get(key) not in strings:
+                fail(f"data/wisdom.json: card '{cid}' {key} '{card.get(key)}' not in strings")
+                problems += 1
+        meaning = str(strings.get(card.get("meaning_id", ""), ""))
+        if len([s for s in re.split(r"[.!?]+", meaning) if s.strip()]) > 2:
+            fail(f"data/wisdom.json: card '{cid}' meaning runs past two sentences (GDD §6)")
+            problems += 1
+        if card.get("review_status") not in REVIEW_STATUSES:
+            fail(f"data/wisdom.json: card '{cid}' review_status must be one of {sorted(REVIEW_STATUSES)}")
+            problems += 1
+    if not problems:
+        print(f"ok  data/wisdom.json ({len(ids)} cards)")
+    return problems
+
+
+def check_tales(strings: dict) -> int:
+    """data/tales.json: tales told on a scroll, in sittings of short panels."""
+    path = DATA / "tales.json"
+    if not path.exists():
+        return 0
+    data = load(path)
+    if data is None:
+        return 1
+    problems = 0
+    tales = data.get("tales")
+    if not isinstance(tales, list) or not tales:
+        fail("data/tales.json: 'tales' must be a non-empty list")
+        return 1
+    for tale in tales:
+        if not isinstance(tale, dict) or not tale.get("id"):
+            fail("data/tales.json: every tale needs an id")
+            problems += 1
+            continue
+        tid = tale["id"]
+        for key in ("title_id", "source_id", "journey_line_id"):
+            if tale.get(key) not in strings:
+                fail(f"data/tales.json: tale '{tid}' {key} '{tale.get(key)}' not in strings")
+                problems += 1
+        if tale.get("review_status") not in REVIEW_STATUSES:
+            fail(f"data/tales.json: tale '{tid}' review_status must be one of {sorted(REVIEW_STATUSES)}")
+            problems += 1
+        sittings = tale.get("sittings")
+        if not isinstance(sittings, list) or not sittings or not all(isinstance(s, list) and s for s in sittings):
+            fail(f"data/tales.json: tale '{tid}' needs non-empty sittings of panels")
+            problems += 1
+            continue
+        for sitting in sittings:
+            for panel_id in sitting:
+                if panel_id not in strings:
+                    fail(f"data/tales.json: tale '{tid}' panel '{panel_id}' not in strings")
+                    problems += 1
+                elif len(str(strings[panel_id]).split()) > MAX_PANEL_WORDS:
+                    fail(f"data/tales.json: panel '{panel_id}' runs past {MAX_PANEL_WORDS} words")
+                    problems += 1
+    if not problems:
+        print(f"ok  data/tales.json ({len(tales)} tales)")
     return problems
 
 

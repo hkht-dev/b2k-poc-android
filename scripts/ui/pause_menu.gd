@@ -109,13 +109,26 @@ func noticed_texts() -> PackedStringArray:
 ## doing now, in the character's voice (GDD §6 "Quests"). Before Tulu has
 ## been heard it is the slice's only guide (CLAUDE_CODE_BRIEF.md §4.3).
 static func now_line() -> String:
+	var main_line := _active_quest_line(true)
+	if not main_line.is_empty():
+		return main_line
 	if not GameState.has_flag("heard_tulu"):
 		return Strings.t("now.boy_humming")
+	var side_line := _active_quest_line(false)
+	if not side_line.is_empty():
+		return side_line
+	return Strings.t("now.boy_led")
+
+
+## The current objective of the first active quest, main ones or side ones.
+static func _active_quest_line(main_only: bool) -> String:
 	for id in Content.quest_ids():
 		var quest: Quest = Content.quest(id)
+		if quest.main != main_only:
+			continue
 		if quest.status() == Quest.Status.ACTIVE and quest.current_step_id() != "":
 			return Strings.t(quest.current_objective_text_id())
-	return Strings.t("now.boy_led")
+	return ""
 
 
 ## The garden (GDD §6 "The Garden") belongs in the Grove. Until the Grove is

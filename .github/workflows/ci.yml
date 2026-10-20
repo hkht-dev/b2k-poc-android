@@ -60,6 +60,11 @@ jobs:
 
       - name: Generated street scene is current
         run: python3 tools/gen_street.py --check
+      - name: Interiors, Home and Grove scenes are current
+        run: |
+          python3 tools/gen_interiors.py --check
+          [ -f tools/gen_home.py ] && python3 tools/gen_home.py --check || true
+          [ -f tools/gen_grove.py ] && python3 tools/gen_grove.py --check || true
 
       - name: Third-party assets are present and registered
         run: python3 tools/fetch_polyhaven.py --check

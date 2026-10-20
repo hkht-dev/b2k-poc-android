@@ -1,5 +1,6 @@
 {
   "id": "forgotten_song",
+  "main": true,
   "giver": "dhanpal",
   "start_condition": "flag:heard_tulu or flag:met_dhanpal",
   "steps": [

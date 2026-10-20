@@ -7,9 +7,9 @@
 ## they move, and carries a collision body so it cannot be walked through.
 ## It still never speaks, follows or notices the player beyond that. The
 ## stray cows (scripts/street/cow.gd, GDD §3a) are yielded to the same way.
-## It still never speaks, follows or notices the player beyond that. The one
-## other thing it does is asked of it: pause_and_face() stops it and turns it
-## to a point for a while (the street listening to the hum, GDD §3 Act 4).
+## The one other thing it does is asked of it: pause_and_face() stops it and
+## turns it to a point for a while (the street listening to the hum, GDD §3
+## Act 4).
 extends Node3D
 
 const GROUP := "path_mover"
@@ -58,9 +58,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _total <= 0.0:
 		return
-	var wanted := 0.0 if _someone_in_the_way() else speed
 	_pause_left = maxf(_pause_left - delta, 0.0)
-	var wanted := 0.0 if _pause_left > 0.0 or _player_in_the_way() else speed
+	var wanted := 0.0 if _pause_left > 0.0 or _someone_in_the_way() else speed
 	_current_speed = move_toward(_current_speed, wanted, speed * YIELD_RAMP * delta)
 	_distance = fmod(_distance + _current_speed * delta, _total)
 	_place()
