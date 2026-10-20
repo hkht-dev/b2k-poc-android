@@ -1,5 +1,4 @@
 [gd_scene load_steps=12 format=3]
-[gd_scene load_steps=8 format=3]
 
 ; The body is scenes/characters/Character.tscn (a rigged CC0 human, see there).
 ; PLACEHOLDER: replaced by the traveler form of GDD §10 "Characters" —
