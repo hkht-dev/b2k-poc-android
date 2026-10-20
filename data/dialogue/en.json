@@ -171,5 +171,73 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "counting_man_greet": {
+    "speaker": "counting_man",
+    "text_id": "line.counting_man_greet",
+    "sets": [
+      "counting_man_met"
+    ],
+    "cards": [
+      {
+        "text_id": "card.counting_man_greet.count",
+        "sets": [
+          "counting_man_counting"
+        ],
+        "next": ""
+      },
+      {
+        "text_id": "card.counting_man_greet.coin",
+        "sets": [
+          "counting_man_given_coin"
+        ],
+        "next": "counting_man_coin"
+      },
+      {
+        "text_id": "card.counting_man_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "counting_man_again": {
+    "speaker": "counting_man",
+    "text_id": "line.counting_man_again",
+    "cards": [
+      {
+        "text_id": "card.counting_man_greet.count",
+        "sets": [
+          "counting_man_counting"
+        ],
+        "next": ""
+      },
+      {
+        "text_id": "card.counting_man_greet.coin",
+        "sets": [
+          "counting_man_given_coin"
+        ],
+        "next": "counting_man_coin"
+      },
+      {
+        "text_id": "card.counting_man_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "counting_man_met"
+    ],
+    "review_status": "draft"
+  },
+  "counting_man_coin": {
+    "speaker": "counting_man",
+    "text_id": "line.counting_man_coin",
+    "cards": [],
+    "requires": [
+      "counting_man_given_coin"
+    ],
+    "review_status": "draft"
   }
 }

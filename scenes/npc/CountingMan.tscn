@@ -1,0 +1,69 @@
+[gd_scene load_steps=8 format=3]
+
+; The Counting Man (scripts/npc/counting_man.gd): the same rigged body as
+; everyone else, sat on the bus-stop bench counting coins. Talk in front of
+; him, Sit on the seat beside him (to his west), his one note from his chest.
+; Where he walks when freed is data set where he is placed (tools/
+; street_parts/counting_man.py). Faces north (-Z), toward the road.
+; PLACEHOLDER body: replaced by the painted characters of GDD §10.
+
+[ext_resource type="Script" path="res://scripts/npc/counting_man.gd" id="1_man"]
+[ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="3_interact"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-protagonists/criminalMaleA.png" id="4_skin"]
+[ext_resource type="AudioStream" path="res://assets/audio/one_note.ogg" id="5_note"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_talk"]
+radius = 1.1
+height = 2.0
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_sit"]
+radius = 0.6
+height = 2.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.3
+height = 1.8
+
+[node name="CountingMan" type="Node3D"]
+script = ExtResource("1_man")
+entry_lines = PackedStringArray("counting_man_again", "counting_man_greet")
+
+[node name="Talk" type="Area3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -1.0)
+script = ExtResource("3_interact")
+verb_id = "verb.talk"
+
+[node name="Shape" type="CollisionShape3D" parent="Talk"]
+shape = SubResource("CylinderShape3D_talk")
+
+[node name="Sit" type="Area3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0.6, -0.7)
+script = ExtResource("3_interact")
+verb_id = "verb.sit"
+
+[node name="Shape" type="CollisionShape3D" parent="Sit"]
+shape = SubResource("CylinderShape3D_sit")
+
+[node name="Figure" parent="." instance=ExtResource("2_character")]
+unique_name_in_owner = true
+skin = ExtResource("4_skin")
+
+; Positional: clear near the bench, faint from down the street.
+[node name="Note" type="AudioStreamPlayer3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+stream = ExtResource("5_note")
+volume_db = 0.0
+unit_size = 8.0
+max_distance = 50.0
+
+[node name="Body" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -0.15)
+shape = SubResource("CapsuleShape3D_body")
