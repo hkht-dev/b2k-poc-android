@@ -30,5 +30,9 @@
   "veil_up": {
     "scene": "res://scenes/places/VeilUp.tscn",
     "name_id": "place.veil_up"
+  },
+  "home": {
+    "scene": "res://scenes/places/Home.tscn",
+    "name_id": "place.home"
   }
 }

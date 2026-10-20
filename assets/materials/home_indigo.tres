@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; Krishna's skin and cloth at Home (GDD §10 "Characters": dark-blue skin).
+; A deep indigo, not the Street's forbidden peacock blue (GDD §10, Hollow
+; Vale row): Home is the Grove's bank of the river, where that rule does not
+; hold. Recorded in docs/DECISIONS.md "Remembrance and Home"; the panel
+; reviews it (GDD §15).
+; PLACEHOLDER: the painted Krishna of GDD §10 (tilak, jewellery, aura).
+
+[resource]
+resource_name = "home_indigo"
+albedo_color = Color(0.15, 0.13, 0.42, 1)
+roughness = 0.85

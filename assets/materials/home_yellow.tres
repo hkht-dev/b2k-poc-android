@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; Krishna's yellow cloth (GDD §10 "Characters").
+; PLACEHOLDER: the hand-painted cloth of GDD §10.
+
+[resource]
+resource_name = "home_yellow"
+albedo_color = Color(0.95, 0.76, 0.2, 1)
+roughness = 0.9
