@@ -813,3 +813,30 @@ and W A S D or the left stick move. Touch is unchanged. The scheme is
 re-read when a gamepad connects or disconnects. Tests that drive the
 joystick opt into touch explicitly, because the test runner has no
 touchscreen and would otherwise get the desktop scheme.
+
+
+## 2026-10-20 — Quaternius trees and cars replace the Kenney kits
+
+The owner fetched Quaternius' *Textured Stylized Trees* and *Realistic Car
+Pack* (both CC0) onto the release and asked whether they beat what was in.
+They do: the trees are textured and real-size where Kenney's were
+114-triangle blocks; the cars are life-size with real proportions where
+Kenney's were toy-scaled 1.6×. Affects amendment §B3; GDD §4 (traffic).
+
+- Both packs ship FBX and OBJ, no glTF. The FBX trees reference no
+  textures (Godot imported them white) and the FBX cars carry six surfaces
+  and four wheel nodes each. So `tools/fetch_quaternius.py` converts the
+  OBJ with trimesh: trees get their textures bound by material name from
+  the pack's texture folder (`Bark` → `Tree_Bark.jpg`, leaves alpha-masked
+  and double-sided); cars get their MTL colours baked into vertex colours
+  (×1.25, undoing Blender's 0.8 Kd export factor) and every part joined, so
+  a car is one draw call as before. One `.glb` per model, 1.2 MB for six
+  cars, 3.5 MB for six trees.
+- The pack's blue, cyan, pink and purple leaf textures stay out (GDD §10,
+  peacock blue and magenta forbidden); green, birch and pine are used.
+- The Kenney car kit and its trees left the repository; the bush stays.
+  `tests/test_model_batch.gd` now exercises a Quaternius car and the bush.
+- Trees are 2 surfaces each in 3 kinds (6 draw calls plus shadows) against
+  2 kinds before; cars unchanged at one. Numbers below.
+
+PERF_TABLE_PLACEHOLDER_D
