@@ -1,0 +1,14 @@
+{
+  "street": {
+    "scene": "res://scenes/street/Street.tscn",
+    "name_id": "place.street"
+  },
+  "showroom": {
+    "scene": "res://scenes/places/Showroom.tscn",
+    "name_id": "place.showroom"
+  },
+  "store": {
+    "scene": "res://scenes/places/Store.tscn",
+    "name_id": "place.store"
+  }
+}

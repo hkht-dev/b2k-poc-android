@@ -1,5 +1,6 @@
 ## Persistent root of the game. Owns the one screen that is currently on
-## screen and swaps it on request.
+## screen and swaps it on request: the title, the controls card, a place
+## (the street, a shop's inside) or the end.
 ##
 ## Repository layout puts this in scenes/core alongside GameState, FlagStore and
 ## the debug panel (CLAUDE_CODE_BRIEF.md §2). Those arrive in P2; this is only
@@ -67,6 +68,8 @@ func _connect_screen(screen: Node) -> void:
 		screen.connect("slice_ended", _on_slice_ended)
 	if screen.has_signal("play_again_pressed"):
 		screen.connect("play_again_pressed", _on_back_pressed)
+	if screen.has_signal("place_requested"):
+		screen.connect("place_requested", _on_place_requested)
 
 
 ## Shows the tester's panel over whatever is on screen. One at a time.
@@ -92,13 +95,27 @@ func debug_panel() -> Control:
 
 func _on_begin_pressed() -> void:
 	if CONTROLS_HINT_SCRIPT.already_seen():
-		show_screen(FIRST_PLAY_SCREEN)
+		show_place(GameState.place)
 	else:
 		show_screen(CONTROLS_HINT)
 
 
 func _on_hint_dismissed() -> void:
-	show_screen(FIRST_PLAY_SCREEN)
+	show_place(GameState.place)
+
+
+## Shows the place the journey is in (data/places.json). An id the table does
+## not know falls back to the street rather than a blank screen.
+func show_place(place_id: String) -> Node:
+	var path := Places.scene_of(place_id)
+	if path.is_empty():
+		push_error("Main: no place '%s' in %s; showing the street" % [place_id, Places.PATH])
+		path = FIRST_PLAY_SCREEN
+	return show_screen(path)
+
+
+func _on_place_requested(place_id: String, _spawn_id: String) -> void:
+	show_place(place_id)
 
 
 func _on_back_pressed() -> void:

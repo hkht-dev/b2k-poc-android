@@ -19,6 +19,7 @@ const SAVE_PATH := "user://journey.json"
 const SAVE_VERSION := 1
 const HUMMED_FLAG := "hummed"
 const HUMMED_AT := 3
+const DEFAULT_PLACE := "street"
 
 ## Beats are an ordered list of ids in data (GDD §12). The slice has one.
 var beat: String = ""
@@ -37,6 +38,12 @@ var hum_count: int = 0
 ## *Sit* opens after 90 s of play). Counted by the street, saved with the
 ## rest; not a timer the player sees.
 var play_seconds: float = 0.0
+## Where the player is: a place id from data/places.json, and the spawn
+## point they last arrived on there (empty: where the scene puts them).
+## Owner expansion 2026-10-20: the world has doors, so the journey remembers
+## which side of one the player is on.
+var place: String = DEFAULT_PLACE
+var spawn: String = ""
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -102,6 +109,13 @@ func record_hum() -> int:
 	return hum_count
 
 
+## The player is going through a door: where to, and which spawn point.
+func set_place(place_id: String, spawn_id: String) -> void:
+	place = place_id
+	spawn = spawn_id
+	_save_if_enabled()
+
+
 func set_beat(new_beat: String) -> void:
 	if new_beat == beat:
 		return
@@ -142,6 +156,8 @@ func to_dict() -> Dictionary:
 		"settings": settings.duplicate(true),
 		"hum_count": hum_count,
 		"play_seconds": play_seconds,
+		"place": place,
+		"spawn": spawn,
 	}
 
 
@@ -161,6 +177,10 @@ func from_dict(data: Dictionary) -> void:
 	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
 	hum_count = int(data.get("hum_count", 0))
 	play_seconds = float(data.get("play_seconds", 0.0))
+	place = str(data.get("place", DEFAULT_PLACE))
+	if place.is_empty():
+		place = DEFAULT_PLACE
+	spawn = str(data.get("spawn", ""))
 
 
 func save() -> bool:
@@ -198,6 +218,8 @@ func wipe() -> void:
 	settings = {}
 	hum_count = 0
 	play_seconds = 0.0
+	place = DEFAULT_PLACE
+	spawn = ""
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)

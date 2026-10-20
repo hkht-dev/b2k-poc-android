@@ -1,31 +1,18 @@
-## Hollow Vale, the Street. Wires input to the player and camera, and owns
-## pause.
+## Hollow Vale, the Street: what is the street's own on top of Place.
 ##
 ## GDD §3 Act 3 "Arrival", CLAUDE_CODE_BRIEF.md §4.1, docs/BRIEF_AMENDMENT_1.md
-## §A. This script owns no gameplay rules: it is the seam between input and
-## the two things that consume it.
-##
-## All pointing input arrives as screen touches (mouse emulated into them on
-## desktop); there is deliberately no second mouse-motion path, because
-## Android emulates mouse events from touches too and a second path made
-## every thumb on the joystick swing the camera.
-extends Node3D
+## §A. The input seam, pause, settings, the hum and the doors live in
+## scripts/places/place.gd; here are the street bed, the light's answer to
+## the Dry Fountain, and the end of the slice at the bus stop.
+extends Place
 
 ## The slice is over: the street has faded; Main shows the end screen.
 signal slice_ended(reason: String)
 
-const PAUSE_MENU := preload("res://scenes/ui/PauseMenu.tscn")
-const PLAYER_HUM := preload("res://assets/audio/player_hum.ogg")
 const STREET_BED := preload("res://assets/audio/street_bed.ogg")
-## How far the player's hum carries to anything that can answer it.
-const HUM_REACH := 40.0
-const CONTROLS_HINT := preload("res://scenes/ui/ControlsHint.tscn")
-const CHOICE_CARDS := preload("res://scenes/ui/ChoiceCards.tscn")
-const SETTINGS_SCREEN := preload("res://scenes/ui/SettingsScreen.tscn")
 ## §4.6: fade to black over this long, then the end screen.
 const FADE_SECONDS := 1.6
 const SIT_POSE := "Sitting_Idle"
-const LARGE_TEXT_SCALE := 1.2
 ## The street's light answers the Dry Fountain (CLAUDE_CODE_BRIEF.md §4.4):
 ## a step darker after a can is taken, a step warmer after one is given.
 ## Data: flag -> (sun colour, ambient energy factor).
@@ -34,53 +21,25 @@ const MOODS := {
 	"gave_dry_fountain": [Color(1.0, 0.93, 0.82), 1.12],
 }
 const MOOD_SECONDS := 4.0
-## §A4: touch sensitivity is half the desktop default.
-const TOUCH_SENSITIVITY := 0.5
-const DESKTOP_SENSITIVITY := 1.0
 
-var _pause_menu: Control = null
-var _controls_overlay: Control = null
-var _near: Interactable = null
-var _hum_player: AudioStreamPlayer = null
 var _bed_player: AudioStreamPlayer = null
-var _cards: Control = null
-var _settings_overlay: Control = null
-var _fade: ColorRect = null
 var _ending := false
 var _base_sun_colour := Color.WHITE
 var _base_ambient := 1.0
 var _mood_tween: Tween = null
 
-@onready var _player: CharacterBody3D = %Player
-@onready var _camera_rig: Node3D = %CameraRig
-@onready var _controls: Control = %TouchControls
-@onready var _ui: CanvasLayer = $UI
 @onready var _sun: DirectionalLight3D = $Sun
 @onready var _bus_stop: Node3D = %BusStopPoint
 @onready var _environment: WorldEnvironment = $Environment
 
 
 func _ready() -> void:
-	_apply_settings()
-	_controls.camera_dragged.connect(_on_camera_dragged)
-	_controls.tapped.connect(_on_tapped)
-	_controls.pause_pressed.connect(pause)
-	_controls.minimap().bind(self, _player)
-	_controls.contextual_button().verb_used.connect(_on_verb_used)
-	_controls.contextual_button().hummed.connect(hum)
-	_hum_player = AudioStreamPlayer.new()
-	_hum_player.stream = PLAYER_HUM
-	add_child(_hum_player)
+	super()
 	_bed_player = AudioStreamPlayer.new()
 	_bed_player.stream = STREET_BED
 	_bed_player.volume_db = -10.0
 	add_child(_bed_player)
 	_bed_player.play()
-	_player.moved_first_time.connect(func() -> void: _controls.joystick().dismiss_hint())
-	_ui.process_mode = Node.PROCESS_MODE_ALWAYS
-	_cards = CHOICE_CARDS.instantiate()
-	_ui.add_child(_cards)
-	_cards.bind(Content.dialogue)
 	_base_sun_colour = _sun.light_color
 	_base_ambient = _environment.environment.ambient_light_energy
 	for flag in MOODS:
@@ -88,47 +47,6 @@ func _ready() -> void:
 			_apply_mood(flag, 0.0)
 	GameState.flag_changed.connect(_on_flag_changed)
 	_bus_stop.slice_ended.connect(_on_slice_ended)
-	_fade = ColorRect.new()
-	_fade.color = Color(0, 0, 0, 0)
-	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ui.add_child(_fade)
-
-
-func _physics_process(delta: float) -> void:
-	if not is_paused() and not _ending:
-		GameState.add_play_time(delta)
-	_scan_interactables()
-	if _player.is_climbing() or _ending:
-		_player.set_move_input(Vector2.ZERO, 0.0)
-		return
-	_player.set_move_input(
-		_camera_rig.stick_to_world(_controls.move_vector()), _controls.move_deflection()
-	)
-
-
-## The nearest usable thing the player stands in decides the button's verb.
-func _scan_interactables() -> void:
-	var best: Interactable = null
-	var best_distance := INF
-	for node in get_tree().get_nodes_in_group(Interactable.GROUP):
-		var area := node as Interactable
-		if area == null or not area.is_available() or not area.overlaps_body(_player):
-			continue
-		var distance := area.global_position.distance_to(_player.global_position)
-		if distance < best_distance:
-			best = area
-			best_distance = distance
-	_near = best
-	_controls.contextual_button().show_verb(best.verb_id if best != null else "")
-
-
-func near() -> Interactable:
-	return _near
-
-
-func cards() -> Control:
-	return _cards
 
 
 func _on_flag_changed(flag: String, is_set: bool) -> void:
@@ -157,78 +75,13 @@ func mood_sun_colour() -> Color:
 	return _sun.light_color
 
 
-func _on_verb_used(_verb_id: String) -> void:
-	if _near == null or is_paused():
-		return
-	var target := _near
-	if (
-		target.is_in_group(Interactable.SOUND_SOURCE_GROUP)
-		or target.get_parent().is_in_group(Interactable.SOUND_SOURCE_GROUP)
-	):
-		_camera_rig.drift_toward(target.global_position, 1.5)
-		_controls.subtitle("sub.tulu_hum")
-	target.use(_player)
-
-
-## The Call (GDD §6): the player hums; anything that can answer, does.
-func hum() -> void:
-	if is_paused() or _player.is_climbing():
-		return
-	_hum_player.play()
-	_controls.subtitle("sub.player_hum")
-	var ripple: SoundRipple = _player.get_node_or_null("%Ripple")
-	if ripple != null:
-		ripple.pulse()
-	GameState.record_hum()
-	for node in get_tree().get_nodes_in_group(Interactable.SOUND_SOURCE_GROUP):
-		var source := node as Node3D
-		if source == null or not source.has_method("hear_hum"):
-			continue
-		if source.global_position.distance_to(_player.global_position) <= HUM_REACH:
-			source.hear_hum()
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("contextual"):
-		_controls.contextual_button().button_down.emit()
-		if _near != null:
-			_controls.contextual_button().pressed.emit()
-	elif event.is_action_released("contextual"):
-		_controls.contextual_button().button_up.emit()
-	if event.is_action_pressed("pause"):
-		if is_paused():
-			resume()
-		else:
-			pause()
-		get_viewport().set_input_as_handled()
-
-
-## §A6: settings live in the journey. Defaults differ by device.
-func _apply_settings() -> void:
-	var settings: Dictionary = GameState.settings
-	var touch := DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
-	var default_sensitivity := TOUCH_SENSITIVITY if touch else DESKTOP_SENSITIVITY
-	_camera_rig.sensitivity = float(settings.get("camera_sensitivity", default_sensitivity))
-	_camera_rig.invert_y = bool(settings.get("camera_invert_y", false))
-	var stick: Control = _controls.joystick()
-	stick.side = str(settings.get("joystick_side", "left"))
-	stick.radius = float(settings.get("joystick_size", stick.radius))
-	stick.max_opacity = float(settings.get("joystick_opacity", stick.max_opacity))
-	_controls.set_subtitle_box(bool(settings.get("subtitle_box", false)))
-	get_tree().root.content_scale_factor = (
-		LARGE_TEXT_SCALE if bool(settings.get("large_text", false)) else 1.0
-	)
-	var cues := bool(settings.get("sound_cues", false))
-	for node in get_tree().get_nodes_in_group(SoundRipple.GROUP):
-		(node as SoundRipple).enabled = cues
-
-
 ## The bus stop said it is over (CLAUDE_CODE_BRIEF.md §4.6): the player sits
 ## if they sat, the street fades to black, and Main takes it from there.
 func _on_slice_ended(reason: String) -> void:
-	if _ending:
+	if _ending or _leaving:
 		return
 	_ending = true
+	_input_locked = true
 	_player.set_move_input(Vector2.ZERO, 0.0)
 	if reason == "sat":
 		var rig: CharacterRig = _player.get_node("%Mesh")
@@ -240,85 +93,3 @@ func _on_slice_ended(reason: String) -> void:
 
 func is_ending() -> bool:
 	return _ending
-
-
-func fade_alpha() -> float:
-	return _fade.color.a
-
-
-func tap_to_walk_enabled() -> bool:
-	return bool(GameState.settings.get("tap_to_walk", true))
-
-
-func is_paused() -> bool:
-	return _pause_menu != null
-
-
-func pause() -> void:
-	if _pause_menu != null:
-		return
-	_pause_menu = PAUSE_MENU.instantiate()
-	_pause_menu.resumed.connect(resume)
-	_pause_menu.controls_requested.connect(_show_controls)
-	_pause_menu.settings_requested.connect(_show_settings)
-	_pause_menu.map_toggled.connect(
-		func(_on: bool) -> void: _controls.minimap().refresh_visibility()
-	)
-	_ui.add_child(_pause_menu)
-	get_tree().paused = true
-
-
-func resume() -> void:
-	if _pause_menu == null:
-		return
-	_ui.remove_child(_pause_menu)
-	_pause_menu.queue_free()
-	_pause_menu = null
-	get_tree().paused = false
-
-
-func _show_controls() -> void:
-	if _controls_overlay != null:
-		return
-	_controls_overlay = CONTROLS_HINT.instantiate()
-	_controls_overlay.from_pause = true
-	_controls_overlay.dismissed.connect(
-		func() -> void:
-			_ui.remove_child(_controls_overlay)
-			_controls_overlay.queue_free()
-			_controls_overlay = null
-	)
-	_ui.add_child(_controls_overlay)
-
-
-func _show_settings() -> void:
-	if _settings_overlay != null:
-		return
-	_settings_overlay = SETTINGS_SCREEN.instantiate()
-	_settings_overlay.changed.connect(func(_key: String) -> void: _apply_settings())
-	_settings_overlay.closed.connect(
-		func() -> void:
-			_ui.remove_child(_settings_overlay)
-			_settings_overlay.queue_free()
-			_settings_overlay = null
-	)
-	_ui.add_child(_settings_overlay)
-
-
-func settings_overlay() -> Control:
-	return _settings_overlay
-
-
-func _on_camera_dragged(delta: Vector2) -> void:
-	if is_paused():
-		return
-	_camera_rig.orbit(delta)
-
-
-## §A3: a tap on the right zone walks the player to that point on the ground.
-func _on_tapped(screen: Vector2) -> void:
-	if is_paused() or not tap_to_walk_enabled() or _player.is_climbing():
-		return
-	var point: Variant = _camera_rig.ground_point(screen)
-	if point != null:
-		_player.walk_to(point)

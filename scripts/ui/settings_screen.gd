@@ -21,6 +21,7 @@ const ROWS := [
 	["subtitle_box", "toggle", false, 0, 0, 0],
 	["sound_cues", "toggle", false, 0, 0, 0],
 	["tap_to_walk", "toggle", true, 0, 0, 0],
+	["compass", "toggle", true, 0, 0, 0],
 ]
 const SIDE_RIGHT := "right"
 const SIDE_LEFT := "left"

@@ -76,7 +76,13 @@ REQUIRED_STRING_IDS = [
     "sub.player_hum",
     "now.boy_humming",
     "now.boy_led",
+    "verb.enter",
+    "verb.leave",
+    "settings.compass",
+    *[f"compass.{k}" for k in ("north", "east", "south", "west")],
+    *[f"controls.{scheme}.places" for scheme in ("touch", "desktop", "gamepad")],
 ]
+PLACE_REQUIRED = ["scene", "name_id"]
 
 QUEST_REQUIRED = ["id", "giver", "start_condition", "steps", "end_condition"]
 STEP_REQUIRED = ["id", "objective_text_id", "complete_when"]
@@ -123,6 +129,7 @@ def main() -> int:
         return 1
     problems += check_quests(strings)
     problems += check_dialogue(strings)
+    problems += check_places(strings)
     if problems:
         fail(f"{problems} problem(s)")
         return 1
@@ -269,6 +276,40 @@ def check_dialogue(strings: dict) -> int:
                     fail(f"{rel}: line '{line_id}' points at missing line '{nxt}'")
                     problems += 1
         print(f"ok  {rel} ({len(table)} lines)")
+    return problems
+
+
+def check_places(strings: dict) -> int:
+    """data/places.json: every place names a scene that exists and a name id."""
+    path = DATA / "places.json"
+    if not path.exists():
+        fail("data/places.json is missing")
+        return 1
+    places = load(path)
+    if places is None:
+        return 1
+    problems = 0
+    if "street" not in places:
+        fail("data/places.json: no 'street' place")
+        problems += 1
+    for place_id, entry in places.items():
+        if not isinstance(entry, dict):
+            fail(f"data/places.json: '{place_id}' is not an object")
+            problems += 1
+            continue
+        for key in PLACE_REQUIRED:
+            if key not in entry:
+                fail(f"data/places.json: '{place_id}' is missing '{key}'")
+                problems += 1
+        scene = str(entry.get("scene", ""))
+        if not scene.startswith("res://") or not (ROOT / scene[len("res://"):]).exists():
+            fail(f"data/places.json: '{place_id}' names a scene that does not exist: {scene}")
+            problems += 1
+        if entry.get("name_id") not in strings:
+            fail(f"data/places.json: '{place_id}' name id '{entry.get('name_id')}' is not a string")
+            problems += 1
+    if not problems:
+        print(f"ok  data/places.json ({len(places)} places)")
     return problems
 
 
