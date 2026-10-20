@@ -355,5 +355,83 @@
       "kept_veena"
     ],
     "review_status": "draft"
+  },
+  "chai_greet": {
+    "speaker": "chai_seller",
+    "text_id": "line.chai_greet",
+    "cards": [
+      {
+        "text_id": "card.chai_greet.tulu",
+        "sets": [],
+        "next": "chai_about_tulu"
+      },
+      {
+        "text_id": "card.chai_greet.door",
+        "sets": [],
+        "next": "chai_about_door"
+      },
+      {
+        "text_id": "card.chai_greet.chai",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "chai_about_tulu": {
+    "speaker": "chai_seller",
+    "text_id": "line.chai_about_tulu",
+    "cards": [
+      {
+        "text_id": "card.chai_about_tulu.shrine",
+        "sets": [],
+        "next": "chai_about_door"
+      },
+      {
+        "text_id": "card.chai_about_tulu.thanks",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "chai_about_door": {
+    "speaker": "chai_seller",
+    "text_id": "line.chai_about_door",
+    "sets": [
+      "told_about_shrine"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tulu_door": {
+    "speaker": "tulu",
+    "text_id": "line.tulu_door",
+    "cards": [
+      {
+        "text_id": "card.tulu_door.inside",
+        "sets": [],
+        "next": "tulu_door_lamp"
+      },
+      {
+        "text_id": "card.tulu_door.go_on",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "tulu_at_door"
+    ],
+    "review_status": "draft"
+  },
+  "tulu_door_lamp": {
+    "speaker": "tulu",
+    "text_id": "line.tulu_door_lamp",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
   }
 }

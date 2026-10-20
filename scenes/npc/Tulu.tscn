@@ -17,6 +17,7 @@ height = 2.5
 [node name="Tulu" type="Node3D" groups=["sound_source"]]
 transform = Transform3D(0.72, 0, 0, 0, 0.72, 0, 0, 0, 0.72, 0, 0, 0)
 script = ExtResource("1_tulu")
+entry_lines = PackedStringArray("tulu_door")
 
 ; Positional, audible within ~15 m, faint beyond (CLAUDE_CODE_BRIEF.md §4.3).
 [node name="HumLoop" type="AudioStreamPlayer3D" parent="."]
@@ -43,6 +44,22 @@ script = ExtResource("3_interact")
 verb_id = "verb.listen"
 
 [node name="Shape" type="CollisionShape3D" parent="Listen"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("CylinderShape3D_near")
+
+; At the door the button beside him says *Talk* (the flag is data: the Talk
+; requires `tulu_at_door`, which the script sets on arrival). It hangs off a
+; plain node so the place does not take it for *Listen*: it treats any verb
+; whose parent is a sound source as one.
+[node name="TalkMount" type="Node3D" parent="."]
+
+[node name="Talk" type="Area3D" parent="TalkMount"]
+unique_name_in_owner = true
+script = ExtResource("3_interact")
+verb_id = "verb.talk"
+requires = PackedStringArray("tulu_at_door")
+
+[node name="Shape" type="CollisionShape3D" parent="TalkMount/Talk"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 shape = SubResource("CylinderShape3D_near")
 

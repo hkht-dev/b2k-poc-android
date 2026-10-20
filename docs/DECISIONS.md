@@ -1844,3 +1844,88 @@ journey gains a list).
   being added as a line with `requires`.
 - `tools/check_data.py` does not yet check `data/tells.json`; the
   integrator owns that file (see the report).
+
+## 2026-10-20 — Tulu at the door, the chai stall's front (owner expansion)
+
+GDD §3 Act 3 "Arrival" (Tulu leads to the shrine room behind the chai
+stall), §4 "Tulu ... follows the player if ignored", §5 "the shrine room is
+tucked behind the chai stall, found by following Tulu or Sarang's music"
+and "leaks a faint drone of Madhuri's chanting", §7 micro-interaction "Hum
+near the shrine: Madhuri's chant rises to meet the note". Affects §3, §5,
+§6 (Listen, Call), §7. The shrine interior and the door that opens are
+another feature's; this is the thread up to the door and the stall's front.
+
+### Arriving is a sound and a look, not a prompt
+
+- When Tulu reaches his last waypoint (`is_at_the_door()`) he hums once
+  more through the Reply player, turns to face the player and keeps facing
+  them, and the HUD shows *[Tulu looks at the door, then at you]* for 4 s.
+  The flag `tulu_at_door` is set; both the flag and the subtitle id are
+  exports on `Tulu.tscn`. `GameState.set_flag` returning false (already
+  set) is what keeps the subtitle to once per journey: the flag is the
+  record, nothing else counts.
+- A loaded journey with `tulu_at_door` set finds him at the last waypoint
+  rather than walking the route from the fountain again, so the saved state
+  and the verb beside him agree.
+- Tulu finds the HUD through `owner` (the place that instanced him owns its
+  `%TouchControls`). A bare Tulu, or one in a place with no HUD, says
+  nothing and errors nowhere. Chosen over a signal the street would have to
+  wire so `street.gd` stays untouched.
+
+### Talk takes Listen's place at the door
+
+- `Tulu.tscn` gains a Talk `Interactable` with `requires = ["tulu_at_door"]`
+  (data), opening `entry_lines` (`tulu_door`, data on the scene) the way
+  the shopkeeper does. His Listen area is switched off while he is at the
+  door: both areas sit on him and the place offers the nearer, so only one
+  may be open, and once he has led the player here the button's work is to
+  let them ask. The hum loop still plays; sound still leads.
+- The Talk area hangs off a plain `TalkMount` node because the place treats
+  any verb whose parent is a `sound_source` as *Listen* (camera drift and
+  the hum subtitle). A mount is smaller than a change to `place.gd`.
+- `tulu_door` offers two cards: *What's in there?* → *She keeps a lamp. She
+  knows the whole song.*, and *Go on, then* which ends it. The line itself
+  `requires` the flag, a second gate behind the verb's.
+
+### The chant answers a hum at the door
+
+- `tools/street_parts/chai_front.py` places `ChantOutside`, an
+  `AudioStreamPlayer3D` at the back door (group `chant_outside`; the group
+  name is an export on Tulu), unit size 3 m, inaudible past 14 m, silent
+  until a hum. When the player hums within 10 m of Tulu while he stands at
+  the door, he answers as before and Tulu starts the chant if it is not
+  already playing. The chant is stirred even while his own reply cools
+  down, so every hum at the door reaches the room.
+- `tools/audio_parts/chant_outside.py` makes the sound: a D3 root and its
+  fifth, each with a slow vibrato so they beat against each other, swelling
+  into one another once over 8 s, lowpassed at 420 Hz, peak 0.16. Only this
+  file was encoded (through `gen_audio`'s own helpers); re-encoding the
+  other four would have churned their bytes for no change. PLACEHOLDER for
+  GDD §10: Madhuri's chanting recorded by a devotee with permission.
+
+### The chai stall's front
+
+- Amma (`speaker.chai_seller`, `scenes/npc/Shopkeeper.tscn`, skin
+  humanFemaleA) stands beside the shelf at the hatch's west end facing the
+  street, because the stall's body is a solid box and the hatch a panel on
+  it; her `entry_lines` is `chai_greet`. Three cards: about the boy (*Tulu.
+  He hums all day. His grandmother ran the shrine behind here.*), about the
+  back door (*That's Madhuri's. Knock if you like; she won't mind.*, whose
+  line sets `told_about_shrine` so either route to it sets the flag), and
+  just a chai. The Tulu branch also leads to the door line.
+- A kettle (body, lid, handle, laid spout), eight cups in one MultiMesh,
+  and a `Label3D` sign `sign.chai` through `label_from_id.gd`.
+- Steam is `scripts/street/steam.gd` on one MeshInstance3D: an unshaded,
+  alpha-blended cylinder that scales from its base size to twice it, rises
+  0.6 m and fades over 2.4 s, then starts again. One transparent draw call,
+  no particle system; warm white, so the Hollow Vale palette (no peacock
+  blue, no magenta) holds. PLACEHOLDER for the painted wisp of GDD §10.
+
+### Budget
+
+Not measured in the web build here (the brief for parallel agents forbids
+exports on the shared machine). Added per frame: Amma's rig (one skinned
+mesh), five small opaque primitives, one MultiMesh, one transparent mesh,
+one Label3D: about eight draw calls and under 2k triangles against the P6
+headroom (median 112 of 200 draw calls). The integrator's next measured
+walk should confirm.
