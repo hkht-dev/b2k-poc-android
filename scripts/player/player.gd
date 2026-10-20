@@ -33,6 +33,14 @@ const STEP_HEIGHT := 0.36
 ## the scene (`carryables`).
 const CARRY_PREFIX := "carrying_"
 const DEFAULT_ITEM := "can"
+## PLACEHOLDER: four synthesised steps from tools/audio_parts/world.py,
+## replaced by recorded steps per surface (GDD §10 "Sound"). One loop; the
+## pitch tells a walk from a run, so there is nothing to cross-fade.
+const FOOTSTEPS := preload("res://assets/audio/footsteps_pavement.ogg")
+const FOOTSTEPS_WALK_PITCH := 1.0
+const FOOTSTEPS_RUN_PITCH := 1.35
+## Horizontal speed, m/s, below which the feet are still.
+const FOOTSTEPS_MIN_SPEED := 0.3
 
 ## item id -> the scene shown in the hand (CLAUDE_CODE_BRIEF.md §4.4, §4.5).
 @export var carryables: Dictionary = {}
@@ -49,11 +57,18 @@ var _is_climbing := false
 var _walk_target := Vector3.ZERO
 var _has_walk_target := false
 var _has_moved := false
+var _footsteps: AudioStreamPlayer3D = null
 
 @onready var _rig: CharacterRig = %Mesh
 
 
 func _ready() -> void:
+	_footsteps = AudioStreamPlayer3D.new()
+	_footsteps.stream = FOOTSTEPS
+	_footsteps.volume_db = -6.0
+	_footsteps.unit_size = 3.0
+	_footsteps.max_distance = 16.0
+	add_child(_footsteps)
 	for item in carryables:
 		if GameState.has_flag(CARRY_PREFIX + str(item)):
 			_rig.carry(true, carryables[item])
@@ -138,6 +153,16 @@ func has_moved() -> bool:
 	return _has_moved
 
 
+## The feet are sounding: the body is moving over the ground.
+func is_footsteps_playing() -> bool:
+	return _footsteps.playing
+
+
+## The footsteps' pitch: FOOTSTEPS_WALK_PITCH or FOOTSTEPS_RUN_PITCH.
+func footsteps_pitch() -> float:
+	return _footsteps.pitch_scale
+
+
 func begin_climb(exit: Vector3) -> bool:
 	if _is_climbing:
 		return false
@@ -150,6 +175,7 @@ func begin_climb(exit: Vector3) -> bool:
 	_run_time = 0.0
 	_has_walk_target = false
 	velocity = Vector3.ZERO
+	_update_footsteps()
 	climb_started.emit()
 	return true
 
@@ -195,6 +221,20 @@ func _advance_ground(delta: float) -> void:
 
 	_step_up(delta)
 	move_and_slide()
+	_update_footsteps()
+
+
+## The steps loop while the body actually moves (the velocity after sliding,
+## so pushing at a wall is silent), faster when running, and stop when still
+## or climbing.
+func _update_footsteps() -> void:
+	var speed := Vector2(velocity.x, velocity.z).length()
+	if not _is_climbing and speed >= FOOTSTEPS_MIN_SPEED:
+		_footsteps.pitch_scale = FOOTSTEPS_RUN_PITCH if _is_running else FOOTSTEPS_WALK_PITCH
+		if not _footsteps.playing:
+			_footsteps.play()
+	elif _footsteps.playing:
+		_footsteps.stop()
 
 
 ## Lifts the body over a low ledge in its path. Three sweeps: is the way

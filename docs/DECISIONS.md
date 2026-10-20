@@ -1040,3 +1040,77 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — World assets: textures and sounds for the growing world
+
+Owner expansion ("The world grows"): the street now opens onto interiors,
+and the Grove is next. GDD §5 (the Grove riverbank: grass, river, the
+kadamba with a swing, the calf meadow; Hollow Vale's enterable interiors and
+the shrine room) and §10 (palette by realm; "water, cowbells and birds are
+the Grove's bed"). Affects §5, §10. Nothing here is a system: every file is
+an asset, generated, with its final replacement named in a `PLACEHOLDER`
+comment.
+
+### Ten textures, as a part
+
+- `tools/texture_parts/world.py` is the first texture part
+  (`scenegen.load_parts`): `grass`, `river_bed`, `tile_floor`, `parquet`,
+  `fabric_print`, `chalkboard`, `paper`, `stone_old`, `bark_kadamba`,
+  `sari_red`. Each is built from the generator's own helpers (`noise`,
+  `cloth`, `to_rgb`, `periodic_blur`), tiles in both axes (periodic noise;
+  grids that divide 1024; pebbles and strips wrap round the edge with
+  modular indexing) and is 1024 px like the rest.
+- Colour: the Grove's surfaces are warmed toward the rose-gold dusk (amber
+  on the grass tips, a red lift on the bark ridges) without a pink in them;
+  that pink is the Grove's sky and light, not its ground. The sari is red
+  (hue 0°), never magenta. A test samples every new PNG and holds that its
+  average is neither peacock blue nor magenta (hue ranges 180–227° and
+  281–335° at saturation ≥ 0.3).
+- `assets/materials/<name>.tres` for each, triplanar like `timber.tres`,
+  with a `uv1_scale` chosen so one tile is 1–2 m (tiles 25 cm, strips
+  12.5 × 50 cm, stone blocks 25 × 50 cm, the block print 3 cm).
+- `scenegen.MATS` gains the ten names at the end, so every existing
+  `MAT_ID` keeps its number and the generated scenes only grow ten
+  `ext_resource` lines (regenerated and committed). The cost: every
+  generated scene now loads 31 materials and their textures whether it uses
+  them or not, about 7 MB more VRAM per scene. Recorded, not fixed: emitting
+  only the materials a scene uses is a change to `ext_materials()` that
+  belongs with the scene generator, not with an asset drop.
+
+### Ten sounds, as a part
+
+- `tools/audio_parts/world.py`: `door_open` (0.62 s), `door_close`
+  (0.8 s), `footsteps_pavement` and `footsteps_wood` (four steps, 2 s
+  loops), `room_tone` (6 s), `shop_bell` (1.6 s), `bird_calls` (8 s),
+  `river_loop` (6 s), `swing_creak` (3 s), `calf_moo` (1.1 s). Noise and
+  tones through the generator's `lowpass`, `envelope` and `t`; loops are
+  cross-faded on themselves and chirps wrap round the loop's end so
+  nothing clicks. Loops carry `loop=true` in their `.import`; one-shots do
+  not; a test holds both.
+- `door_open` is deliberately short: the Place fades the view over 0.45 s
+  and swaps the scene, so a longer creak would be cut. `door_close` is an
+  asset for the arrival side (a door shutting behind the player as the
+  view returns), which `Place._place_at_spawn` could play; not wired here,
+  as place.gd is shared.
+- The calf's moo is formant-shaped harmonics; a recording replaces it
+  (GDD §3 Act 1).
+
+### Footsteps and the door
+
+- The player carries one `AudioStreamPlayer3D` with the pavement loop,
+  made in `_ready` (no scene edit). It plays while the horizontal velocity
+  after `move_and_slide()` is at least 0.3 m/s, so pushing at a wall is
+  silent; pitch 1.0 walking, 1.35 running (one loop, no cross-fade); it
+  stops when still or on `begin_climb`. `is_footsteps_playing()` and
+  `footsteps_pitch()` are for tests. Surface switching (wood indoors) is
+  not done: the player does not know what it stands on, and adding that
+  knowledge is a Place decision, not an asset one. `footsteps_wood` waits
+  for it.
+- `Door` plays `door_open` at its own position on use, before emitting
+  `used_door`; `is_sound_playing()` for tests.
+
+### Placeholders
+
+Every PNG and OGG here: replaced 1:1 by the painted surfaces and recorded
+sounds of GDD §10. No rights rows: generated, like the street's own.

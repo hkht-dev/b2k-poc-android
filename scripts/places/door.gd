@@ -10,6 +10,9 @@ extends Node3D
 signal used_door(place_id: String, spawn_id: String)
 
 const GROUP := "door"
+## PLACEHOLDER: a synthesised creak and latch from tools/audio_parts/world.py,
+## replaced by the recorded doors of GDD §5's enterable interiors.
+const DOOR_OPEN := preload("res://assets/audio/door_open.ogg")
 
 ## The place this door leads to (data/places.json).
 @export var place_id := ""
@@ -18,6 +21,8 @@ const GROUP := "door"
 @export var verb_id := "verb.enter"
 ## The box in front of the door, in metres, in which the verb is offered.
 @export var reach := Vector3(2.4, 2.2, 1.6)
+
+var _sound: AudioStreamPlayer3D = null
 
 @onready var _use: Interactable = %Use
 @onready var _shape: CollisionShape3D = %Shape
@@ -30,6 +35,12 @@ func _ready() -> void:
 	box.size = reach
 	_shape.shape = box
 	_shape.position = Vector3(0.0, reach.y * 0.5, 0.0)
+	_sound = AudioStreamPlayer3D.new()
+	_sound.stream = DOOR_OPEN
+	_sound.position = Vector3(0.0, 1.2, 0.0)
+	_sound.unit_size = 4.0
+	_sound.max_distance = 20.0
+	add_child(_sound)
 	_use.used.connect(_on_used)
 
 
@@ -37,5 +48,11 @@ func use_area() -> Interactable:
 	return _use
 
 
+## The door is sounding: it was just used.
+func is_sound_playing() -> bool:
+	return _sound.playing
+
+
 func _on_used(_player: Node3D) -> void:
+	_sound.play()
 	used_door.emit(place_id, spawn_id)
