@@ -130,6 +130,7 @@ def main() -> int:
     problems += check_quests(strings)
     problems += check_dialogue(strings)
     problems += check_places(strings)
+    problems += check_daylight()
     if problems:
         fail(f"{problems} problem(s)")
         return 1
@@ -310,6 +311,55 @@ def check_places(strings: dict) -> int:
             problems += 1
     if not problems:
         print(f"ok  data/places.json ({len(places)} places)")
+    return problems
+
+def check_daylight() -> int:
+    """data/daylight.json: ordered stages chosen by flags, the first always on."""
+    path = DATA / "daylight.json"
+    if not path.exists():
+        return 0
+    data = load(path)
+    if data is None:
+        return 1
+    problems = 0
+    if not isinstance(data.get("transition_seconds"), (int, float)):
+        fail("data/daylight.json: 'transition_seconds' must be a number")
+        problems += 1
+    stages = data.get("stages")
+    if not isinstance(stages, list) or not stages:
+        fail("data/daylight.json: 'stages' must be a non-empty list")
+        return problems + 1
+    seen = set()
+    for i, stage in enumerate(stages):
+        sid = stage.get("id") if isinstance(stage, dict) else None
+        if not isinstance(stage, dict) or not sid:
+            fail(f"data/daylight.json: stage {i} needs an id")
+            problems += 1
+            continue
+        if sid in seen:
+            fail(f"data/daylight.json: stage id '{sid}' repeats")
+            problems += 1
+        seen.add(sid)
+        if not condition_ok(str(stage.get("when", ""))):
+            fail(f"data/daylight.json: stage '{sid}' has a bad 'when'")
+            problems += 1
+        if i == 0 and str(stage.get("when", "")).strip() != "true":
+            fail("data/daylight.json: the first stage's 'when' must be 'true'")
+            problems += 1
+        for key in ("sun_colour", "fog_colour", "sky_tint"):
+            value = stage.get(key)
+            if not (isinstance(value, list) and len(value) == 3 and all(isinstance(v, (int, float)) and 0 <= v <= 1 for v in value)):
+                fail(f"data/daylight.json: stage '{sid}' '{key}' must be three floats in 0..1")
+                problems += 1
+        for key in ("sun_energy", "sun_elevation_degrees", "sun_azimuth_degrees", "ambient_energy", "fog_density"):
+            if not isinstance(stage.get(key), (int, float)):
+                fail(f"data/daylight.json: stage '{sid}' '{key}' must be a number")
+                problems += 1
+        if not isinstance(stage.get("lamps_on"), bool):
+            fail(f"data/daylight.json: stage '{sid}' 'lamps_on' must be true or false")
+            problems += 1
+    if not problems:
+        print(f"ok  data/daylight.json ({len(stages)} stages)")
     return problems
 
 
