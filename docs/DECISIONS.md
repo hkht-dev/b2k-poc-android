@@ -766,4 +766,15 @@ Affects amendment §B4; GDD §6 (the player's body language).
   2.2 m/s plays at 1.5×, a brisk walk), Jog_Fwd at 3.6 m/s; the run
   threshold stays 3.2 m/s.
 
-PERF_TABLE_PLACEHOLDER
+### Performance in the web build (this change)
+
+| Metric | Limit (amendment §C) | Rigged (Kenney clips) | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 108, max 176 | median 108, max 169 |
+| Primitives per frame | < 150k | median 44.6k, max 53.3k | median 44.6k, max 56.6k |
+| Web `.pck` | — | 32 MB | 32 MB |
+
+Same walk as before. The library GLB (7.4 MB on disk) replaces three Kenney
+clips of 1.7 MB; the `.pck` size held because the Kenney clips' skeletons
+went with them. Checked in the browser: idle stands relaxed, the walk
+strides, the jog runs, feet on the ground.
