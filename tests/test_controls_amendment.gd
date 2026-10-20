@@ -207,15 +207,6 @@ func test_pause_opens_a_menu_with_controls_and_stops_the_world() -> void:
 	assert_false(street.is_paused())
 
 
-func test_the_card_names_a_scheme_and_six_lines() -> void:
-	var hint: Control = add_child_autofree(HINT.instantiate())
-	await wait_frames(1)
-	assert_true(["touch", "desktop", "gamepad"].has(hint.current_scheme()))
-	assert_eq(
-		hint.get_node("%Lines").get_child_count(), 6, "move, look, walk there, use, hum, doors"
-	)
-
-
 func test_the_card_names_a_scheme_and_a_line_per_key() -> void:
 	var hint: Control = add_child_autofree(HINT.instantiate())
 	await wait_frames(1)
