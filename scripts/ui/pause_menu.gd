@@ -1,8 +1,9 @@
 ## Pause: resume, or see the controls again.
 ##
 ## GDD §11 lists the pause menu's contents (Your journey, settings, quit);
-## *Your journey* is here since P5, the rest arrive in P6. docs/BRIEF_AMENDMENT_1.md
-## §A5 asks for *Controls* to be reachable here always, so the menu exists now with that and *Resume*.
+## *Your journey* is here since P5, the rest arrive in P6.
+## docs/BRIEF_AMENDMENT_1.md §A5 asks for *Controls* to be reachable here
+## always, so the menu exists now with that and *Resume*.
 extends Control
 
 signal resumed

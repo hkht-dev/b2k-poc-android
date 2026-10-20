@@ -912,3 +912,34 @@ All three outcomes play from `data/quests/dry_fountain.json` and
 
 Same walk as before. Gopal (one skinned mesh), the fountain point and the
 cans on the pavement add a handful of draw calls at the shop angle.
+
+
+## 2026-10-20 — P5: the Glimpse and the feather
+
+CLAUDE_CODE_BRIEF.md §4.5, GDD §6 "Glimpses", §10 (the one peacock blue).
+
+- `scenes/quest/Glimpse.tscn` sits on the traffic-light beam, placed by the
+  generator. The figure is the shared rigged body painted with an unlit
+  near-black material (`CharacterRig.paint_all`), playing the library's
+  `Sitting_Idle`, a flute in the hand through the same carry mechanism the
+  can uses, a feather quad in the hair, and an OmniLight behind it in a
+  warm orange nothing else in the scene has. PLACEHOLDER for the extruded
+  silhouette of GDD §10.
+- Trigger: the flag `gave_dry_fountain` being set while
+  `glimpsed_traffic_light` is not. Never a timer, never `took_`. The scene
+  itself sets `glimpsed_traffic_light` when it ends, so it happens once per
+  journey; a test holds that a long wait and the took path do nothing.
+- Ends after `seconds` (5) or when the player is within `end_distance`
+  (6 m): the silhouette fades over 0.5 s, the feather pick-up on the
+  pavement below the pole becomes visible, *Your journey* gets exactly
+  *"You thought you saw someone on the traffic light."* The feather is the
+  only peacock blue in the Street (`assets/materials/peacock_feather.tres`).
+- Tulu looks up: `look_up_at()` turns him to the point and tilts him back
+  for 2.5 s. Pedestrians have no such method and do not react.
+- Carrying became general: the player's `carryables` (data on
+  `Player.tscn`: `can`, `feather`) map an item id to the scene shown in the
+  hand, each a flag `carrying_<item>`; one thing at a time. Picking the
+  feather up fires `feather_picked_up` so a loaded journey does not lay it
+  down again, and sets nothing else: nothing happens, as the brief says.
+- The pause menu now lists *Your journey* (GDD §6; the brief names the pause
+  menu as where the line is recorded), hidden until it has a line.
