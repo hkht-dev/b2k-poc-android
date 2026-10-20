@@ -170,8 +170,19 @@ class Builder:
             for k, sid in self.shapes.items()
         )
 
-    def solid(self, name, parent, pos, size, mat, yaw=0.0, collide=True) -> None:
-        """A box. With collision it is a StaticBody3D; without, a bare mesh."""
+    # A collision-less box or cylinder smaller than this on every side is a
+    # detail (a sign, a cup, a coin, a frame) and casts no shadow: the shadow
+    # pass is a draw call per caster, and the expansion's props pushed the
+    # street past 200 at the worst angle (docs/DECISIONS.md "Budget after the
+    # expansion"). Pass shadows=True to keep a small thing's shadow.
+    DETAIL_SIZE = 1.5
+
+    def solid(self, name, parent, pos, size, mat, yaw=0.0, collide=True, shadows=None) -> None:
+        """A box. With collision it is a StaticBody3D; without, a bare mesh.
+        `shadows` None lets the detail rule decide."""
+        if shadows is None:
+            shadows = collide or max(size) >= self.DETAIL_SIZE
+        cast = "" if shadows else "cast_shadow = 0\n"
         if collide:
             self.nodes.append(
                 f'[node name="{name}" type="StaticBody3D" parent="{parent}"]\n'
@@ -188,11 +199,15 @@ class Builder:
                 f'[node name="{name}" type="MeshInstance3D" parent="{parent}"]\n'
                 f"transform = {xf(pos, yaw, size)}\n"
                 f'mesh = SubResource("BoxMesh_unit")\n'
-                f'surface_material_override/0 = ExtResource("{MAT_ID[mat]}")\n\n'
+                f'surface_material_override/0 = ExtResource("{MAT_ID[mat]}")\n{cast}\n'
             )
 
-    def cyl(self, name, parent, pos, radius, height, mat, yaw=0.0, lay=False) -> None:
-        """A cylinder; `lay` rolls it onto its side along X (a wheel, a tank)."""
+    def cyl(self, name, parent, pos, radius, height, mat, yaw=0.0, lay=False, shadows=None) -> None:
+        """A cylinder; `lay` rolls it onto its side along X (a wheel, a tank).
+        `shadows` None lets the detail rule decide (cylinders never collide)."""
+        if shadows is None:
+            shadows = max(radius * 2, height) >= self.DETAIL_SIZE
+        cast = "" if shadows else "cast_shadow = 0\n"
         if lay:
             # rotate 90 degrees about Z: the cylinder's axis becomes X
             v = [0, height, 0, -radius * 2, 0, 0, 0, 0, radius * 2, *pos]
@@ -209,7 +224,7 @@ class Builder:
             f'[node name="{name}" type="MeshInstance3D" parent="{parent}"]\n'
             f"transform = {t}\n"
             f'mesh = SubResource("CylinderMesh_unit")\n'
-            f'surface_material_override/0 = ExtResource("{MAT_ID[mat]}")\n\n'
+            f'surface_material_override/0 = ExtResource("{MAT_ID[mat]}")\n{cast}\n'
         )
 
     def group(self, name, parent=".") -> None:
@@ -285,7 +300,7 @@ class Builder:
             f'text_id = "{text_id}"\n'
             f"pixel_size = 0.01\nfont_size = {size}\noutline_size = 10\n"
             f"modulate = Color({r:g}, {g:g}, {b:g}, {a:g})\n"
-            f"shaded = false\ndouble_sided = false\nno_depth_test = false\n\n"
+            f"shaded = false\ndouble_sided = false\nno_depth_test = false\ncast_shadow = 0\n\n"
         )
 
     def door(self, name, parent, place_id, spawn_id, verb, pos, yaw=0.0, size=(2.4, 2.2, 1.6)) -> None:

@@ -419,56 +419,67 @@ surface_material_override/0 = ExtResource("19_coat")
 transform = Transform3D(0.64, 0, -0, 0, 0.56, 0, 0, 0, 0.64, -17.2, 0.28, 4.6)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("10_plaster_ochre")
+cast_shadow = 0
 
 [node name="Pot1" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.56, 0, -0, 0, 0.48, 0, 0, 0, 0.56, -17.6, 0.24, 6.4)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("10_plaster_ochre")
+cast_shadow = 0
 
 [node name="Pot2" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.6, 0, -0, 0, 0.52, 0, 0, 0, 0.6, -10.6, 0.26, 7.6)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("10_plaster_ochre")
+cast_shadow = 0
 
 [node name="Pot3" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.52, 0, -0, 0, 0.44, 0, 0, 0, 0.52, -10.3, 0.22, 5.4)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("10_plaster_ochre")
+cast_shadow = 0
 
 [node name="Bowl0" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.52, 0, -0, 0, 0.1, 0, 0, 0, 0.52, -15.8, 0.09, 5)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Bowl1" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.52, 0, -0, 0, 0.1, 0, 0, 0, 0.52, -14.6, 0.09, 7.2)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Bowl2" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.52, 0, -0, 0, 0.1, 0, 0, 0, 0.52, -13.1, 0.09, 4.4)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Bowl3" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.52, 0, -0, 0, 0.1, 0, 0, 0, 0.52, -12, 0.09, 6.8)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Bowl4" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.52, 0, -0, 0, 0.1, 0, 0, 0, 0.52, -13.8, 0.09, 6.1)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Bowl5" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.52, 0, -0, 0, 0.1, 0, 0, 0, 0.52, -16.4, 0.09, 7.8)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Basket" type="MeshInstance3D" parent="Feast"]
 transform = Transform3D(0.84, 0, -0, 0, 0.44, 0, 0, 0, 0.84, -11.4, 0.22, 3.8)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
+cast_shadow = 0
 
 [node name="PotBodies" type="StaticBody3D" parent="Feast"]
 collision_layer = 1
@@ -647,6 +658,7 @@ surface_material_override/0 = ExtResource("16_timber")
 transform = Transform3D(1.1, 0, -0, 0, 0.06, 0, 0, 0, 0.4, 0, -3.32, 0)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
+cast_shadow = 0
 
 [node name="Push" type="Area3D" parent="Kadamba/Swing"]
 script = ExtResource("2_interact")

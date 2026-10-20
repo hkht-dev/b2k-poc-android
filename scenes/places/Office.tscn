@@ -282,6 +282,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, -2.2, 3.18, -1.2)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Lamp1" type="OmniLight3D" parent="Lights"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 2.2, 3.1, -1.2)
@@ -295,6 +296,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, 2.2, 3.18, -1.2)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Lamp2" type="OmniLight3D" parent="Lights"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, 3.1, 2)
@@ -308,6 +310,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, 0, 3.18, 2)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Fittings" type="Node3D" parent="."]
 
@@ -343,26 +346,31 @@ surface_material_override/0 = ExtResource("23_tyre")
 transform = Transform3D(0.0764269, 0, -0.0236416, 0, 0.02, 0, 0.0472832, 0, 0.152854, 1.5, 0.82, 1)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="Ledger" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.316407, 0, 0.0478202, 0, 0.05, 0, -0.0657528, 0, 0.435059, -0.3, 0.83, 1.5)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="LampBase" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.18, 0, -0, 0, 0.03, 0, 0, 0, 0.18, -0.6, 0.815, 0.85)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="LampStem" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.024, 0, -0, 0, 0.36, 0, 0, 0, 0.024, -0.6, 1, 0.85)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="LampShade" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.24, 0, -0, 0, 0.12, 0, 0, 0, 0.24, -0.6, 1.2, 0.85)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="ChairSeat" type="StaticBody3D" parent="Fittings"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0.5, 0.24, 2.3)
@@ -381,16 +389,19 @@ surface_material_override/0 = ExtResource("23_tyre")
 transform = Transform3D(0.62, 0, -0, 0, 0.76, 0, 0, 0, 0.12, 0.5, 0.86, 2.6)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="ChairArmL" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.08, 0, -0, 0, 0.2, 0, 0, 0, 0.56, 0.19, 0.58, 2.3)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="ChairArmR" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.08, 0, -0, 0, 0.2, 0, 0, 0, 0.56, 0.81, 0.58, 2.3)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="Visitor0" type="StaticBody3D" parent="Fittings"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -0.3, 0.22, 0.1)
@@ -409,11 +420,13 @@ surface_material_override/0 = ExtResource("16_timber")
 transform = Transform3D(0.44, 0, -0, 0, 0.06, 0, 0, 0, 0.44, -0.3, 0.47, 0.1)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="Visitor0Back" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.46, 0, -0, 0, 0.5, 0, 0, 0, 0.06, -0.3, 0.72, -0.1)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
+cast_shadow = 0
 
 [node name="Visitor1" type="StaticBody3D" parent="Fittings"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 1.3, 0.22, 0.1)
@@ -432,11 +445,13 @@ surface_material_override/0 = ExtResource("16_timber")
 transform = Transform3D(0.44, 0, -0, 0, 0.06, 0, 0, 0, 0.44, 1.3, 0.47, 0.1)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="Visitor1Back" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.46, 0, -0, 0, 0.5, 0, 0, 0, 0.06, 1.3, 0.72, -0.1)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
+cast_shadow = 0
 
 [node name="Cabinet0" type="StaticBody3D" parent="Fittings"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -4.15, 0.7, -1.9)
@@ -486,36 +501,43 @@ cast_shadow = 0
 transform = Transform3D(0.34, 0, -0, 0, 0.12, 0, 0, 0, 0.5, -4.15, 1.46, -1.95)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("12_plaster_cream")
+cast_shadow = 0
 
 [node name="Folders1" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.338301, 0, -0.0339434, 0, 0.12, 0, 0.0499167, 0, 0.497502, -4.15, 1.46, -1.05)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Folders2" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.333223, 0, -0.0675476, 0, 0.12, 0, 0.0993347, 0, 0.490033, -4.15, 1.46, -0.4)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("19_coat")
+cast_shadow = 0
 
 [node name="Photo0" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.08, 0, -0, 0, 0.72, 0, 0, 0, 0.92, 4.46, 1.7, -1.7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
+cast_shadow = 0
 
 [node name="Photo0Print" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.03, 0, -0, 0, 0.6, 0, 0, 0, 0.8, 4.415, 1.7, -1.7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("12_plaster_cream")
+cast_shadow = 0
 
 [node name="Photo0Tower" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.02, 0, -0, 0, 0.4, 0, 0, 0, 0.07, 4.39, 1.6, -1.7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="Photo0Crane" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.02, 0, -0, 0, 0.025, 0, 0, 0, 0.3, 4.39, 1.86, -1.6)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="PhotoLook0" parent="Fittings" instance=ExtResource("look")]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 3.75, 0, -1.7)
@@ -526,21 +548,25 @@ reach = Vector3(1.4, 2.2, 1.3)
 transform = Transform3D(0.08, 0, -0, 0, 0.72, 0, 0, 0, 0.92, 4.46, 1.7, 0)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
+cast_shadow = 0
 
 [node name="Photo1Print" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.03, 0, -0, 0, 0.6, 0, 0, 0, 0.8, 4.415, 1.7, 0)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("12_plaster_cream")
+cast_shadow = 0
 
 [node name="Photo1Tower" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.02, 0, -0, 0, 0.4, 0, 0, 0, 0.07, 4.39, 1.6, 0)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="Photo1Board" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.02, 0, -0, 0, 0.13, 0, 0, 0, 0.32, 4.39, 1.87, 0)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="PhotoLook1" parent="Fittings" instance=ExtResource("look")]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 3.75, 0, 0)
@@ -551,26 +577,31 @@ reach = Vector3(1.4, 2.2, 1.3)
 transform = Transform3D(0.08, 0, -0, 0, 0.72, 0, 0, 0, 0.92, 4.46, 1.7, 1.7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
+cast_shadow = 0
 
 [node name="Photo2Print" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.03, 0, -0, 0, 0.6, 0, 0, 0, 0.8, 4.415, 1.7, 1.7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("12_plaster_cream")
+cast_shadow = 0
 
 [node name="Photo2Tower" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.02, 0, -0, 0, 0.4, 0, 0, 0, 0.07, 4.39, 1.6, 1.7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="Photo2Board" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.02, 0, -0, 0, 0.13, 0, 0, 0, 0.32, 4.39, 1.87, 1.7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="Photo2Him" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.02, 0, -0, 0, 0.1, 0, 0, 0, 0.035, 4.39, 1.985, 1.7)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="PhotoLook2" parent="Fittings" instance=ExtResource("look")]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 3.75, 0, 1.7)
@@ -593,21 +624,25 @@ modulate = Color(0.95, 0.82, 0.5, 1)
 shaded = false
 double_sided = false
 no_depth_test = false
+cast_shadow = 0
 
 [node name="CameraArm" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.32, 0, -0, 0, 0.05, 0, 0, 0, 0.05, 4.34, 3.1, -3.1)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="CameraBox" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.113137, 0, 0.113137, 0, 0.14, 0, -0.240416, 0, 0.240416, 4.08, 3.04, -2.98)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
+cast_shadow = 0
 
 [node name="CameraLens" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.0424264, 0, 0.0424264, 0, 0.06, 0, -0.0141421, 0, 0.0141421, 3.95, 3.04, -2.85)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="CameraLook" parent="Fittings" instance=ExtResource("look")]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 3.7, 0, -2.9)
@@ -633,21 +668,25 @@ surface_material_override/0 = ExtResource("16_timber")
 transform = Transform3D(1.34, 0, -0, 0, 0.12, 0, 0, 0, 0.14, -2.6, 2.36, 3.42)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
+cast_shadow = 0
 
 [node name="LockBody" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.1, 0, -0, 0, 0.18, 0, 0, 0, 0.06, -2.18, 1, 3.39)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="LockShackle" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.04, 0, -0, 0, 0.1, 0, 0, 0, 0.03, -2.18, 1.13, 3.39)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Bolt" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.34, 0, -0, 0, 0.04, 0, 0, 0, 0.04, -2.35, 1.5, 3.39)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="LockLook" parent="Fittings" instance=ExtResource("look")]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -2.6, 0, 2.75)

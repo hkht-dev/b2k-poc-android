@@ -281,6 +281,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, -2.5, 3.18, -1.5)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Lamp1" type="OmniLight3D" parent="Lights"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 2.5, 3.1, -1.5)
@@ -294,6 +295,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, 2.5, 3.18, -1.5)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Lamp2" type="OmniLight3D" parent="Lights"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 0, 3.1, 2.6)
@@ -307,6 +309,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, 0, 3.18, 2.6)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Fittings" type="Node3D" parent="."]
 
@@ -339,6 +342,7 @@ modulate = Color(0.96, 0.93, 0.85, 1)
 shaded = false
 double_sided = false
 no_depth_test = false
+cast_shadow = 0
 
 [node name="Storekeeper" parent="." instance=ExtResource("keeper")]
 unique_name_in_owner = true
@@ -460,16 +464,19 @@ shape = SubResource("BoxShape3D_5")
 transform = Transform3D(0.6, 0, -0, 0, 0.6, 0, 0, 0, 0.5, 0.6, 0.3, 3.3)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("20_cloth_pale")
+cast_shadow = 0
 
 [node name="Sack1" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.552637, 0, -0.233651, 0, 0.6, 0, 0.194709, 0, 0.46053, 1.2, 0.3, 3.5)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("20_cloth_pale")
+cast_shadow = 0
 
 [node name="Sack2" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.418024, 0, -0.430414, 0, 0.6, 0, 0.358678, 0, 0.348353, 0.9, 0.3, 2.8)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("20_cloth_pale")
+cast_shadow = 0
 
 [node name="SackBody" type="StaticBody3D" parent="Fittings"]
 collision_layer = 1

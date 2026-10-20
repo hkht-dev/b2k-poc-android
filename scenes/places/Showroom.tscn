@@ -294,6 +294,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, -3.5, 3.18, -1.5)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Lamp1" type="OmniLight3D" parent="Lights"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 3.5, 3.1, -1.5)
@@ -307,6 +308,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, 3.5, 3.18, -1.5)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Lamp2" type="OmniLight3D" parent="Lights"]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 1.5, 3.1, 2.5)
@@ -320,6 +322,7 @@ shadow_enabled = false
 transform = Transform3D(0.56, 0, -0, 0, 0.16, 0, 0, 0, 0.56, 1.5, 3.18, 2.5)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("18_rust_metal")
+cast_shadow = 0
 
 [node name="Fittings" type="Node3D" parent="."]
 
@@ -352,6 +355,7 @@ modulate = Color(0.96, 0.93, 0.85, 1)
 shaded = false
 double_sided = false
 no_depth_test = false
+cast_shadow = 0
 
 [node name="Tailor" parent="." instance=ExtResource("keeper")]
 unique_name_in_owner = true
@@ -417,6 +421,7 @@ shape = SubResource("BoxShape3D_4")
 transform = Transform3D(1.1, 0, -0, 0, 0.2, 0, 0, 0, 1.1, 4.8, 0.1, -3.2)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Mannequin0" type="Node3D" parent="Fittings"]
 transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, 4.8, 0.2, -3.2)
@@ -428,6 +433,7 @@ skin = ExtResource("skin_skaterFemaleA")
 transform = Transform3D(1.1, 0, -0, 0, 0.2, 0, 0, 0, 1.1, 4.8, 0.1, -1.3)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Mannequin1" type="Node3D" parent="Fittings"]
 transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, 4.8, 0.2, -1.3)
@@ -439,6 +445,7 @@ skin = ExtResource("skin_criminalMaleA")
 transform = Transform3D(1.1, 0, -0, 0, 0.2, 0, 0, 0, 1.1, 4.8, 0.1, 0.6)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="Mannequin2" type="Node3D" parent="Fittings"]
 transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, 4.8, 0.2, 0.6)
@@ -476,6 +483,7 @@ surface_material_override/0 = ExtResource("23_tyre")
 transform = Transform3D(1.2, 0, -0, 0, 0.2, 0, 0, 0, 1.2, 4.3, 0.1, 3.2)
 mesh = SubResource("CylinderMesh_unit")
 surface_material_override/0 = ExtResource("11_plaster_white")
+cast_shadow = 0
 
 [node name="DaisBody" type="StaticBody3D" parent="Fittings"]
 collision_layer = 1
@@ -519,16 +527,19 @@ surface_material_override/0 = ExtResource("16_timber")
 transform = Transform3D(0.5, 0, -0, 0, 0.12, 0, 0, 0, 0.4, -0.5, 0.5, 0.6)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("20_cloth_pale")
+cast_shadow = 0
 
 [node name="Folded1" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.5, 0, -0, 0, 0.12, 0, 0, 0, 0.4, 0.4, 0.5, 0.9)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("19_coat")
+cast_shadow = 0
 
 [node name="Folded2" type="MeshInstance3D" parent="Fittings"]
 transform = Transform3D(0.5, 0, -0, 0, 0.12, 0, 0, 0, 0.4, 0, 0.5, 1.1)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("30_canopy")
+cast_shadow = 0
 
 [node name="Player" parent="." instance=ExtResource("4_player")]
 unique_name_in_owner = true
