@@ -171,5 +171,55 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "carving_look": {
+    "speaker": "carving",
+    "text_id": "line.carving_look",
+    "sets": [
+      "read_carving"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "veena_dawn": {
+    "speaker": "dawn",
+    "text_id": "line.veena_dawn",
+    "cards": [
+      {
+        "text_id": "card.veena_dawn.play",
+        "sets": [
+          "played_for_others"
+        ],
+        "next": "veena_played"
+      },
+      {
+        "text_id": "card.veena_dawn.take",
+        "sets": [
+          "kept_veena"
+        ],
+        "next": "veena_kept"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "veena_played": {
+    "speaker": "dawn",
+    "text_id": "line.veena_played",
+    "cards": [],
+    "requires": [
+      "played_for_others"
+    ],
+    "review_status": "draft"
+  },
+  "veena_kept": {
+    "speaker": "dawn",
+    "text_id": "line.veena_kept",
+    "cards": [],
+    "requires": [
+      "kept_veena"
+    ],
+    "review_status": "draft"
   }
 }

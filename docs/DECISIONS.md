@@ -1040,3 +1040,79 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — The tower climb and the dawn choice
+
+GDD §3a "Climb the tower at dawn: ladder, four landings"; §5 Hollow Vale
+(the tower "reachable by stairs and a ladder, 4 landings; a top beam no one
+can reach") and Rooftop ("the Veena on its stand, the whole city below"); §7
+micro-interactions ("Read Nanda's brother's name carved on the tower's
+second landing"); §8 Scene E "The dawn choice"; §12 (flags only). Built as
+`tools/street_parts/tower_climb.py` on gen_street.py's "Tower" group; the
+generator itself did not change.
+
+### What was built
+
+- **The stair.** An external concrete stair up the tower's east face from
+  the alley: fourteen 0.25 m risers (under the player's 0.36 m step, so the
+  feet climb it with no new code) to the first landing at 3.5 m, a handrail
+  on the open side. One MultiMesh, one collider body.
+- **Segment climbs** (the mechanic's name). `scripts/street/ladder.gd` is an
+  Area3D on each landing, facing the rungs; a body in it moving into them
+  (facing dot ≥ 0.35, as the fountain's ledge) is carried to the next
+  landing's exit marker by the player's own `begin_climb` (0.85 s). Four
+  landings, three segments; holding the stick toward the wall chains them,
+  letting go rests on a landing with rails. No new player API, no state
+  outside the player's existing climb. There is no climbing down: every
+  landing's open side is a drop, and a drop costs nothing (GDD §16a's
+  rooftop rule, applied early). The direction "in" is the area's facing,
+  not the exit's position, because the exit is straight up.
+- **The roof lid.** gen_street's "Parapet" is a 15.6 × 0.5 slab over the
+  whole roof (top 14.45) with no collision, so the Block's top at 14.0 would
+  have put the player's shins in it. The part adds a collider matching the
+  slab; the roof's walkable surface is 14.45 and the fourth landing is flush
+  with it (the brief's "y 14"). No parapet ring: the roof is open, the way
+  down is the edge.
+- **The carving** (`scenes/quest/Carving.tscn`, `scripts/quest/look_point.gd`)
+  on the wall at the second landing: a Label3D whose text is
+  `sign.nanda_brother` from the string table. *Look* opens the dialogue line
+  `carving_look`, whose `sets` marks `read_carving`. The line is shown the way
+  the fountain's *Look* line is (the cards panel, no cards, tap to dismiss),
+  not as a HUD subtitle: subtitles belong to the Place, and the plain
+  no-card line is the codebase's one pattern for *Look*. "RAGHU" is a draft
+  name for the writers; the GDD does not name Nanda's brother.
+- **The roof** (`scenes/quest/TowerTop.tscn`, `scripts/quest/tower_top.gd`).
+  Stepping onto it sets `on_the_tower` once. The Veena stands at the centre
+  on a timber post; *Look* (hands free, choice not yet made) opens
+  `veena_dawn`: *Play it for the street.* / *Take it and go.* The cards set
+  `played_for_others` / `kept_veena` in the dialogue data; one line answers
+  each. The node answers the flags: a line in *Your journey*
+  (`journey.dawn.played` / `journey.dawn.kept`, data on the scene), and when
+  kept, the Veena leaves the stand for the hand (`carryables` "veena" on
+  Player.tscn, flag `carrying_veena`, so an autosave mid-carry comes back
+  holding it). After either, the stand offers nothing.
+- **What Play does not do.** No melody, no camera pull, no light change: the
+  Song and *The Forgotten Song* are out of scope. The flag is set for Act 4
+  to read; a warm step in `street.gd`'s `MOODS` on `played_for_others` would
+  be a one-line follow-up if the owner wants a visible answer.
+- **The top beam** is a rust-red beam above the billboard frame at y 26; no
+  segment's exit is above the roof (a test holds this).
+
+### Convention found on the way
+
+`scenegen.xf` writes the Transform3D basis row by row; Godot reads the
+scene text row by row too, so `xf(pos, yaw)` is a turn of **-yaw** in
+Godot's terms (its forward at yaw = π/2 is +X, not -X). Unit-scale,
+yaw-symmetric uses (π) are unaffected; this part passes -π/2 for the ladder
+areas and writes its pitched rail with the rows spelled out. Worth a look
+at the Glimpse's yaw ("facing the fountain") by whoever owns it.
+
+### Budget
+
+Added, all static and culled with the tower: 7 MultiMesh/mesh nodes (stair,
+rail, decks, rails, posts, poles, rungs), the beam, one Label3D, the stand's
+post and the Veena's four meshes: about 15 draw calls at the tower's angle
+and under a thousand triangles. Not measured in the web build in this pass
+(no exports in the parallel brief); the integrator's measurement replaces
+this estimate.
