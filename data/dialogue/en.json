@@ -171,5 +171,1331 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "counting_man_greet": {
+    "speaker": "counting_man",
+    "text_id": "line.counting_man_greet",
+    "sets": [
+      "counting_man_met"
+    ],
+    "cards": [
+      {
+        "text_id": "card.counting_man_greet.count",
+        "sets": [
+          "counting_man_counting"
+        ],
+        "next": ""
+      },
+      {
+        "text_id": "card.counting_man_greet.coin",
+        "sets": [
+          "counting_man_given_coin"
+        ],
+        "next": "counting_man_coin"
+      },
+      {
+        "text_id": "card.counting_man_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "counting_man_again": {
+    "speaker": "counting_man",
+    "text_id": "line.counting_man_again",
+    "cards": [
+      {
+        "text_id": "card.counting_man_greet.count",
+        "sets": [
+          "counting_man_counting"
+        ],
+        "next": ""
+      },
+      {
+        "text_id": "card.counting_man_greet.coin",
+        "sets": [
+          "counting_man_given_coin"
+        ],
+        "next": "counting_man_coin"
+      },
+      {
+        "text_id": "card.counting_man_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "counting_man_met"
+    ],
+    "review_status": "draft"
+  },
+  "counting_man_coin": {
+    "speaker": "counting_man",
+    "text_id": "line.counting_man_coin",
+    "cards": [],
+    "requires": [
+      "counting_man_given_coin"
+    ],
+    "review_status": "draft"
+  },
+  "dhanpal_greet": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_greet",
+    "sets": [
+      "met_dhanpal"
+    ],
+    "cards": [
+      {
+        "text_id": "card.dhanpal_greet.accept",
+        "sets": [
+          "accepted_contest"
+        ],
+        "next": "dhanpal_accepted"
+      },
+      {
+        "text_id": "card.dhanpal_greet.who_else",
+        "sets": [],
+        "next": "dhanpal_who_else"
+      },
+      {
+        "text_id": "card.dhanpal_greet.not_today",
+        "sets": [],
+        "next": "dhanpal_not_today"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_who_else": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_who_else",
+    "cards": [
+      {
+        "text_id": "card.dhanpal_who_else.why_name",
+        "sets": [],
+        "next": "dhanpal_why_name"
+      },
+      {
+        "text_id": "card.dhanpal_who_else.accept",
+        "sets": [
+          "accepted_contest"
+        ],
+        "next": "dhanpal_accepted"
+      },
+      {
+        "text_id": "card.dhanpal_who_else.not_today",
+        "sets": [],
+        "next": "dhanpal_not_today"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_why_name": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_why_name",
+    "cards": [
+      {
+        "text_id": "card.dhanpal_why_name.accept",
+        "sets": [
+          "accepted_contest"
+        ],
+        "next": "dhanpal_accepted"
+      },
+      {
+        "text_id": "card.dhanpal_why_name.not_today",
+        "sets": [],
+        "next": "dhanpal_not_today"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_accepted": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_accepted",
+    "cards": [],
+    "requires": [
+      "accepted_contest"
+    ],
+    "review_status": "draft"
+  },
+  "dhanpal_not_today": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_not_today",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_later": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_later",
+    "cards": [],
+    "requires": [
+      "accepted_contest"
+    ],
+    "review_status": "draft"
+  },
+  "dhanpal_after_played": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_after_played",
+    "cards": [],
+    "requires": [
+      "played_for_others"
+    ],
+    "review_status": "draft"
+  },
+  "dhanpal_after_kept": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_after_kept",
+    "cards": [],
+    "requires": [
+      "kept_veena"
+    ],
+    "review_status": "draft"
+  },
+  "chai_greet": {
+    "speaker": "chai_seller",
+    "text_id": "line.chai_greet",
+    "cards": [
+      {
+        "text_id": "card.chai_greet.tulu",
+        "sets": [],
+        "next": "chai_about_tulu"
+      },
+      {
+        "text_id": "card.chai_greet.door",
+        "sets": [],
+        "next": "chai_about_door"
+      },
+      {
+        "text_id": "card.chai_greet.chai",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "chai_about_tulu": {
+    "speaker": "chai_seller",
+    "text_id": "line.chai_about_tulu",
+    "cards": [
+      {
+        "text_id": "card.chai_about_tulu.shrine",
+        "sets": [],
+        "next": "chai_about_door"
+      },
+      {
+        "text_id": "card.chai_about_tulu.thanks",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "chai_about_door": {
+    "speaker": "chai_seller",
+    "text_id": "line.chai_about_door",
+    "sets": [
+      "told_about_shrine"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "tulu_door": {
+    "speaker": "tulu",
+    "text_id": "line.tulu_door",
+    "cards": [
+      {
+        "text_id": "card.tulu_door.inside",
+        "sets": [],
+        "next": "tulu_door_lamp"
+      },
+      {
+        "text_id": "card.tulu_door.go_on",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "tulu_at_door"
+    ],
+    "review_status": "draft"
+  },
+  "tulu_door_lamp": {
+    "speaker": "tulu",
+    "text_id": "line.tulu_door_lamp",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_photo_1": {
+    "speaker": "thought",
+    "text_id": "line.office_photo_1",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_photo_2": {
+    "speaker": "thought",
+    "text_id": "line.office_photo_2",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_photo_3": {
+    "speaker": "thought",
+    "text_id": "line.office_photo_3",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_camera_look": {
+    "speaker": "thought",
+    "text_id": "line.office_camera_look",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "office_lock_look": {
+    "speaker": "thought",
+    "text_id": "line.office_lock_look",
+    "sets": [
+      "noticed_office_lock"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_photo_look": {
+    "speaker": "thought",
+    "text_id": "line.nanda_photo_look",
+    "sets": [
+      "saw_brothers_photo"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_greet": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_greet",
+    "sets": [
+      "met_madhuri"
+    ],
+    "cards": [
+      {
+        "text_id": "card.madhuri_greet.tulu",
+        "sets": [],
+        "next": "madhuri_tulu"
+      },
+      {
+        "text_id": "card.madhuri_greet.humming",
+        "sets": [],
+        "next": "madhuri_tulu"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_tulu": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_tulu",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri_tulu.what",
+        "sets": [],
+        "next": "madhuri_song"
+      },
+      {
+        "text_id": "card.madhuri_tulu.room",
+        "sets": [],
+        "next": "madhuri_room"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_song": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_song",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri.and_the_lamp",
+        "sets": [],
+        "next": "madhuri_ask_water"
+      },
+      {
+        "text_id": "card.madhuri.thanks",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_room": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_room",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri.and_the_lamp",
+        "sets": [],
+        "next": "madhuri_ask_water"
+      },
+      {
+        "text_id": "card.madhuri_room.look",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_ask_water": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_ask_water",
+    "sets": [],
+    "cards": [],
+    "requires": [
+      "met_madhuri"
+    ],
+    "review_status": "draft"
+  },
+  "madhuri_after_water": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_after_water",
+    "sets": [
+      "creeper_given"
+    ],
+    "cards": [
+      {
+        "text_id": "card.madhuri_after_water.played",
+        "sets": [],
+        "next": "madhuri_valley"
+      },
+      {
+        "text_id": "card.madhuri_after_water.only_water",
+        "sets": [],
+        "next": "madhuri_only_water"
+      }
+    ],
+    "requires": [
+      "lamp_watered"
+    ],
+    "review_status": "draft"
+  },
+  "madhuri_valley": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_valley",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri_valley.tower",
+        "sets": [],
+        "next": "madhuri_tower"
+      },
+      {
+        "text_id": "card.madhuri.thanks",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_tower": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_tower",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_only_water": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_only_water",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "photo_fountain": {
+    "speaker": "photo",
+    "text_id": "line.photo_fountain",
+    "sets": [
+      "saw_photo_fountain"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "photo_fountain_last": {
+    "speaker": "photo",
+    "text_id": "line.photo_fountain",
+    "sets": [
+      "saw_photo_fountain",
+      "saw_shrine"
+    ],
+    "cards": [],
+    "requires": [
+      "saw_photo_tower",
+      "saw_photo_lamp"
+    ],
+    "review_status": "draft"
+  },
+  "photo_tower": {
+    "speaker": "photo",
+    "text_id": "line.photo_tower",
+    "sets": [
+      "saw_photo_tower"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "photo_tower_last": {
+    "speaker": "photo",
+    "text_id": "line.photo_tower",
+    "sets": [
+      "saw_photo_tower",
+      "saw_shrine"
+    ],
+    "cards": [],
+    "requires": [
+      "saw_photo_fountain",
+      "saw_photo_lamp"
+    ],
+    "review_status": "draft"
+  },
+  "photo_lamp": {
+    "speaker": "photo",
+    "text_id": "line.photo_lamp",
+    "sets": [
+      "saw_photo_lamp"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "photo_lamp_last": {
+    "speaker": "photo",
+    "text_id": "line.photo_lamp",
+    "sets": [
+      "saw_photo_lamp",
+      "saw_shrine"
+    ],
+    "cards": [],
+    "requires": [
+      "saw_photo_fountain",
+      "saw_photo_tower"
+    ],
+    "review_status": "draft"
+  },
+  "rukma_greet": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_greet",
+    "cards": [
+      {
+        "text_id": "card.rukma_greet.wake",
+        "sets": [],
+        "next": "rukma_why"
+      },
+      {
+        "text_id": "card.rukma_greet.key",
+        "sets": [
+          "rukma_key_taken"
+        ],
+        "next": "rukma_key_pocketed"
+      },
+      {
+        "text_id": "card.rukma_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_why": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_why",
+    "sets": [
+      "rukma_heard"
+    ],
+    "cards": [
+      {
+        "text_id": "card.rukma_why.anyone",
+        "sets": [],
+        "next": "rukma_enough"
+      },
+      {
+        "text_id": "card.rukma_why.then_win",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_enough": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_enough",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_key_pocketed": {
+    "speaker": "thought",
+    "text_id": "line.rukma_key_pocketed",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_after_key": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_after_key",
+    "cards": [
+      {
+        "text_id": "card.rukma_greet.wake",
+        "sets": [],
+        "next": "rukma_why"
+      },
+      {
+        "text_id": "card.rukma_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "rukma_key_taken"
+    ],
+    "review_status": "draft"
+  },
+  "rukma_greet_can": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_greet_can",
+    "cards": [
+      {
+        "text_id": "card.rukma_greet_can.trade",
+        "sets": [
+          "rukma_key_traded"
+        ],
+        "next": "rukma_traded"
+      },
+      {
+        "text_id": "card.rukma_greet_can.why",
+        "sets": [],
+        "next": "rukma_why"
+      }
+    ],
+    "requires": [
+      "carrying_can"
+    ],
+    "review_status": "draft"
+  },
+  "rukma_traded": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_traded",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "rukma_after_trade": {
+    "speaker": "rukma",
+    "text_id": "line.rukma_after_trade",
+    "cards": [
+      {
+        "text_id": "card.rukma_after_trade.why",
+        "sets": [],
+        "next": "rukma_why"
+      },
+      {
+        "text_id": "card.rukma_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "rukma_key_traded"
+    ],
+    "review_status": "draft"
+  },
+  "bhima_greet": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_greet",
+    "cards": [
+      {
+        "text_id": "card.bhima_greet.why",
+        "sets": [],
+        "next": "bhima_daughter"
+      },
+      {
+        "text_id": "card.bhima_greet.luck",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "bhima_daughter": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_daughter",
+    "cards": [
+      {
+        "text_id": "card.bhima_daughter.ask",
+        "sets": [
+          "bhima_asked"
+        ],
+        "next": "bhima_asked"
+      },
+      {
+        "text_id": "card.bhima_daughter.climb",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "bhima_asked": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_asked",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "bhima_waiting": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_waiting",
+    "cards": [],
+    "requires": [
+      "bhima_asked"
+    ],
+    "review_status": "draft"
+  },
+  "bhima_thanks": {
+    "speaker": "bhima",
+    "text_id": "line.bhima_thanks",
+    "sets": [
+      "bhima_medicine_given"
+    ],
+    "cards": [],
+    "requires": [
+      "gave_dry_fountain"
+    ],
+    "review_status": "draft"
+  },
+  "nanda_greet": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_greet",
+    "cards": [
+      {
+        "text_id": "card.nanda_greet.sit",
+        "sets": [],
+        "next": "nanda_sit_1"
+      },
+      {
+        "text_id": "card.nanda_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_greet_contest": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_greet_contest",
+    "cards": [
+      {
+        "text_id": "card.nanda_greet.sit",
+        "sets": [],
+        "next": "nanda_sit_1"
+      },
+      {
+        "text_id": "card.nanda_greet_contest.stairs",
+        "sets": [
+          "nanda_told_shortcut"
+        ],
+        "next": "nanda_shortcut"
+      },
+      {
+        "text_id": "card.nanda_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "accepted_contest"
+    ],
+    "review_status": "draft"
+  },
+  "nanda_shortcut": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_shortcut",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_sit_1": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_sit_1",
+    "cards": [
+      {
+        "text_id": "card.nanda_sit_1.happened",
+        "sets": [],
+        "next": "nanda_sit_2"
+      },
+      {
+        "text_id": "card.nanda_sit_1.top",
+        "sets": [],
+        "next": "nanda_sit_2"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_sit_2": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_sit_2",
+    "cards": [
+      {
+        "text_id": "card.nanda_sit_2.read",
+        "sets": [],
+        "next": "nanda_sit_3"
+      },
+      {
+        "text_id": "card.nanda_sit_2.sorry",
+        "sets": [],
+        "next": "nanda_sit_3"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_sit_3": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_sit_3",
+    "sets": [
+      "nanda_listened"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "nanda_after_listen": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_after_listen",
+    "cards": [],
+    "requires": [
+      "nanda_listened"
+    ],
+    "review_status": "draft"
+  },
+  "nanda_after_shortcut": {
+    "speaker": "nanda",
+    "text_id": "line.nanda_after_shortcut",
+    "cards": [
+      {
+        "text_id": "card.nanda_greet.sit",
+        "sets": [],
+        "next": "nanda_sit_1"
+      },
+      {
+        "text_id": "card.nanda_greet.leave",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "nanda_told_shortcut"
+    ],
+    "review_status": "draft"
+  },
+  "nanda_door_look": {
+    "speaker": "thought",
+    "text_id": "line.nanda_door_look",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_greet": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_greet",
+    "sets": [
+      "talked_vasanti"
+    ],
+    "cards": [
+      {
+        "text_id": "card.vasanti_greet.who",
+        "sets": [],
+        "next": "vasanti_who"
+      },
+      {
+        "text_id": "card.vasanti_greet.fence",
+        "sets": [],
+        "next": "vasanti_fence"
+      },
+      {
+        "text_id": "card.vasanti_greet.lock",
+        "sets": [],
+        "next": "vasanti_lock"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_who": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_who",
+    "cards": [
+      {
+        "text_id": "card.vasanti_who.hungry",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.vasanti_who.listen",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_fence": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_fence",
+    "cards": [
+      {
+        "text_id": "card.vasanti_fence.see_to_it",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.vasanti_fence.later",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_lock": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_lock",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_again": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_again",
+    "cards": [
+      {
+        "text_id": "card.vasanti_again.maybe",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.vasanti_again.who",
+        "sets": [],
+        "next": "vasanti_who"
+      }
+    ],
+    "requires": [
+      "talked_vasanti"
+    ],
+    "review_status": "draft"
+  },
+  "vasanti_hum_clue": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_hum_clue",
+    "sets": [
+      "fence_thief_known"
+    ],
+    "cards": [
+      {
+        "text_id": "card.vasanti_hum_clue.the_boy",
+        "sets": [
+          "told_vasanti_thief"
+        ],
+        "next": "vasanti_opens"
+      },
+      {
+        "text_id": "card.vasanti_hum_clue.lots_hum",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "talked_vasanti",
+      "heard_tulu"
+    ],
+    "review_status": "draft"
+  },
+  "vasanti_opens": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_opens",
+    "cards": [],
+    "requires": [
+      "garden_open"
+    ],
+    "review_status": "draft"
+  },
+  "vasanti_gift": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_gift",
+    "cards": [],
+    "requires": [
+      "fruit_received"
+    ],
+    "review_status": "draft"
+  },
+  "vasanti_after_fixed": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_after_fixed",
+    "cards": [],
+    "requires": [
+      "has_fruit"
+    ],
+    "review_status": "draft"
+  },
+  "carving_look": {
+    "speaker": "carving",
+    "text_id": "line.carving_look",
+    "sets": [
+      "read_carving"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "veena_dawn": {
+    "speaker": "dawn",
+    "text_id": "line.veena_dawn",
+    "cards": [
+      {
+        "text_id": "card.veena_dawn.play",
+        "sets": [
+          "played_for_others"
+        ],
+        "next": "veena_played"
+      },
+      {
+        "text_id": "card.veena_dawn.take",
+        "sets": [
+          "kept_veena"
+        ],
+        "next": "veena_kept"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "veena_played": {
+    "speaker": "dawn",
+    "text_id": "line.veena_played",
+    "cards": [],
+    "requires": [
+      "played_for_others"
+    ],
+    "review_status": "draft"
+  },
+  "veena_kept": {
+    "speaker": "dawn",
+    "text_id": "line.veena_kept",
+    "cards": [],
+    "requires": [
+      "kept_veena"
+    ],
+    "review_status": "draft"
+  },
+  "lalita_greet": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_greet",
+    "sets": [
+      "lalita_asked_water"
+    ],
+    "cards": [
+      {
+        "text_id": "card.lalita_greet.bring",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.lalita_greet.calf",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "lalita_carrying": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_carrying",
+    "cards": [],
+    "requires": [
+      "carrying_pot"
+    ],
+    "review_status": "draft"
+  },
+  "lalita_thanks": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_thanks",
+    "cards": [],
+    "requires": [
+      "grove_pot_placed"
+    ],
+    "review_status": "draft"
+  },
+  "kuvera_whisper": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_whisper",
+    "cards": [
+      {
+        "text_id": "card.kuvera_whisper.matter",
+        "sets": [
+          "whispered_kuvera"
+        ],
+        "next": "kuvera_place"
+      },
+      {
+        "text_id": "card.kuvera_whisper.no_one",
+        "sets": [
+          "whispered_kuvera"
+        ],
+        "next": "kuvera_place"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "kuvera_whisper_water": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_whisper_water",
+    "cards": [
+      {
+        "text_id": "card.kuvera_whisper.matter",
+        "sets": [
+          "whispered_kuvera"
+        ],
+        "next": "kuvera_place"
+      },
+      {
+        "text_id": "card.kuvera_whisper.no_one",
+        "sets": [
+          "whispered_kuvera"
+        ],
+        "next": "kuvera_place"
+      }
+    ],
+    "requires": [
+      "grove_pot_placed"
+    ],
+    "review_status": "draft"
+  },
+  "kuvera_place": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_place",
+    "cards": [],
+    "requires": [
+      "whispered_kuvera"
+    ],
+    "review_status": "draft"
+  },
+  "kuvera_after": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_after",
+    "cards": [],
+    "requires": [
+      "whispered_kuvera"
+    ],
+    "review_status": "draft"
+  },
+  "bubble_look": {
+    "speaker": "bubble",
+    "text_id": "line.bubble_look",
+    "sets": [
+      "looked_bubble"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "sarang_string": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_string",
+    "cards": [
+      {
+        "text_id": "card.sarang_string.here",
+        "sets": [
+          "sarang_string_given"
+        ],
+        "next": "sarang_thanks"
+      },
+      {
+        "text_id": "card.sarang_string.not_yet",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "has_sarang_string"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_thanks": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_thanks",
+    "sets": [
+      "sarang_thanked"
+    ],
+    "cards": [
+      {
+        "text_id": "card.sarang_thanks.play",
+        "sets": [],
+        "next": "sarang_thanks_play"
+      },
+      {
+        "text_id": "card.sarang_thanks.welcome",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "sarang_string_given"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_thanks_play": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_thanks_play",
+    "cards": [],
+    "requires": [
+      "sarang_string_given"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_after": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_after",
+    "cards": [
+      {
+        "text_id": "card.sarang_after.again",
+        "sets": [],
+        "next": "sarang_lesson"
+      },
+      {
+        "text_id": "card.sarang_after.next",
+        "sets": [],
+        "next": "sarang_lesson_two"
+      },
+      {
+        "text_id": "card.sarang_after.later",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "sarang_taught_bar"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_greet_tulu": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_greet_lesson",
+    "cards": [
+      {
+        "text_id": "card.sarang_greet.teach",
+        "sets": [],
+        "next": "sarang_lesson"
+      },
+      {
+        "text_id": "card.sarang_greet.broken",
+        "sets": [],
+        "next": "sarang_broken"
+      }
+    ],
+    "requires": [
+      "heard_tulu"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_greet_shrine": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_greet_lesson",
+    "cards": [
+      {
+        "text_id": "card.sarang_greet.teach",
+        "sets": [],
+        "next": "sarang_lesson"
+      },
+      {
+        "text_id": "card.sarang_greet.broken",
+        "sets": [],
+        "next": "sarang_broken"
+      }
+    ],
+    "requires": [
+      "saw_shrine"
+    ],
+    "review_status": "draft"
+  },
+  "sarang_greet": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_greet",
+    "cards": [
+      {
+        "text_id": "card.sarang_greet.broken",
+        "sets": [],
+        "next": "sarang_broken"
+      },
+      {
+        "text_id": "card.sarang_greet.keep_at_it",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "sarang_broken": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_broken",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "sarang_lesson": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_lesson",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "sarang_lesson_two": {
+    "speaker": "sarang",
+    "text_id": "line.sarang_lesson_two",
+    "cards": [],
+    "requires": [
+      "sarang_taught_bar"
+    ],
+    "review_status": "draft"
   }
 }

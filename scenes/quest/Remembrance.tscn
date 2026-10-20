@@ -1,0 +1,51 @@
+[gd_scene load_steps=6 format=3]
+
+; Act 4, Remembrance (scripts/quest/remembrance.gd): the Hum here point on
+; the fountain steps, placed by tools/street_parts/remembrance.py. What the
+; world does for each dawn is the `answers` table below: data, never code.
+; PLACEHOLDER: the bubble is a translucent sphere; GDD §3 Act 4 has the
+; Grove inside it for a moment.
+
+[ext_resource type="Script" path="res://scripts/quest/remembrance.gd" id="1_remembrance"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+[ext_resource type="Material" path="res://assets/materials/bubble.tres" id="3_bubble"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_steps"]
+size = Vector3(3.0, 2.4, 3.0)
+
+[sub_resource type="SphereMesh" id="SphereMesh_bubble"]
+radius = 0.6
+height = 1.2
+radial_segments = 24
+rings = 12
+
+[node name="Remembrance" type="Node3D"]
+script = ExtResource("1_remembrance")
+answers = {
+"played_for_others": {
+"crowd": true,
+"journey": "journey.act4.street_listened",
+"tint": Color(1, 0.74, 0.66, 1)
+},
+"kept_veena": {
+"crowd": false,
+"journey": "journey.act4.alone",
+"tint": Color(1, 0.88, 0.82, 1)
+}
+}
+
+[node name="HumHere" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.hum_here"
+
+[node name="Shape" type="CollisionShape3D" parent="HumHere"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("BoxShape3D_steps")
+
+[node name="Bubble" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+visible = false
+mesh = SubResource("SphereMesh_bubble")
+surface_material_override/0 = ExtResource("3_bubble")
+cast_shadow = 0

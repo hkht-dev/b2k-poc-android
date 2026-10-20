@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The figure across the water (GDD §3 Act 1 "The glimpse"): unlit and dark
+; against the low sun, warm rather than hard black (GDD §10 Grove row).
+; PLACEHOLDER: replaced by Krishna of GDD §4 — His colours arrive with the
+; final art, not with this slice (peacock blue is forbidden here).
+
+[resource]
+resource_name = "far_figure"
+shading_mode = 0
+albedo_color = Color(0.17, 0.11, 0.1, 1)

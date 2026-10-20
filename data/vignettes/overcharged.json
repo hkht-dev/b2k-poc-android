@@ -1,0 +1,84 @@
+{
+  "id": "overcharged",
+  "giver_name_id": "speaker.vignette_overcharged",
+  "skin": "skaterMaleA",
+  "spot": "b",
+  "lines": {
+    "vignette_overcharged_open": {
+      "speaker": "vignette_overcharged",
+      "text_id": "vignette.overcharged.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.overcharged.card.open.after",
+          "sets": [
+            "vignette_overcharged_chased"
+          ],
+          "next": "vignette_overcharged_end_chased"
+        },
+        {
+          "text_id": "vignette.overcharged.card.open.business",
+          "sets": [
+            "vignette_overcharged_kept"
+          ],
+          "next": "vignette_overcharged_end_kept"
+        },
+        {
+          "text_id": "vignette.overcharged.card.open.why",
+          "sets": [],
+          "next": "vignette_overcharged_why"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_overcharged_why": {
+      "speaker": "vignette_overcharged",
+      "text_id": "vignette.overcharged.line.why",
+      "cards": [
+        {
+          "text_id": "vignette.overcharged.card.why.next_one",
+          "sets": [
+            "vignette_overcharged_next_one"
+          ],
+          "next": "vignette_overcharged_end_next"
+        },
+        {
+          "text_id": "vignette.overcharged.card.why.after",
+          "sets": [
+            "vignette_overcharged_chased"
+          ],
+          "next": "vignette_overcharged_end_chased"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_overcharged_end_chased": {
+      "speaker": "vignette_overcharged",
+      "text_id": "vignette.overcharged.line.end_chased",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_overcharged_end_kept": {
+      "speaker": "vignette_overcharged",
+      "text_id": "vignette.overcharged.line.end_kept",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_overcharged_end_next": {
+      "speaker": "vignette_overcharged",
+      "text_id": "vignette.overcharged.line.end_next",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.overcharged.journey",
+  "outcomes": [
+    "vignette_overcharged_chased",
+    "vignette_overcharged_kept",
+    "vignette_overcharged_next_one"
+  ]
+}

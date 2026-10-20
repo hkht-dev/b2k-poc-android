@@ -1,0 +1,41 @@
+{
+  "_comment": "The outfits the showroom's wardrobe offers, in the order shown (scripts/core/outfits.gd). `default` is the skin Player.tscn wears; GameState.outfit holds an id, or \"\" for that default. PLACEHOLDER: Kenney's CC0 character skins (docs/RIGHTS_REGISTER.md) stand in for the hand-painted cloth of GDD §10.",
+  "default": "human_male_a",
+  "outfits": [
+    {
+      "id": "human_male_a",
+      "name_id": "outfit.human_male_a",
+      "skin": "res://assets/thirdparty/kenney/animated-characters-retro/humanMaleA.png"
+    },
+    {
+      "id": "human_female_a",
+      "name_id": "outfit.human_female_a",
+      "skin": "res://assets/thirdparty/kenney/animated-characters-retro/humanFemaleA.png"
+    },
+    {
+      "id": "survivor_male_b",
+      "name_id": "outfit.survivor_male_b",
+      "skin": "res://assets/thirdparty/kenney/animated-characters-survivors/survivorMaleB.png"
+    },
+    {
+      "id": "survivor_female_a",
+      "name_id": "outfit.survivor_female_a",
+      "skin": "res://assets/thirdparty/kenney/animated-characters-survivors/survivorFemaleA.png"
+    },
+    {
+      "id": "skater_male_a",
+      "name_id": "outfit.skater_male_a",
+      "skin": "res://assets/thirdparty/kenney/animated-characters-protagonists/skaterMaleA.png"
+    },
+    {
+      "id": "skater_female_a",
+      "name_id": "outfit.skater_female_a",
+      "skin": "res://assets/thirdparty/kenney/animated-characters-protagonists/skaterFemaleA.png"
+    },
+    {
+      "id": "criminal_male_a",
+      "name_id": "outfit.criminal_male_a",
+      "skin": "res://assets/thirdparty/kenney/animated-characters-protagonists/criminalMaleA.png"
+    }
+  ]
+}

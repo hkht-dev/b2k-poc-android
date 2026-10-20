@@ -1103,3 +1103,2369 @@ Affects GDD §5 (four enterable interiors), §6, §11.
   `EXT`), `tools/interiors/*.py`, `tools/audio_parts/*.py`,
   `tools/texture_parts/*.py`, loaded in name order by
   `scenegen.load_parts`. One feature, one file, no line to collide on.
+
+
+## 2026-10-20 — Daylight: the Street's light moves with the story
+
+GDD §5 (Hollow Vale row: "Arrival: overcast midday, flat, no pink anywhere,
+sodium-orange street lamps. Shifts toward dusk as quests complete. Dawn
+climb: cold blue to warm. Act 4: dusk, lamplit, the first rose tint allowed
+into the sky"), §10 (palette), §12 (flags only). Affects §5 lighting and the
+P4 light steps (`MOODS`).
+
+### Stages as data, chosen by flags
+
+- `data/daylight.json` holds ordered stages: `arrival` (`true`),
+  `after_fountain` (either Dry Fountain flag), `evening`, `dawn`
+  (`on_the_tower`), `remembrance` (`played_for_others or kept_veena`). Each
+  carries the sun's colour, energy, elevation and azimuth, the ambient
+  energy, the fog colour and density, a sky tint and `lamps_on`. The latest
+  stage whose condition holds is the light. Conditions use the quest grammar
+  (`scripts/lib/condition.gd`), so the debug panel's flags move the hour.
+- "Two or more of" `garden_open`, `counting_man_freed`,
+  `bhima_medicine_given`, `rukma_heard` is written as the six pairs joined
+  by `or`: the grammar has no counting, and GDD §12 allows nothing but flags
+  to decide. `dawn` and `remembrance` reference flags no slice-1 quest sets;
+  they are rows of data, not scaffolding, and cost nothing until set.
+- `scripts/street/daylight.gd` (`Daylight`, a Node the street adds at
+  ready) eases the `DirectionalLight3D` (colour, energy, orientation by
+  quaternion slerp), the `Environment` (ambient energy, fog colour and
+  density), the sky tint and the lamps over `transition_seconds` (6) when
+  the stage changes; a journey loaded mid-story is set at once, no easing
+  from midday. There is no clock: no `_process`, no `Timer`; only
+  `GameState.flag_changed` moves it, and a test holds that half a second of
+  waiting changes nothing.
+- The P4 `MOODS` stay in `street.gd` as data and are now a multiplier on the
+  stage: sun colour × mood colour, ambient × mood factor. A taken can still
+  steps the hour darker and a given one warmer. Because the fountain flags
+  set both the stage and the mood, that transition runs over `MOOD_SECONDS`
+  (4 s); every other stage change takes the data's 6 s.
+- `arrival` reproduces the generator's hand-placed sun exactly (elevation
+  44.4°, azimuth 150°, the same colour and energy, the same fog), so P1–P6
+  look as they did at the start of a journey; a test checks the light's
+  travel vector against the old transform.
+
+### The sky and the ambient
+
+- `PanoramaSkyMaterial` has no tint in Godot 4.3, so the sky is now
+  `assets/shaders/sky_tint.gdshader`: the same three-line shader the
+  material generates plus a `tint` uniform. Sky reflections (`reflected_light
+  _source` = sky) pick the tint up as well. While the tint eases (6 s) the
+  sky's radiance map re-renders; outside a transition it is static as
+  before.
+- `ambient_light_source` was `1`, which is `AMBIENT_SOURCE_DISABLED`: the
+  ambient colour, energy and sky contribution in the scene, and P4's ambient
+  factor, did nothing. It is now `3` (sky, blended 45 % with the grey) with
+  the arrival energy at 1.0 rather than 1.3. **This brightens the base look;
+  check it in the web build** and, if the owner prefers the old contrast,
+  the one-line revert is `ambient_light_source = 1` in `tools/gen_street.py`
+  (the stages then move the sun, fog, sky tint and lamps only).
+
+### The lamps
+
+- `tools/street_parts/lamp_lights.py` puts an `OmniLight3D` (sodium orange
+  `(1, 0.62, 0.22)`, range 9 m, energy 1.5, no shadow) on the six lamp posts
+  nearest the fountain, group `street_lamp`, hidden until a stage says
+  `lamps_on`; `Daylight` fades them in and hides them again when dark, so an
+  unlit lamp costs nothing. The posts' positions come from the generator as
+  `b.lamp_posts`, so the lights follow the posts if the rows move.
+- The six nearest by distance are `(0, 8.2)`, `(±14, 8.2)`, `(±7, 23.8)` and
+  `(22.2, -10)` by the chai stall. The brief's `|x| <= 20` rule picks five;
+  the sixth is the north pavement's nearest post, so the stall is lit too.
+- Six omni lights, hidden by default, is the mobile budget (amendment §C,
+  one real-time directional light). Not measured in the web build here (no
+  export on the shared machine); the integrator's run should show the same
+  draw calls at arrival and at most six more light passes once lit.
+
+### Colour
+
+- No pink before `remembrance`: `evening` is amber (blue below green), `dawn`
+  a desaturated grey-blue `(0.78, 0.84, 0.92)` far from peacock blue, and
+  `remembrance`'s sky tint `(1.0, 0.86, 0.84)` is the first rose Act 4
+  allows (GDD §10: "the first time any pink appears in Hollow Vale is at
+  beat 12"). A test guards both rules over every colour in the data.
+- "Dawn climb: cold blue to warm" cannot happen inside one stage without a
+  clock; `dawn` is the cold start and `remembrance` the warmth, by flags.
+
+### Placeholders
+
+- `assets/shaders/sky_tint.gdshader`: the HDR panorama stands in for the
+  painted sky of GDD §10; the tint stays.
+- The lamp lights are bare points; the painted lamp head adds an emissive
+  glass when the posts are modelled.
+
+
+## 2026-10-20 — Dawn vignettes: one new stranger a day, from a pool in the build
+
+GDD §16a "Dawn vignettes" ("Every real day, the Street has one new 2–4
+minute encounter from a rotating pool ... Missed days queue; nothing is
+lost"), §8 (the voice), §6 "Choice" (cards), §12 (flags, one journey
+object). Affects §16a (delivery is a folder in the build, not the backend
+the section's table names: "No backend" is the rule for the slice) and §12
+(one field on the journey).
+
+### What was built
+
+- `data/vignettes/<id>.json`, ten of them: a stranger's name id, a Kenney
+  skin, one of three fixed spots (`a`/`b`/`c`), the vignette's own dialogue
+  lines in exactly the shape of `data/dialogue/en.json`, the flags its cards
+  set (`outcomes`, each `vignette_<id>_<outcome>`) and one journey line. Ten
+  short moral situations in the voice of §8: a found ring, a vendor who
+  overcharged, a kite in a tree, a letter to carry, a cinema that is no
+  longer there, marigolds at dusk, a dog nobody feeds, a parking spot, a
+  stopped watch, a notice an old man cannot read. Every line under 20 words,
+  two or three cards or none, every line `draft`.
+- `scripts/core/vignettes.gd` (`Vignettes`, static like `Places`): loads the
+  pool sorted by id; `id_for_date` indexes it by the day count since
+  1970-01-01 modulo the pool, so the same date gives the same vignette on
+  every device and consecutive days walk the pool in order; `grant_today`
+  writes today's date, and every missed day's since the last grant, into
+  `GameState.vignette_days`; `pending` is the granted dates, oldest first,
+  each vignette once, minus those whose `vignette_<id>_done` flag is set;
+  `complete` writes that flag and the journey line.
+- `scenes/quest/VignetteSpot.tscn` + `scripts/quest/vignette_spot.gd`: at
+  ready it grants today, takes the oldest pending vignette for its letter,
+  instances `Character.tscn` with the vignette's skin, adds the vignette's
+  lines to the running `Content.dialogue` and offers *Talk*, which opens
+  the first line. A card setting an outcome finishes the vignette and closes
+  Talk; a conversation left without an outcome leaves it pending.
+- `tools/street_parts/vignette_spots.py`: the three spots, at (−3, 0.16,
+  9.5) between the fountain and the road, (26, 0.16, 21) by the crossing,
+  (−36, 0, 12) along the fence. Empty when nothing is pending.
+- `Dialogue.add_lines(dict, source)`: lines in the same shape, added to a
+  table already built; `from_dict` now builds through it. The cards UI is
+  bound to the one runner and needed no change.
+
+### Decisions
+
+- **Calendar-true, never a timer.** The pick is a pure function of the
+  date string (`Time.get_date_string_from_system`). Nothing counts down,
+  nothing expires: a vignette granted waits until it is played, and a day
+  that passes unplayed is simply another date in the queue (§16a: "No
+  streaks, no energy, no countdown timers").
+- **The queue is dates, the record is flags.** `vignette_days` says which
+  real days were granted; which vignettes were played is a flag like every
+  other mark on the journey, so the debug panel, the save file and *Play
+  again* already know about it. The backfill after an absence reaches at
+  most one pool's worth of days, because older missed days could only repeat
+  vignettes already waiting; with the slice's pool of ten, a long absence
+  queues all ten, each once.
+- **One journey line per vignette, outcome-neutral.** It says who the
+  player stopped for ("You stopped for a woman holding someone else's
+  ring."), not what they chose: the choice itself is in `choice_history`,
+  and no line praises or regrets a card (§6, no correct answer).
+- **The stranger's name is a speaker.** `giver_name_id` is
+  `speaker.vignette_<id>`, the convention the cards already resolve, so the
+  stranger's name appears over their lines like Gopal's does.
+- **Spot positions as given.** Spots `b` and `c` stand on the road's edge
+  by the generator's layout (the kerbs are 3 m wide); they read as people on
+  the kerb line. Nudge in `tools/street_parts/vignette_spots.py` if the
+  playtest minds.
+
+### Placeholders
+
+- The stranger's body: Kenney's rigged character with a Kenney skin, named
+  by the vignette (`PLACEHOLDER` in the scene and the script); replaced by
+  the painted strangers of GDD §10. The ten vignettes are the first ten of
+  §16a's 120; the format carries the rest unchanged.
+
+
+## 2026-10-20 — Stray cows, the slice's smallest form
+
+GDD §3a Act 3 ("Walk ahead of two cows and hum to steer them through
+traffic", *Stray cows*: care for what nobody else sees) and §16a "Stray
+cows" (guiding them through traffic to the fountain is a timing-and-path
+puzzle; the forty handmade layouts and the generator are not this). Affects
+§6 (the hum has a second answerer), §7 (one more quest file), §12 (two
+events, one flag).
+
+### Two cows, one road, the hum as the only guide
+
+- `scenes/street/Cow.tscn` + `scripts/street/cow.gd` (`class_name Cow`, a
+  `CharacterBody3D` on layer 1 so the player bumps into it, groups `cow` and
+  `sound_source`). A cow grazes within 3 m of a home spot. The player's hum
+  (`Place.hum`, through `sound_source`) calls it: it walks toward where the
+  player stood, at most 8 m, then settles there and grazes again, so each
+  hum is one leg of the path and the player walks ahead, as the GDD says.
+  Reaching within 9 m of the fountain (its outer step) fires
+  `cow_reached_fountain_<n>`, an export on the node, and the cow stays: it
+  has arrived and later hums do not move it.
+- `tools/street_parts/cows.py` places them at (40, 5) and (42.5, 2.5): the
+  north pavement east of the north-south road, so the shortest way to the
+  fountain crosses one road. `rest_position` on each node is where a loaded
+  journey puts a cow whose event has fired (positions are not saved; events
+  are).
+- `data/quests/stray_cows.json`: no giver (`"street"`), starts on
+  `heard_tulu`, one step waiting on both events, ends setting `cows_home`
+  with the journey line *"You walked two cows through the traffic to the
+  fountain."* The pause menu's one line says *"Two cows nobody sees. Hum,
+  and walk them to the fountain."* while it is the first active quest
+  (`dry_fountain` sorts first and wins while it is active).
+
+### Lanes are where the traffic drives; nobody waits on anybody
+
+- The roads are not written into the cow. A path mover whose
+  `yield_distance` is 5 m or more (the three cars; pedestrians stop at
+  1.6 m) joins the `vehicle` group in `_ready`, and a lane is the strip 4 m
+  either side of a vehicle's loop. With the two east-west cars at z = 14.5
+  and 17.5 that is exactly the road's 11 m; the north-south car gives the
+  other road. Move a car's loop and the cows respect the new lane.
+- A cow does not step off the kerb while any vehicle is within 6 m (its
+  nose, 1 m ahead of its centre, is where it looks). Once in the road it
+  keeps walking: if a called walk would end in a lane it goes on, a metre at
+  a time, until it is out. Vehicles yield to cows exactly as to the player
+  (`YIELD_GROUPS` in `path_mover.gd`). The two rules together mean a cow and
+  a car never wait on each other: a cow only waits on the pavement, where
+  no car yields to it, and a car only yields to a cow that is moving.
+- A grazing cow rejects grazing spots inside a lane, so it never drifts
+  into traffic on its own; a called cow that cannot get on (a wall, a parked
+  car) gives up after 2 s standing still and settles.
+
+### Placeholders and budget
+
+- The cow is boxes: body, four legs, head, muzzle, tail and two horns,
+  2.2 m long, 1.3 m to the head and 1.5 m to the horn tips. The hide is
+  `cloth_pale` tinted a dusty cream (ochre/dust palette, GDD §10 Hollow Vale
+  row) in a material inside the scene; the horns are the street's `timber`.
+  Each cow is two `MultiMeshInstance3D`s, so two draw calls a cow, four in
+  all. PLACEHOLDER for the licensed cow model of GDD §10 "Asset sourcing
+  plan".
+- No sound: a cow hears, turns and walks, which is the whole answer. A low
+  or a cowbell (GDD §10 lists cowbells as the Grove's bed, not the Vale's)
+  can come with the asset.
+- The web budget was not re-measured in this change (no export from the
+  parallel worktrees); the addition is four draw calls and some two hundred
+  triangles, against a measured max of 177 calls in P6.
+
+
+## 2026-10-20 — The Garden as a data model and a drawn plot
+
+GDD §6 "The Garden: seeds, fruit and the creeper", §16a "Days and lives".
+Affects §6 (the garden exists; fruit vignettes do not yet), §11 (a screen
+reached from the pause menu for now), §12 (`garden` on the journey).
+
+### What
+
+- `data/garden.json` says which sources plant which seeds: a source is
+  `flag:<name>` or `choice:<line_id>:<card_index>`, a kind is `sweet`,
+  `bitter` or `weed`, and each carries the id of the sentence it came from
+  (`seed.*` in the string table). The same file names the creeper's flag
+  (`creeper_given`, set by another feature; a debug flag for now), the
+  watering flags (hearing, chanting, remembering, service: `heard_tulu`,
+  `hummed`, `glimpsed_traffic_light`, `gave_dry_fountain`, `saw_shrine`,
+  `nanda_listened`, `played_for_others`), how many steps shade (3) and how
+  many play-days a seed takes to sapling (1) and to fruit (2).
+- `scripts/core/garden.gd` (`Garden`, static) keeps the plot in
+  `GameState.garden`: `seeds[{id, kind, day_planted}]`, `pulled[ids]`,
+  `creeper{given, watered_days}`, `days`, `last_date`. `GameState` calls it
+  when a flag is set, when a choice is recorded and at launch; the plot can
+  also be rebuilt from flags and `choice_history` alone (`reconcile`), so a
+  journey saved before the garden existed grows one on its next play-day.
+- `scenes/ui/GardenScreen.tscn` draws the plot in `_draw`: rows of soil,
+  seeds as dots, saplings as stems, fruit as warm circles, weeds as grey
+  tufts, a pulled weed's scar as a fleck, the creeper as a vine up a plaster
+  wall on the right. Touching a plant shows its sentence; a weed offers
+  *Pull*. Opened from the pause menu (*The garden*).
+
+### Decisions
+
+- **A play-day is a calendar date, not a timer.** `advance_day` compares
+  `Time.get_date_string_from_system()` with the saved `last_date` at launch
+  and when the garden is opened; a flag set across midnight in one sitting
+  belongs to the day the sitting began (§16a: "a session is a day"). Nothing
+  grows, climbs or withers between plays: absence costs nothing.
+- **Each seed is its own plant; thickness is the habit's.** Every planting
+  keeps its own sentence and its own stage. "Repeating the same kind of
+  choice feeds the same sapling" is drawn as stem width: every stem of a kind
+  is as thick as that kind's living count. The count is never written.
+- **Seeds look alike, and so does fruit.** Sweet and bitter seeds are the
+  same dot and sweet and bitter fruit the same warm circle. The GDD's rule
+  against a correct-answer cue is about cards, but painting a kind onto a
+  plant would be the designer's verdict the garden exists to avoid; the
+  sentence says what was planted, and both kinds of fruit bind.
+- **Watering is a flag newly set on that day,** through the data list, and
+  `Garden.water(GameState)` is public so the hum, *Listen* or a tale can
+  water directly later without a new flag. A day is watered once.
+- **Pulled weeds stay in the record** as `pulled` ids: the scar is drawn,
+  the sentence still reads, and `reconcile` does not replant it (§6
+  "Regrowth" keeps the scar visible).
+- **Interim way in: the pause menu.** The GDD puts the plot in the Grove,
+  which another agent is building. The pause menu's *The garden* button
+  opens the screen as its own child overlay, so no place script changes;
+  when the Grove exists, the button goes and the Grove instances the same
+  scene.
+
+### Not built (GDD §6, deferred, data kept forward-compatible)
+
+Fruit vignettes and tasting (`Garden.ripe_fruit()` is the hook), weeds
+wrapping the creeper, roots and knots, regrowth from tasting, neglect
+pulling the creeper down, the next life. `GameState.garden` is a plain
+Dictionary so each can add a key.
+
+### Placeholders
+
+None: the plot is drawn with primitives and is its own final form until the
+Grove gives it a place.
+
+
+## 2026-10-20 — The other four Glimpse points
+
+GDD §6 "Glimpses" (five fixed points; conditions tied to state, never a
+timer; approaching ends it and leaves a feather or a jasmine flower; never
+counted), §3 (sitting on a rooftop, standing on the tower's beam, leaning in
+a doorway), §10 (jasmine white; the feather the one peacock blue). Affects
+§6 and §12 (four seen flags, four pick-up events).
+
+### One scene, five instances, everything that differs as data
+
+- `scenes/quest/Glimpse.tscn` is now the generic point. New exports on
+  `scripts/quest/glimpse.gd`: `trigger_condition` (a string in the grammar
+  of `scripts/lib/condition.gd`, so `flag:rukma_heard and not
+  flag:rukma_key_taken` is one line of scene data), `leaves` (`feather` or
+  `jasmine`), `leaves_offset` (where it lies, in the node's space),
+  `pickup_event` (the pick-up's own event, so two jasmine points do not
+  hide each other on reload), `pose` (`Sitting_Idle` or `Idle`, held
+  through `CharacterRig.hold_pose`) and `witnessed` (Tulu looks up; true at
+  the traffic light and nowhere else, GDD §6 "once"). The P5 exports keep
+  working: an empty `trigger_condition` reads `flag:<trigger_flag>`.
+- The scene holds both pick-ups (`FeatherPickup`, `JasminePickup`); on load
+  the script moves the one named by `leaves` to `leaves_offset` and frees
+  the other. Simpler than instancing at run time, and `%FeatherPickup`
+  still resolves for the P5 tests.
+- The four points are `tools/street_parts/glimpses.py`, one table: the top
+  of the billboard frame at 25.8 m (`flag:heard_tulu`, standing, feather at
+  the tower's foot), the doorway of Nanda's stairwell at (-29, 0, -12)
+  (`flag:rukma_heard and not flag:rukma_key_taken`, standing, jasmine on the
+  threshold), the far end of the garden at (-42, 0, 1) (`flag:garden_open`,
+  standing, jasmine on the spot) and the chai stall's roof (`flag:saw_shrine`,
+  sitting, feather on the pavement by the hatch). Seen flags
+  `glimpsed_<point>`, lines `journey.glimpse.<point>`.
+- The condition is read whole on every flag and event change, and once on
+  `_ready`: `Main` frees the Street when the player goes through a door, so
+  a flag set inside the shrine would otherwise never reach the roof above
+  its back door. A Glimpse that is due when the Street loads appears as the
+  player steps out. The P5 behaviour (edge on `gave_dry_fountain`) is a
+  special case of this and its tests pass unchanged.
+- `end_distance` is now measured across the ground (XZ), not in 3D: a
+  figure 26 m up is "arrived at" from the pavement beneath it, which a 3D
+  radius could only express as a sphere that also covered the far pavement.
+  The traffic light keeps its 6 m, which on the ground is a touch wider than
+  before; the P5 approach test still passes.
+- `scenes/quest/Jasmine.tscn`: six white ellipsoid petals round a pale
+  centre on a short green stem, primitives, inline materials; the player's
+  third carryable (`Player.tscn`, flag `carrying_jasmine`). PLACEHOLDER for
+  the painted jasmine of GDD §10. `scenes/quest/JasminePickup.tscn` is the
+  feather pick-up with `item = "jasmine"`.
+
+### Two things found on the way
+
+- `scenegen.xf(pos, yaw)` writes the basis row by row, which is how Godot
+  reads `Transform3D(...)` in a scene file; the node it places therefore has
+  forward `(sin yaw, 0, -cos yaw)`, the mirror of what `rotation.y = yaw`
+  gives. Noted here rather than changed: every yaw in the generators was
+  tuned against what the scene shows. `glimpses.py` has `facing()` and
+  `local_offset()` for this convention, and a test pins where the pick-ups
+  land in world space.
+- The traffic-light Glimpse was placed with yaw `pi/2`, which faces east,
+  away from the fountain, and put its feather under the lamp housing; its
+  comment said the opposite. Now `-pi/2`: the figure faces the fountain and
+  the feather lies on the road below the pole, as the comment always said.
+  The P5 tests place the player relative to the node and pass unchanged.
+
+### Not done here
+
+- The stairwell doorway itself, the garden's gate opening, the shrine and
+  the roof key are other features; this change only reads their flags. The
+  stairwell point stands on open pavement until the doorway is built there
+  and may need nudging to its threshold. The shrine's back door is within
+  the chai-stall point's 4 m, so a player stepping out beneath it sees the
+  roof empty and the feather already fallen; whether that is the right
+  staging is a playtest question, and `end_distance` is data.
+- Budget not re-measured: four more hidden skinned meshes and four hidden
+  omni lights that are off until their moment, one at a time, once each.
+
+
+## 2026-10-20 — The Counting Man (GDD §7)
+
+GDD §7 "The Counting Man", §3a Act 3 ("Tap coins in a 30-second count, or
+sit"), §11 ("No timed input anywhere; the counting mini-game can be
+skipped"). Affects §7 (the side quest's data), §11 (the one overlay screen).
+
+### What was built
+
+- `tools/street_parts/counting_man.py` seats him at the east end of the
+  bus-stop bench (`scenes/npc/CountingMan.tscn`, criminalMaleA skin, the
+  library's `Sitting_Idle`) with one MultiMesh of coins on the seat beside
+  him: four short stacks and fourteen loose. The route he walks when freed is
+  data on the node (`walk_points`), as Tulu's waypoints are.
+- Three ways out, all data: the card *Let me count them with you* sets
+  `counting_man_counting`, on which his script opens
+  `scenes/ui/CountScreen.tscn`; the card *Here's one more* sets
+  `counting_man_given_coin`; *Sit* on the seat beside him sits the player
+  (the bus stop's own pose) for `sit_seconds` (3), then he laughs
+  (subtitled) and fires `counting_man_laughed`. Tapping the last coin fires
+  `counting_man_counted`. `data/quests/counting_man.json` ends on one of
+  three branches, each setting `counting_man_freed` and its own *Your
+  journey* line; the end condition is the flag, so a tester setting it in
+  the debug panel ends the quest too (with the quest-level line).
+- Freed, he waits until the screen or his line is out of the way, stands,
+  takes the coins (the MultiMesh hides), walks four points east and then
+  south down the kerb of the north-south road, hums one note on reaching the
+  second point (`assets/audio/one_note.ogg`, G4, the first of Tulu's three,
+  from `tools/audio_parts/one_note.py`, subtitled), and is hidden at the
+  last. A loaded journey with `counting_man_freed` set has an empty bench.
+
+### Decisions
+
+- **No number, no timer.** The count screen is a grid of a hundred and eight
+  identical brass buttons; a tapped coin dims and stays dimmed. Nothing
+  counts down and nothing is shown until the last coin, when the hint line
+  becomes *"...a hundred and eight."* from the string table. The GDD's
+  "30-second" is the time a hundred and eight taps take, not a limit. A
+  *Stop counting* button (and Escape / B) closes it with nothing lost; the
+  card's flag is cleared on close so the count starts over next time.
+  Enter, Space and the gamepad's A tap the next coin: the screen takes
+  `ui_accept`, `ui_cancel` and the existing `contextual` action in
+  `_input()` and marks them handled so a press never reaches the contextual
+  button underneath. No new input actions.
+- **A count interrupted by quitting is not resumed.** His script clears a
+  stale `counting_man_counting` on load; the player starts again from the
+  card. Progress inside the count is not state worth saving.
+- **Sitting with him is meeting him.** The quest starts on
+  `flag:counting_man_met or event:counting_man_laughed`, so a player who
+  never talks to him and simply sits still frees him through the data. The
+  quest does not start on `true` (as the Dry Fountain does) so that its
+  objective does not take over the pause menu's *now* line before the
+  player has found him; once met, `counting_man` sorts before
+  `dry_fountain` and the line reads *"A man at the bus stop has lost
+  count."* until he is freed.
+- **He waits for the player to look.** On the coin path his line is on
+  screen when the quest ends; on the count path the screen is. He stands
+  only once `Content.dialogue` is idle and the screen is closed.
+- **The count screen lives on the place's `UI` layer**, found by walking up
+  to the nearest ancestor with a `CanvasLayer` child named `UI` (where the
+  choice cards also live), so the pause menu, added later to the same layer,
+  still draws above it. Alone in a test the man makes a layer of his own.
+  Subtitles go through the place's `%TouchControls`, found the same way; no
+  shared file was edited for either.
+- **Seat height is eyeballed.** The clips keep the hips at standing height
+  (position tracks are dropped, see "The true walk"), so the seated figure
+  hangs `seated_drop` (−0.46 m) below his node, which stands on the kerb;
+  the coins sit at kerb + 0.45 m. Both are exports/constants to tune in the
+  editor; this was built headless.
+- **The bus stop is still the end.** Arriving here with `gave_` or `took_`
+  set ends the slice (P6) before he can be talked to; the quest is for the
+  stretch of the journey before the fountain is settled, or the ignore
+  path. Not changed here; noted for the owner.
+
+### Placeholders
+
+- The body: the shared Kenney rig (GDD §10 painted characters replace it).
+- The coins: scaled unit cylinders in `plaster_ochre`.
+- `one_note.ogg`: a hummed triangle G4; the composer's sung note replaces it.
+
+### Budget
+
+Not re-measured (the brief for this change forbids export builds): one more
+skinned mesh at the bus stop, one MultiMesh (one draw call) that hides when
+he leaves, and an overlay of plain Controls shown only while counting.
+
+
+## 2026-10-20 — Trying clothes on in the showroom
+
+Owner request: "go to showroom and try on different clothes". Affects GDD
+§6 "Interaction" (one contextual button, the thing's verb on it), §11
+(screens: this is not the shop the MVP rules out), §12 (`outfit` on the
+journey). Built on `feat/e1-places` (the Showroom is a Place).
+
+### What
+
+- A fitting dais in front of the showroom's mirror (`tools/gen_interiors.py`
+  `showroom()`): a round plinth 0.2 m high, under the player's step height,
+  so the body walks up onto it. Standing there the button reads *Try on*
+  (`scenes/quest/TryOnStand.tscn`, `scripts/quest/try_on_stand.gd`). The
+  counter moved west and the mannequins north to clear the mirror's corner.
+- *Try on* opens `scenes/ui/WardrobeScreen.tscn` over the view: a panel
+  along the bottom with one 96 px button per outfit and *Done*; the body
+  stays on the dais (`Player.hold_still`), the camera comes round to its
+  front (`CameraRig.drift_toward` aimed at a point behind the body), and
+  the view above the panel stays live, so a choice is seen on the body at
+  once. Touch and mouse press the buttons; keyboard and gamepad move focus
+  along the row and *Prev*/*Next* step it (and scroll the row for a thumb);
+  B or Esc closes it. The panel hides while the tree is paused.
+- Outfits are data: `data/outfits.json` lists every Kenney skin
+  (`tools/scenegen.py` `SKIN_PATH`) with an id, a name string id and the
+  texture path; `scripts/core/outfits.gd` (`Outfits`) reads it once, like
+  `Places`. `GameState.outfit` holds the id, `""` meaning the skin the
+  player scene carries (humanMaleA, the data's `default`); it is saved with
+  the journey, loaded back, and wiped by *Play again*. The player's body
+  applies it at `_ready` and on `GameState.outfit_changed`, so the street
+  and every interior dress the traveler the same (`CharacterRig.set_skin`
+  repaints a built body).
+
+### Why this shape
+
+- No price, no badge, no "owned" state, no "worn" mark: everything is free
+  and every button is drawn the same (the GDD §6 rule for cards, applied to
+  clothes). Focus lands on the worn outfit when the wardrobe opens, which
+  a gamepad needs anyway; nothing else distinguishes it.
+- The screen touches only `GameState`; the body listens. The stand owns the
+  overlay (its own `CanvasLayer`, above the HUD) rather than `Place`, so
+  the Place seam stays as it is and a stand instanced alone still works.
+- The outfit is cosmetic and Street-only. The GDD's coat (§3, Act 5: "the
+  coat falling away") is story, not this; nothing reads `outfit` but the
+  body.
+- Outfit names are plain words for what the cloth looks like ("Brown coat",
+  "Pale shirt"), never the pack's labels.
+
+### Placeholders
+
+- The skins are Kenney's CC0 character textures (docs/RIGHTS_REGISTER.md),
+  stand-ins for the hand-painted cloth of GDD §10 "Characters"; the data
+  file says so, and a final art pass replaces the `skin` paths and names.
+- The dais and the mirror are primitives in the street's materials, as the
+  rest of the interiors are, for the painted set dressing of GDD §10.
+
+
+## 2026-10-20 — The Forgotten Song as data, and Dhanpal at the hall
+
+GDD §7 "Main quest: The Forgotten Song", §8 Scene C, §4 Dhanpal, §6
+"Remembering Krishna". Affects §7 (the quest file's shape), §11 (the pause
+menu's one line).
+
+### The spine is one file; the approaches are flags
+
+- `data/quests/forgotten_song.json`: giver `dhanpal`; it starts on
+  `heard_tulu` or `met_dhanpal`, so following the boy and meeting the
+  landlord both open it. It ends on `played_for_others` or `kept_veena`,
+  each a branch with its own line in *Your journey*
+  (`journey.forgotten_song.played` / `.kept`). No flag of its own is set by
+  the quest: the tower, the competitors, the shrine and the Veena set theirs,
+  and the quest only reads them.
+- The runner walks steps in order and re-derives progress from flags, so
+  three approaches that can run in any order and mix are written as one
+  ordered list of ten steps whose `complete_when` say "this approach's next
+  milestone, *or* the player is on another approach, *or* they are on the
+  tower". Order: hear of it, the tower waits, Compete (key, shortcut),
+  Mediate (a second competitor, all four), Investigate (lamp, Sarang's bar),
+  climb, dawn. Compete steps give way to any Mediate or Investigate flag;
+  Mediate steps give way to the shrine or to a finished Compete; Investigate
+  steps give way to a finished Compete or a finished Mediate; `on_the_tower`
+  clears every preparation. So under a mix the one line follows Investigate
+  over Mediate over Compete, and a finished approach wins over a begun one
+  (GDD §7: "a player who starts competing can switch to mediating after one
+  taken item"). Every condition is monotone (no `not`), so a loaded journey
+  lands on the same step; a test holds that.
+- "Two competitors before accepting" has no counter in the condition
+  language, so it is the six pairs written out. Long, but it is data, and
+  the alternative was a path variable or a counter in code.
+- Objective texts (`quest.forgotten_song.*`) are the pause menu's one line in
+  the character's voice: "Dawn is coming. The tower is waiting." is the
+  GDD's "Be on the tower at dawn" said by the traveler.
+
+### Dhanpal
+
+- `scenes/npc/Dhanpal.tscn` is the shared body in the criminalMaleA skin, a
+  little taller and broadened; `scripts/npc/dhanpal.gd` is the shopkeeper
+  pattern (first available of `entry_lines`) plus one thing of his own: he
+  turns to whoever comes within 5 m of the hall and back to the street when
+  they go. He never follows. His lines after each dawn are chosen by
+  `requires`, not judged in code.
+- Scene C's cards: *Count me in* (sets `accepted_contest`), *Who else is
+  climbing?*, *Not today*; the first line's `sets` is `met_dhanpal`. "Why
+  does the name matter?" follows *Who else*, so the GDD's line about Nanda
+  and his brother is reachable without accepting.
+- The hall is the last south flat given a front by
+  `tools/street_parts/dhanpal.py`: a step at the pavement's road edge, two
+  pillars, a fascia with the `sign.hall` label, a roof back to the face, a
+  doorway between two windows. The pedestrians' loop (z 23 and 24.4) passes
+  under the roof between the pillars and the door, a colonnade people walk
+  through, which is why the step and pillars stop short of z 22.7. The task
+  named "x 46, z 27"; z 27 is inside the flat, so the front sits on its
+  street face (z 24.9) and the pavement in front, centred on x 46.
+- PLACEHOLDER: the hall front is primitives in the street's textures,
+  replaced by the hall of GDD §5; Dhanpal's body by GDD §4's.
+
+### For the integrator
+
+- `scripts/ui/pause_menu.gd` `now_line()` reads the first ACTIVE quest in
+  id order, and `dry_fountain` (active from the start) sorts before
+  `forgotten_song`; it also returns *Somewhere a boy is humming* until
+  `heard_tulu`, even once Dhanpal has been met. The main quest's line should
+  win: either a `priority`/`main` field on the quest file read by `now_line`,
+  or the main quest first. Left untouched here (shared file).
+- `tools/check_data.py` `REQUIRED_STRING_IDS`: add `speaker.dhanpal` and
+  `sign.hall` (the sign is referenced only by the generated scene).
+
+
+## 2026-10-20 — Lamps: the player's own (GDD §16a "Social: lamps")
+
+Owner expansion 2026-10-20 (the macro design, built in parallel). GDD §16a:
+"Anywhere in the Street ... the player can set down a lamp with one of twelve
+preset lines ... Others see lamps as small lights, can sit by them and leave
+a flower. No free text ... lamps fade after thirty days unless re-lit."
+Affects §6 (one more thing to *Sit* by), §11 (one more pause-menu button),
+§12 (`lamps` on the journey), §15 ("lamps are preset lines only"). The
+brief's slice list deferred §16a; the owner asked for this half of it now.
+
+### What is built
+
+- `data/lamp_lines.json`: the twelve line ids (`lamp.line.<id>`), `days`
+  (30), `max_per_place` (8) and `seconds_per_day` (900). The texts live in
+  the string table; a lamp record carries an id, never text. The GDD's four
+  lines come first; the other eight are in the same voice, written for any
+  place, none naming a quest. `scripts/core/lamp_lines.gd` reads the file
+  once, like `places.gd`.
+- *Set a lamp here* on the pause menu opens `scenes/ui/LampLinesScreen.tscn`:
+  twelve buttons in the data's order, one style, the focus starting on the
+  first (keyboard, gamepad), each carrying its text as tooltip; *Not now* or
+  the cancel action goes back to the pause menu. Choosing a line records
+  `{place, x, z, line_id, lit_day}` in `GameState.lamps` (place from the
+  Place's `place_id`, x and z from the player's feet) and resumes play.
+- `scenes/quest/Lamp.tscn` (`scripts/quest/lamp.gd`): a low clay cylinder,
+  a small unlit warm sphere for the flame, an `OmniLight3D` (range 3 m, the
+  Glimpse's warm orange `(1, .72, .42)`, no shadow) and an Interactable
+  *Sit*. Sitting shows the lamp's line as a subtitle for 4 s and holds
+  `Sitting_Idle` on the player's rig (the bus stop's clip) until the
+  player's horizontal speed passes 0.15 m/s, which the lamp watches in the
+  player's velocity; *Sit* is withheld while sitting. PLACEHOLDER: the
+  hand-painted clay diya of GDD §10 replaces the primitives.
+- The Place base spawns one Lamp per record of its own place that still
+  burns, at ready and whenever a lamp is set (`GameState.lamp_set`), in a
+  delimited block at the end of `scripts/places/place.gd` (two one-line
+  hooks in `_ready` and `pause`, marked `# lamps`). The record keeps no
+  height: the lamp finds the ground beneath its x, z with one ray on its
+  first physics tick, so a lamp set on a kerb comes back on the kerb.
+- Eight lamps to a place: the ninth puts out the oldest there
+  (`GameState.set_lamp`); other places are untouched.
+- Fading: a play-day is `floor(play_seconds / seconds_per_day)`; a lamp with
+  `play_day - lit_day >= days` is not spawned. Fifteen minutes to a day
+  follows §16a "Days and lives" ("about fifteen minutes from dawn to dusk").
+  Nothing shows the day and nothing counts down (§15: the sun is never a
+  timer). A faded record stays in the journey until the eight-per-place rule
+  replaces it; "re-lit" is not built.
+
+### What is not built, and why
+
+- Other people's lamps, and the flower left at one. Both need the lamps
+  store of §16a and §12 ("a minimal backend"), and the brief forbids any
+  network call or backend in this repository. The record is the shape such a
+  store would hold (place, position, line id, day), so the client half is
+  ready; the "others" half is future work for the integrator's backend
+  decision.
+- No count of lamps anywhere, and *Your journey* does not list them
+  (§16a's *Noticed* list is not in the slice).
+
+### Strings, data, state, tests
+
+- Strings: `pause.set_lamp`, `lamp.title`, `lamp.cancel`, twelve
+  `lamp.line.*`.
+- `GameState.lamps: Array[Dictionary]`, `set_lamp()`, `lamps_in()`, signal
+  `lamp_set`; saved, loaded and wiped with the rest of the journey.
+- `tests/test_lamps.gd` holds the data, the pause-menu path, setting,
+  sitting, save and load, the ninth lamp, the fade, and a read of every
+  lamp file for network words.
+- `tools/check_data.py` should learn `data/lamp_lines.json` (twelve ids,
+  each in the string table, `days` a positive integer) and the new required
+  string ids; the integrator owns that file.
+
+
+## 2026-10-20 — Tells and the *Noticed* list
+
+GDD §6 "Tells", §16a "Noticed" (the owner asked for the macro design to be
+built in parallel; this supersedes the brief's Slice 1 exclusion of Tells).
+Affects §3a (the Street's *Look* row), §6, §11 (the pause menu), §12 (the
+journey gains a list).
+
+### What a Tell is here
+
+- A Tell is a small, silent wrongness the player can *Look* at and nothing
+  more: `scenes/quest/Tell.tscn` is an `Interactable` with `verb.look` and a
+  1.8 m reach; which tell it is, is `tell_id` on the node, a row of
+  `data/tells.json` (`{id, sentence_id, place, requires_humming?}`), read by
+  the static loader `scripts/core/tells.gd` (`Tells`) the way `Places` reads
+  places. Twelve for the Street, every sentence `tell.<id>` in the string
+  table, written in the GDD's tone: affectionate, unexplained.
+- *Look* calls `GameState.notice(id)`, which appends the id to `noticed`
+  (a plain `Array[String]`, saved with the journey, wiped by *Play again*)
+  once and only once, and shows the sentence as a subtitle for four
+  seconds. It sets no flag, fires no event, adds no journey line: the
+  journey tests hold that the flag and event counts do not move. *Look*
+  stays offered after noticing, so the poster can be looked at twice.
+- The clock over the chai stall "stops while the hum is held": its row has
+  `requires_humming`, and the tell offers *Look* only while the Place's hum
+  player is playing (`Place.is_humming()`, new). The hum is 1.6 s, so the
+  player hums and looks; nothing times them.
+- `Place.subtitle(text_id, seconds)` is new and tiny: the HUD's subtitle
+  reached from a node that is not the Place.
+
+### Nothing counts them
+
+- The pause menu gains *Noticed* under *Your journey*: the title string
+  `pause.noticed` and the sentences, in the order seen, hidden until there
+  is one, built exactly as the journey list is. No total, no "x of 12", no
+  number anywhere; a test searches the section for digits. The data file's
+  `tells` list is the only place twelve appears, and the game never reads
+  its length for the player.
+- Tells are not Glimpses: they have no flag, no feather and no journey
+  line, and the Glimpse is unchanged.
+
+### Where they stand
+
+- `tools/street_parts/tells.py` places each tell with a prop built from
+  primitives: the clock (rim, face, two stopped hands) on the chai stall's
+  front; a puddle (`water.tres`) with two small spheres turning in it west
+  of Gopal Seth's shop; a warm unlit quad in front of a flat's barred
+  window; a poster (the sign texture) with a figure and a timber sliver of
+  a feather; a dark doorway in the tower's foot with a cow-shaped decal
+  lying out of it; a kite on two spars over the crossing; a bird on the
+  westernmost cable; a lamp post's shadow lying toward the sun; three
+  chalk marks north of the fountain; a jasmine flower by the fence; wet
+  footprints over the south kerb; a tarpaulin corner under a brick by the
+  covered car. All kept clear of the fountain's *Look*, the shop's *Pick
+  up*, Tulu's route and the bus stop's *Sit*, and at least four metres
+  apart, so the one button never has to choose.
+- Two new materials, `assets/materials/tell_shadow.tres` (dark, unlit,
+  translucent: shadows and wet marks) and `tell_glow.tres` (warm, unlit,
+  faint). No peacock blue, no magenta, no pink: the poster's feather is
+  timber and only the sentence says what it is.
+- The part carries its own transform helpers (`yaw_xf`, `roll_xf`,
+  `face_xf`) because `scenegen.xf` writes a yaw with a non-uniform size as
+  a sheared basis (Godot's `.tscn` lists the basis row by row); the street
+  only ever used it with yaw on uniform sizes or yaw 0, so nothing there
+  changes. Worth folding into `scenegen.py` when it is next touched.
+- PLACEHOLDER: every prop is primitives with the street's procedural
+  textures, replaced by the painted props and decals of GDD §10.
+
+### Not done
+
+- Tulu "acknowledging" a Tell (GDD §6) is not built: no Tulu line exists
+  for it in Slice 1 and it would need dialogue data; nothing here stops it
+  being added as a line with `requires`.
+- `tools/check_data.py` does not yet check `data/tells.json`; the
+  integrator owns that file (see the report).
+
+## 2026-10-20 — Tulu at the door, the chai stall's front (owner expansion)
+
+GDD §3 Act 3 "Arrival" (Tulu leads to the shrine room behind the chai
+stall), §4 "Tulu ... follows the player if ignored", §5 "the shrine room is
+tucked behind the chai stall, found by following Tulu or Sarang's music"
+and "leaks a faint drone of Madhuri's chanting", §7 micro-interaction "Hum
+near the shrine: Madhuri's chant rises to meet the note". Affects §3, §5,
+§6 (Listen, Call), §7. The shrine interior and the door that opens are
+another feature's; this is the thread up to the door and the stall's front.
+
+### Arriving is a sound and a look, not a prompt
+
+- When Tulu reaches his last waypoint (`is_at_the_door()`) he hums once
+  more through the Reply player, turns to face the player and keeps facing
+  them, and the HUD shows *[Tulu looks at the door, then at you]* for 4 s.
+  The flag `tulu_at_door` is set; both the flag and the subtitle id are
+  exports on `Tulu.tscn`. `GameState.set_flag` returning false (already
+  set) is what keeps the subtitle to once per journey: the flag is the
+  record, nothing else counts.
+- A loaded journey with `tulu_at_door` set finds him at the last waypoint
+  rather than walking the route from the fountain again, so the saved state
+  and the verb beside him agree.
+- Tulu finds the HUD through `owner` (the place that instanced him owns its
+  `%TouchControls`). A bare Tulu, or one in a place with no HUD, says
+  nothing and errors nowhere. Chosen over a signal the street would have to
+  wire so `street.gd` stays untouched.
+
+### Talk takes Listen's place at the door
+
+- `Tulu.tscn` gains a Talk `Interactable` with `requires = ["tulu_at_door"]`
+  (data), opening `entry_lines` (`tulu_door`, data on the scene) the way
+  the shopkeeper does. His Listen area is switched off while he is at the
+  door: both areas sit on him and the place offers the nearer, so only one
+  may be open, and once he has led the player here the button's work is to
+  let them ask. The hum loop still plays; sound still leads.
+- The Talk area hangs off a plain `TalkMount` node because the place treats
+  any verb whose parent is a `sound_source` as *Listen* (camera drift and
+  the hum subtitle). A mount is smaller than a change to `place.gd`.
+- `tulu_door` offers two cards: *What's in there?* → *She keeps a lamp. She
+  knows the whole song.*, and *Go on, then* which ends it. The line itself
+  `requires` the flag, a second gate behind the verb's.
+
+### The chant answers a hum at the door
+
+- `tools/street_parts/chai_front.py` places `ChantOutside`, an
+  `AudioStreamPlayer3D` at the back door (group `chant_outside`; the group
+  name is an export on Tulu), unit size 3 m, inaudible past 14 m, silent
+  until a hum. When the player hums within 10 m of Tulu while he stands at
+  the door, he answers as before and Tulu starts the chant if it is not
+  already playing. The chant is stirred even while his own reply cools
+  down, so every hum at the door reaches the room.
+- `tools/audio_parts/chant_outside.py` makes the sound: a D3 root and its
+  fifth, each with a slow vibrato so they beat against each other, swelling
+  into one another once over 8 s, lowpassed at 420 Hz, peak 0.16. Only this
+  file was encoded (through `gen_audio`'s own helpers); re-encoding the
+  other four would have churned their bytes for no change. PLACEHOLDER for
+  GDD §10: Madhuri's chanting recorded by a devotee with permission.
+
+### The chai stall's front
+
+- Amma (`speaker.chai_seller`, `scenes/npc/Shopkeeper.tscn`, skin
+  humanFemaleA) stands beside the shelf at the hatch's west end facing the
+  street, because the stall's body is a solid box and the hatch a panel on
+  it; her `entry_lines` is `chai_greet`. Three cards: about the boy (*Tulu.
+  He hums all day. His grandmother ran the shrine behind here.*), about the
+  back door (*That's Madhuri's. Knock if you like; she won't mind.*, whose
+  line sets `told_about_shrine` so either route to it sets the flag), and
+  just a chai. The Tulu branch also leads to the door line.
+- A kettle (body, lid, handle, laid spout), eight cups in one MultiMesh,
+  and a `Label3D` sign `sign.chai` through `label_from_id.gd`.
+- Steam is `scripts/street/steam.gd` on one MeshInstance3D: an unshaded,
+  alpha-blended cylinder that scales from its base size to twice it, rises
+  0.6 m and fades over 2.4 s, then starts again. One transparent draw call,
+  no particle system; warm white, so the Hollow Vale palette (no peacock
+  blue, no magenta) holds. PLACEHOLDER for the painted wisp of GDD §10.
+
+### Budget
+
+Not measured in the web build here (the brief for parallel agents forbids
+exports on the shared machine). Added per frame: Amma's rig (one skinned
+mesh), five small opaque primitives, one MultiMesh, one transparent mesh,
+one Label3D: about eight draw calls and under 2k triangles against the P6
+headroom (median 112 of 200 draw calls). The integrator's next measured
+walk should confirm.
+
+
+## 2026-10-20 — Dhanpal's office and Nanda's flat
+
+GDD §5 (Hollow Vale: "four enterable interiors ... Dhanpal's office, Nanda's
+flat at the end of the alley"; "Locks, grilles, CCTV cameras and phones
+appear in every household and shop"), §4 (Dhanpal, Old Nanda), §7
+("Mediate", step 3: "bring him the broken instrument's missing string (found
+at Nanda's flat)"; "Micro-interactions": a one-line thought, no giver, no
+reward). Affects §5, §7.
+
+### Two more rooms, through the same seam
+
+- `tools/interiors/office.py` → `scenes/places/Office.tscn`, place `office`
+  ("Dhanpal's office"): 9 x 7 m, the desk and leather chair, filing
+  cabinets, three framed photographs of the tower on the east wall, the
+  room's windows onto the street, a brass plaque (`sign.office`), a camera
+  high in the corner and a second door in the south wall with two locks on
+  it. `tools/interiors/nanda_flat.py` → `scenes/places/NandaFlat.tscn`,
+  place `nanda_flat` ("Nanda's flat"): 6 x 5 m, dim (one amber lamp, half
+  the shops' ambient), a bed, a shelf of old things, one photograph on the
+  wall, bolts on the inside of the door. Both use `room()`, `lights()` and
+  `assemble()` from `gen_interiors.py` unchanged; the flat's dimness is a
+  one-string replacement of the ambient energy `assemble()` writes, asserted
+  so a change there fails loudly.
+- Street side: `tools/street_parts/office_door.py` (the door at
+  (46, 0, 25.9) at the hall front, a frame, leaf, step and the plaque, the
+  spawn `office_door` a metre north of it facing north) and
+  `tools/street_parts/nanda_door.py` (the door at (-29, 0, -13.5) facing
+  south into the west alley, a leaf with a barred peephole, the spawn
+  `nanda_door` just south of it facing south). Neither builds the hall or
+  the alley; those are other parts'. The office door's reach runs 2.4 m deep
+  so *Go in* is offered from the pavement wherever the hall's front wall
+  lands.
+- The door back in each room names the same spawn id as the door outside,
+  as the shops do.
+
+### Look, as a scene
+
+- `scenes/places/LookPoint.tscn` + `scripts/places/look_point.gd`: an
+  `Interactable` *Look* in a box (`reach`) that opens one dialogue line
+  (`line_id`). Which flags a look leaves behind is the line's own `sets`
+  (data/dialogue/en.json), so the script knows no flag. The office's three
+  photographs, camera and lock, and the flat's photograph, are six of these;
+  every line is speaker `thought` (`speaker.thought` is empty, as the
+  fountain's is: a thought has no name over it), has no cards, is under 20
+  words. The lock's sets `noticed_office_lock`; the brothers' photograph
+  sets `saw_brothers_photo`.
+- The photographs are pictograms in dark print on a pale card: a shaft, a
+  crane, the billboard, a figure. PLACEHOLDER for the painted photographs
+  of GDD §10; the pictogram is enough for the thought to land.
+
+### The string
+
+- `scenes/quest/InstrumentString.tscn` (three thin rings in the street's
+  dull metal; PLACEHOLDER for the wound string of GDD §10, and deliberately
+  not peacock blue: §10 lets that colour appear first on the Veena's
+  strings at dawn) is the third entry in the player's `carryables`
+  ("string"). `scenes/quest/StringPickup.tscn` lies on the shelf's third
+  board: *Pick up* through `pickup_item.gd`, which gained an optional `flag`
+  export (set on pick-up; the feather leaves it empty) beside its `event`.
+  Picking the string up sets `has_sarang_string` and fires
+  `sarang_string_picked_up`, so a loaded journey does not lay it down again.
+  The giving happens at Sarang's corner, which reads `sarang_string_given`;
+  nothing of that is in the flat.
+
+### Noted, not fixed
+
+- A `Label3D`'s front is its +Z, so `b.label(..., NORTH)` with `NORTH = 0`
+  on a south wall faces into the wall and is unreadable from the room with
+  `double_sided = false`. The office plaque and the street plaque use a yaw
+  of π (`FACE_NORTH`) so they read from the north. The shops' inside signs
+  (`gen_interiors.py`) still use `NORTH`; theirs to turn.
+
+
+## 2026-10-20 — The shrine room behind the chai stall, and Madhuri
+
+GDD §5 Hollow Vale (the shrine room: "old photographs, a lamp, a stone
+basin", tucked behind the chai stall, leaking "a faint drone of Madhuri's
+chanting"), §7 main quest "Investigate" steps 1–3, §8 Scene D, §6
+"Remembering Krishna" (`saw_shrine`), §7 micro-interaction "Hum near the
+shrine: Madhuri's chant rises to meet the note". Affects §3a Act 3 ("Carry a
+can into the shrine room; set it by the lamp").
+
+### The place
+
+- `tools/interiors/shrine.py` generates `scenes/places/Shrine.tscn`, place
+  id `shrine` (`data/places.json`, name `place.shrine`): 6 x 5 m, a low
+  timber ceiling, plaster walls, no windows. It uses `assemble()` from the
+  interiors generator but not `room()`: the shops' room comes with windows
+  and ceiling lamps, and this one is lit by its single lamp. The shops'
+  ambient light is taken down by replacing the two lines `assemble()`
+  writes; each replacement is asserted, so if the generator changes, the
+  shrine's build fails rather than quietly turning bright.
+- `tools/street_parts/shrine_door.py` turns the chai stall's existing
+  `BackDoor` mesh into a door (`verb.enter` → `shrine`, spawn `shrine_door`)
+  with the spawn outside facing north, and puts the chant at the door,
+  faint, 12 m reach: the room is found by sound (GDD §5), not by a marker.
+  `gen_street.py` is untouched; Tulu's waypoints already end here.
+- Inside, `DoorOut` (`verb.leave`) returns to `street` on `shrine_door`, as
+  the two shops do.
+
+### Madhuri and her chant
+
+- `scenes/npc/Madhuri.tscn` + `scripts/npc/madhuri.gd`: the shared rigged
+  body in `humanFemaleA`, idle, by the lamp with her empty jar, facing it
+  (Scene D: she does not turn round). *Talk* opens the first of
+  `entry_lines` whose `requires` hold: `madhuri_after_water` (needs
+  `lamp_watered`), `madhuri_ask_water` (needs `met_madhuri`, set by the
+  greeting's own `sets`), `madhuri_greet`. So she greets once, then asks for
+  water each time until she has it, then says it will see the dawn. No
+  negated requirement was needed: the order of the list does it.
+- Lines are Scene D's, trimmed under 20 words, with the Veena left out (out
+  of scope for the slice); what was played at the fountain is "something
+  this street sang every dawn". Two cards each; no card is marked.
+- The chant is its own node (`scripts/npc/madhuri_chant.gd`, in
+  `sound_source`) rather than Madhuri's root: `Place._on_verb_used` shows
+  Tulu's subtitle for any verb used on a sound source or its child, and
+  *Talk* on Madhuri must not say "[Tulu hums three notes]". On `hear_hum()`
+  the loop comes up 7 dB over 0.6 s, holds 4 s, settles over 1.2 s, and the
+  HUD shows `sub.madhuri_chant` (GDD §11: every vocal sound subtitled). A
+  sound answering a sound: no flag, no reward.
+- `tools/audio_parts/chant.py` → `assets/audio/madhuri_chant.ogg`: 8 s,
+  two sung tones a tone apart (D3/E3) cross-fading once a loop over a root
+  drone, every rate a whole number of cycles per loop so it has no seam.
+  PLACEHOLDER for the recorded maha-mantra of GDD §10 "Sound".
+
+### The photographs and `saw_shrine`
+
+- `scenes/quest/Photograph.tscn` + `scripts/quest/photograph.gd`, three
+  instances on the east wall. *Look* opens the first of the photo's
+  `entry_lines` whose `requires` hold. Each photograph has two lines with
+  the same words: `photo_<x>` sets `saw_photo_<x>`; `photo_<x>_last`
+  requires the other two and also sets `saw_shrine`. Whichever is looked at
+  last marks the shrine seen, in data; nothing counts in code. The GDD's
+  `saw_shrine` is "visits the shrine"; the owner's brief for this feature
+  asked for all three photographs, which is what the data does.
+- The speaker `photo` has an empty name, like `fountain`: a narrator line.
+
+### Water for the lamp
+
+- `scenes/quest/LampPoint.tscn` + `scripts/quest/lamp_point.gd`, mirroring
+  the fountain point. *Place* is offered only while `carrying_can` is set
+  (the `requires` on the Interactable); using it puts the can down, fires
+  `event_id` (`can_placed_at_shrine`) and sets `sets` (`lamp_watered`), all
+  exports set in the scene. The lamp (the room's one `OmniLight3D`, inside
+  this scene so it can answer) comes up from 0.8 to 1.6 over 4 s and the
+  can appears by the stand; a loaded journey with `lamp_watered` starts lit.
+- No quest file: *The Forgotten Song* is out of scope for the slice and not
+  to be scaffolded. The flags and the event are there for it; a later quest
+  file can wait on `event:can_placed_at_shrine` the way the fountain's does.
+
+### Placeholders
+
+Primitives in the street's textures for the room, the stand, the basin and
+the cushion (GDD §5 "custom work is limited to ... the shrine interior");
+pale panes in timber frames for the photographs; the shared Kenney body for
+Madhuri (GDD §4); a synthesised drone for the chant (GDD §10).
+
+
+## 2026-10-20 — Optional wisdom: the lotus and the cards
+
+GDD §6 "Optional wisdom", §9 "Wisdom encounters", §11 (HUD, accessibility),
+§10 (the lotus as the UI's one ornament; the forbidden colours), §15 (the
+rule on verse text). Affects §6, §9, §11.
+
+### What was built
+
+- `data/wisdom.json` is GDD §9's table, transcribed: seven cards, in its
+  order, each with its beat, a `trigger` in the condition grammar of
+  `scripts/lib/condition.gd`, four string ids (verse, meaning, Read more
+  note, source line), the verse reference and `review_status: draft`.
+  `scripts/core/wisdom.gd` is the static loader (like `places.gd`); a bad
+  row is reported by id and skipped.
+- The lotus (`scripts/ui/wisdom_prompt.gd`, `%Lotus` in
+  `TouchControls.tscn`) is a Control drawn with `_draw`: five petals in the
+  UI's parchment and ink with an ochre heart and a faint warm glow, no
+  image, nothing when hidden. It sits at the right screen edge, mid-height,
+  clear of the minimap and the contextual button, breathes at 0.5 Hz (GDD
+  §11's 3 Hz limit) for eight seconds, fades over 0.6 s and is gone. Its
+  countdown holds while the tree is paused (a dialogue, the pause menu, a
+  card), so an offer is never eaten by a menu.
+- `scenes/ui/WisdomCard.tscn` is §9's card format: the verse in the heading
+  font, the source line, the two-sentence meaning, *Read more* (the note
+  unfolds in a ScrollContainer in place; the button has done its work and
+  goes), *Close*. Focus lands on *Read more*, then on *Close*; Escape or
+  the pause action closes. The tree pauses while a card is open ("the game
+  pauses while one is open", §9) and the card processes always.
+- The Place base connects `GameState.flag_changed` to
+  `_on_wisdom_trigger`: when a flag is set, the cards whose trigger *reads
+  that flag* are evaluated, and the first unseen one whose trigger holds is
+  offered and recorded in `GameState.wisdom_seen` (a new persisted Array of
+  card ids; to_dict/from_dict/wipe). Only cards naming the changed flag are
+  considered, so a card appears at the moment of its own beat and never
+  later on an unrelated flag change (§9: "tied to a beat the player has just
+  lived through"). One card per flag change (§9: never more than one per
+  beat); a newer offer replaces an older lotus. Loading emits nothing per
+  flag, so a resumed journey re-offers nothing. `wisdom_seen` records that
+  the lotus was *offered*, not that the card was opened: ignoring it has no
+  effect, and nothing is counted (§6).
+- The contextual action (E, A) opens the offered card only when nothing
+  usable is near; near something, the thing's verb wins. The card is
+  optional; the world is not. A tap or click on the lotus always opens it.
+
+### This is the GDD's own prompt, not a notification
+
+The brief forbids notifications, timers, markers and badges. The lotus is
+none of these and the GDD asks for it by name (§6, §11: "the lotus icon
+pulses only when a card is available"). It is in-world and silent: no
+sound, no number, no badge, no push, no record of how many were missed. It
+is dismissible by doing nothing. Nothing in the game depends on it: no
+flag, quest, line or ending reads `wisdom_seen`, and the debug panel does
+not need it. Its eight seconds are a window, not a countdown the player
+sees; nothing is lost when it closes.
+
+### Verse text: plain renderings, labelled as such, until the panel approves
+
+GDD §9: "The verse text itself is not written here: the published
+translation must be chosen and licensed ... the exact wording goes in only
+after panel approval." GDD §15: "Scriptural text appears only as a licensed
+translation with edition named; the game never paraphrases a verse as if it
+were the verse." So every `wisdom.<id>.verse` is the game's own plain
+rendering of the verse's sense, and the card's source line says so in as
+many words ("told here in plain words, not the verse itself. The licensed
+translation, with its edition, goes here after the panel approves it").
+Quoting a public-domain translation from memory and naming its edition
+risked a misquotation under a real scholar's name, which §15 forbids more
+sharply than a labelled rendering. PLACEHOLDER: the licensed translation
+(BBT permission, §15) and edition replace the verse and source strings at
+the week-12 review; the string ids do not change. The meanings are §9's
+draft glosses, kept to two sentences; the *Read more* notes are 245–266
+words each, written for someone with no background, say which game ideas
+are fiction (the Grove, Hollow Vale, the Song, the Veena, the embrace), and
+carry the maha-mantra once, as text, in card 6 with a one-line explanation
+(§9 rules). A test holds that no card contains "you chose".
+
+### Triggers, as data
+
+| Card | GDD beat | Trigger in the data | In Slice 1 |
+|---|---|---|---|
+| whisper (Bg 2.13) | After the whisper (Act 1) | `flag:whispered_kuvera` | never: Act 1 is out of the slice; the Grove sets the flag |
+| arrival (Bg 15.7) | Arrival in Hollow Vale | `flag:heard_tulu` | the first *Listen*, the arrival beat's first act |
+| take (Bg 2.62–63) | After any take choice | `flag:took_dry_fountain` | yes |
+| give (Bg 3.9) | After any give choice | `flag:gave_dry_fountain` | yes |
+| shrine_water (Bg 9.26) | At the shrine, after carrying water | `flag:saw_shrine` | when the shrine lands; its carry flag may replace this one string |
+| melody (Bg 18.66) | After beat 12 (the melody) | `flag:played_for_others or flag:kept_veena` | never: the dawn choice is out of the slice |
+| embrace (Bg 9.22) | After the embrace (credits) | `flag:embraced` | never: Act 5 is out of the slice |
+
+Later quests extend a trigger with `or` (`flag:took_dry_fountain or
+flag:took_fence`); nothing in code changes. The out-of-slice cards are
+content transcribed from §9, not scaffolding: the data format is the same
+for all seven and a flag no scene sets is simply never set.
+
+### Not built
+
+- §9's *Learn more* link to a team page: the page is an open decision (§17)
+  and the slice makes no network call. The note is offline, as §6 asks.
+- Localised verse translations (§11: licensed per language) wait on the
+  English one.
+
+### Budget
+
+UI only, no web build exported for this change (the machine is shared).
+The lotus is one Control: hidden, it draws nothing; showing, it is six
+polygons and two circles for eight seconds. The card is a panel of labels
+that exists only while open.
+
+
+## 2026-10-20 — Three competitors on the Street: Rukma, Bhima Lal, Old Nanda
+
+GDD §4 (the competitors), §7 main quest table (the Compete and Mediate steps
+that happen on the Street), §8 (voice). Sarang is the music agent's; Dhanpal
+the hall's; the dawn climb reads the flags set here and is not built here.
+
+### Where they are, and how
+
+- `tools/street_parts/competitors.py` places three `Shopkeeper.tscn`
+  instances under `Competitors`: Rukma on the bus stop bench facing the
+  road (skaterFemaleA), Bhima Lal on the pavement at the east end of
+  Gopal's shop looking at the dry fountain (survivorMaleB, 1.95 m against
+  everyone's 1.75), Old Nanda at a door in the tower block's south face
+  (humanMaleA). The brief's "west alley at x ≈ -29" is where the tower
+  block now stands, so Nanda's flat is at its foot, which is also why he
+  knows the back stairs. Nothing new in code: skins, heights, the idle clip
+  and the lines each tries are properties on the instanced nodes.
+- Rukma asleep is the library's `Sitting_Idle` on `idle_animation` (as the
+  Glimpse sits), her origin 0.59 m below the seat because the rig keeps
+  rotation tracks only and the shared body's hips rest at 0.59 m (measured).
+  PLACEHOLDER: a sleeping clip replaces the sitting one.
+- Nanda's door is a slab, a frame, a step and a `Label3D` sign (`sign.nanda`)
+  with a *Look* in front: `scripts/quest/look_line.gd`, an `Interactable`
+  whose verb opens the one dialogue line named on the node (a micro-
+  interaction, GDD §7: no giver, no reward). It is not a `Door`: it leads
+  nowhere in this slice, and the stairwell Glimpse point (GDD §6) is not
+  built.
+
+### The lines are the quest
+
+- Dialogue only; no quest file. The steps of GDD §7 that touch these three
+  are each a flag a card or a line sets: `rukma_heard`, `rukma_key_taken`,
+  `rukma_key_traded`, `bhima_asked`, `bhima_medicine_given`,
+  `nanda_listened`, `nanda_told_shortcut`. Nothing is cleared: the trade
+  leaves `carrying_can` set (the brief says flags only set); whoever builds
+  the dawn climb decides what the can becomes.
+- "Not already taken" and "needs a can" are expressed with the one tool the
+  dialogue has, positive `requires` on lines plus the order of
+  `entry_lines`, exactly as Gopal's after-lines work: `rukma_after_key`
+  (requires the key) is tried before `rukma_greet`, so the greeting with the
+  take card never opens again; `rukma_greet_can` (requires `carrying_can`)
+  is tried before the greeting, so the trade card appears only with water in
+  hand. No negated requirement was added to the format.
+- Taking the key is a card ("Her bag is open. Take the roof key.") on the
+  line where she talks in her sleep, as the task asked. GDD §3a prefers an
+  approach "chosen by what you do next, never by menu": a *Take* verb on her
+  bag would be the stricter reading, and swapping to it later is a scene
+  change, not a data change. Recorded, not done.
+- Every mix of paths stays open (GDD §7 "Approaches can mix"): after the
+  key is taken or traded she can still be woken and heard; after Nanda has
+  told the shortcut he still offers the sitting; the stairs card is on the
+  competitor's greeting (`requires accepted_contest`), so a listener who
+  later accepts still finds it.
+- `speaker.thought` ("") is the empty speaker label for the player's own
+  one-line thoughts (the key in the hand, the door), as `speaker.fountain`
+  is for the fountain.
+
+### Budget
+
+Three more skinned bodies and a dozen primitives; not measured in the web
+build here (shared machine, per the agents' brief). The integrator's walk
+should carry the numbers.
+
+
+## 2026-10-20 — The Pool of Worlds: the way down and the way up
+
+GDD §3 Act 2 "Falling" and Act 5 "Rising", §3a Act 2 ("Nothing but tilting
+the view"), §5 "The Pool of Worlds" (a 90-second descent, one particle
+system, two directions), §8 Scene B, §10 Pool row, §11 (accessibility).
+Affects §5 (the Veil is a place in `data/places.json`), §12 (nothing new on
+the journey).
+
+### One scene, two places
+
+- `scenes/places/Veil.tscn` + `scripts/places/veil.gd` is **not a Place**:
+  nothing walks here and nothing can be used, so it does not carry the
+  player, the camera rig, doors or spawn points. It is a `Node3D` with the
+  same `place_requested(place_id, spawn_id)` signal a Place has, so `Main`'s
+  existing wiring swaps the next scene without knowing the difference.
+- `VeilDown.tscn` and `VeilUp.tscn` instance it with the exports set
+  (`direction`, `next_place`, `next_spawn`, `seconds` 90, `early_end_after`
+  20, `hold_seconds` 1, `line_ids`); `data/places.json` names them
+  `veil_down` and `veil_up`. The Grove's *Dive* and the shrine's basin are
+  doors onto those ids; the Veil's own exports say where it lands:
+  `street` / `fountain_basin` on the way down, `grove` / `pool_bank` on the
+  way up. Both are data to be pointed elsewhere; neither spawn point exists
+  yet (the Street puts the player in the basin by default, which is where
+  the fall ends).
+- The two ways are one scene because GDD §5 asks for "one particle system,
+  two directions": every constant is shared and `direction` only flips the
+  sign of the stream, the start and end colours, the glow and the Song.
+- At the end: a fade to black over 1.2 s, the Song fading with it, then
+  `GameState.set_place(next_place, next_spawn)` and `place_requested`, in
+  that order, as a door does.
+
+### What is on screen
+
+- **Stars**: two `MultiMeshInstance3D` segments sharing one `MultiMesh` of
+  180 billboard quads each (360 points, 720 triangles, two draw calls),
+  stacked 60 m apart and leapfrogging past the camera, so the field is
+  endless with no per-point work per frame. Built from a seeded RNG in
+  `_ready`, uniform over the ring's area. Star white with a little nebula
+  violet, never warm (GDD §10). Four low-poly spheres are the bubbles; they
+  rise through the water, so they overtake the stars on the way down and
+  lag them on the way up.
+- **Camera**: at the origin, looking a little down the fall (up the rise),
+  swaying slowly on its own. A drag or the right stick tilts it through
+  `TouchControls.camera_dragged`, the same seam the Place uses, with the rig's
+  radians-per-pixel and the journey's sensitivity and inversion settings.
+  The HUD is instanced and then emptied: joystick, button, pause, map and
+  compass hidden (GDD §11 "HUD: empty by default"). A tap does nothing.
+- **Colour**: a `ColorRect` vignette (a radial mask in a canvas shader) drains
+  from nebula violet to blue-black over the descent and warms from blue-black
+  to rose-gold over the ascent; the sky behind the stars follows it at a
+  third of the brightness. A second rect with the mask inverted is the
+  player's own glow, fading out on the way down and in on the way up.
+  Rose-gold here is `(0.92, 0.64, 0.50)`: copper rather than pink, so it is
+  nowhere near magenta; blue-black `(0.02, 0.03, 0.09)` is nowhere near
+  peacock blue.
+- **Lines** (§8 Scene B, "one line at a time"): `line_ids` on the Veil, three
+  on the way down (`veil.line.easy`, `veil.line.harder`,
+  `veil.line.never_closed`), none on the way up. Each has its share of the
+  middle of the sequence and fades in, holds and fades out.
+
+### The early end (accessibility)
+
+- No *Skip* is offered; the first fall is meant to be sat through. After
+  `early_end_after` (20 s) a touch held still for `hold_seconds` (1 s) ends
+  it, as does holding the `contextual` action (E, gamepad A) for desktop and
+  gamepad parity. GDD §11: "No timed input anywhere"; a player who cannot
+  wait, or whose assistive setup needs to move on, is not held in a
+  cinematic. A finger that moves more than the tap slop is a drag, not a
+  hold, and letting go cancels.
+- There is no meter: the view darkens as the finger stays, and the ending
+  is simply the darkening completing. Releasing brings the view back over
+  0.3 s. This is the hold's own feedback, not a progress bar.
+
+### The Song
+
+- `tools/audio_parts/veil.py` writes `song_layers_down.ogg` and
+  `song_layers_up.ogg` through `tools/gen_audio.py`: three PLACEHOLDER
+  layers (a band-limited triangle melody on Tulu's G A C, a low drone, a
+  plucked arpeggio) standing in for the Song's flute, tanpura and tabla
+  (GDD §10 *Veil*: "same recording, mixed differently"). The way down loses
+  the melody, then the arpeggio, then the drone, to silence by 97 %; the
+  way up mirrors the gains in time. 90 s each, 44.1 kHz, about 210 KB each.
+- The import leaves `loop` off: each file is exactly as long as the
+  sequence, and a loop would bring the full Song back after the silence (or
+  the silence back after the full Song). A longer `seconds` wants a longer
+  file, not a loop.
+- `gen_audio.encode` now feeds libsndfile ten seconds at a time: its Vorbis
+  encoder segfaults when handed more than about two million frames in a
+  single write, which these are the first sounds to do. Short sounds are
+  unaffected and their committed files were left as they were.
+
+### Budget
+
+Not measured in a web build (no exports this phase). Statically: two
+MultiMesh draw calls (720 triangles), four spheres (about 580 triangles),
+three full-screen `ColorRect`s with a tiny shader, one label and the HUD.
+No lights, no shadows, no environment effects.
+
+
+## 2026-10-20 — The Fence (side quest)
+
+GDD §7 "The Fence", §4 Vasanti, §6 "Carry" and "Choice", §12 (the flag
+model). All three outcomes play from `data/quests/the_fence.json` and
+`data/dialogue/en.json`; no code reads a path.
+
+### What was built
+
+- **The garden** (`tools/street_parts/garden.py`, generated into the
+  street as `Garden`): north of the padlocked fence, six timber beds with
+  dusty soil and a few plants (Kenney's bush, small), a water drum, a path
+  from the gate, a white sign board whose words come from the string table
+  (`sign.garden`, `sign.garden_rule`), and the fruit tree: Quaternius'
+  Tree_5 at 0.7 with five warm-orange fruit on the higher branches
+  (`assets/materials/fruit.tres`; the low branch is bare, which is the
+  quest). The one shared-file edit: `tools/gen_street.py` leaves the gate's
+  span of fence rail out (`GATE_SPAN`), so the part can hang a gate in it.
+- **The gate** (`scripts/quest/garden_gate.gd` on `GardenGate`): a leaf of
+  rails and bars hinged on the fence post west of the opening, hanging ajar
+  into the garden (yaw 0.45) so the padlock on the gate post keeps nobody
+  out — GDD §4: she *wants* to fence the tree; she has not managed it.
+  *Mend* (`verb.fix`) is an Interactable with `requires = ["talked_vasanti"]`
+  (data), enabled only with free hands; it fires `fence_mended` and the leaf
+  swings true. When `garden_open` is set the padlock — the street's own
+  `Fences/Padlock`, named by `padlock_path` — disappears and the leaf swings
+  wide. The flag and the event are exports on the node.
+- **The tree** (`scripts/quest/fruit_tree.gd`): *Pick up* hands the player
+  a `fruit`, hides one sphere and fires `fruit_picked`. `fruit` joined the
+  player's `carryables` (`scenes/quest/Fruit.tscn`, held in the palm).
+- **Vasanti** (`scenes/npc/Vasanti.tscn`, `scripts/npc/vasanti.gd`, the
+  skaterFemaleA skin) on the kerb at the gate. *Talk* opens the first of
+  `entry_lines` whose `requires` hold (gift, opens, after-fixed, hum clue,
+  again, greet). While the player holds a fruit she offers *Place* instead
+  (`requires = ["carrying_fruit"]`); placing fires `fruit_given` and she holds
+  the fruit from then on. When the quest sets `has_fruit` she puts a fruit
+  in the player's hand and says so.
+- **The quest** starts on `talked_vasanti` or `fruit_picked` (she is the
+  giver; a player who never meets her never sees its line in the pause
+  menu). Branches: `fixed` on `event:fence_mended` → `has_fruit`,
+  *"You lifted Vasanti's gate back onto its hinge; she gave you fruit."*;
+  `open_told` on `flag:told_vasanti_thief` and `open_gift` on
+  `event:fruit_given` → `garden_open` (and `fruit_received` for the gift),
+  both *"Vasanti took the padlock off the garden gate."*
+
+### Decisions
+
+- **Finding the thief** is Tulu (GDD §7: hungry; he gave it to Nanda), but
+  Tulu has only *Listen* in the slice. The clue comes from Vasanti's second
+  visit, and only once the player has heard Tulu: `vasanti_hum_clue`
+  requires `heard_tulu` and `sets` `fence_thief_known` as it is shown; the
+  card that names him sets `told_vasanti_thief`, which the quest turns into
+  `garden_open`, so her answer (`vasanti_opens`, requires `garden_open`) is
+  available in the same breath. A player who has not heard Tulu gets
+  `vasanti_again` instead, with nothing to accuse anyone of.
+- The three endings exclude each other through the gate and her hands,
+  not through code that knows the paths: *Mend* is gone once the gate is
+  settled (mended or open); *Place* is gone once a fruit has changed hands
+  either way (`fruit_given` or `has_fruit`).
+- The fence has no collision (it never had); the gate is a picture, not a
+  wall. Making it a wall would make (c) impossible while locked.
+- `garden_open` is set by the quest, not by the card, so both open paths
+  set it in one place (as `gave_dry_fountain` is set by the Dry Fountain's
+  step, not by the fountain).
+- Orange is an albedo here, not a light: the Glimpse's warm backlight stays
+  the only warm *source* in the scene (GDD §10).
+- Placeholders: the body (GDD §4 Vasanti), the beds, drum, sign and gate
+  (GDD §10 props), Tree_5 and the sphere fruit (GDD §10 "fruit").
+
+### Budget
+
+Not measured in a web build here (the parallel-agent brief forbids exports
+on the shared machine). Added to the street at the garden angle: five
+MultiMesh/batch draws (planks, soil, stakes, plants, tree ×2 surfaces),
+five fruit spheres, eight gate solids, a board, two labels, two posts, a
+drum and one more skinned body — on the order of twenty-five draw calls and
+a few thousand triangles, against P6's median 112 / max 177 and 56k.
+The integrator should record the numbers with the next web build.
+
+
+## 2026-10-20 — A car to drive on the Street
+
+Owner request ("enter inside cars, drive"). GDD §6 names movement as the
+first of the five things the player does; this is that at another pace.
+Affects §6 (movement and camera), §11 (the controls card), §12 (nothing of
+it is saved). CLAUDE.md's "never a meter" binds: no speedometer, no fuel, no
+damage, no lap, no number anywhere, and a test looks for one.
+
+### One car, one verb, the Place at the wheel
+
+- `scenes/vehicles/Car.tscn` with `scripts/vehicles/car.gd` (`DriveableCar`):
+  a `CharacterBody3D` wearing Quaternius' SportsCar2 (CC0, already in the
+  rights register; it faces +Z in the file and is turned half round so the
+  body faces -Z like everything that moves). An `Interactable` `%Enter`
+  round it offers *Drive* (`verb.drive`); the verb the button shows while
+  driving is data on the car (`exit_verb_id`, `verb.exit` "Get out").
+- Arcade kinematics, no wheels simulated: the raw stick's Y is the
+  throttle, its X the wheel. 11 m/s forward, 3 m/s in reverse; 6 m/s² on the
+  throttle, 12 m/s² braking, 3 m/s² coasting, and the brake again when
+  nobody is at the wheel, so a left car does not roll. The yaw rate is
+  1.5 rad/s at full lock from 4 m/s up and proportional below: a standing car
+  does not spin on the spot, and reversing swings the nose the other way.
+  The player's three-sweep step-up, at 0.25 m, takes kerbs; walls, the
+  fountain's lip and the parked cars stop it, keeping only what the wall
+  left (a head-on halt, or a scrape along).
+- Collision layers 1 and 2, mask 1. Layer 2 so it meets the world as the
+  player does; layer 1 as well so the player and the camera meet it as a
+  wall rather than walking through it (the parked cars' collider boxes are
+  on layer 1 for the same reason). The task said layer 2; the extra bit is
+  the whole difference.
+- `scripts/places/place.gd` owns the seat, in one delimited block.
+  `board(car)` hides the player (invisible, `PROCESS_MODE_DISABLED` so the
+  body leaves the physics space, carried along inside), points the camera
+  rig at the car and feeds it the raw stick; `leave_car()` stands them beside
+  the left door (the right if the left is against something), visible and
+  solid again. The button says *Get out* throughout; the compass heading is
+  the car's; the hum, tap-to-walk and the doors are off the table from the
+  seat; pause works as it always did. The desktop key fires the button
+  whenever a verb shows, so E gets out too.
+- The camera rig has two follow profiles (`set_follow_profile`). Walking is
+  GDD §6's 3.5 m at shoulder height; the car is seen from 6 m at 1.6 m, and
+  the rig eases round behind the nose whenever the car rolls (the run's
+  auto-align without the run), so steering reads. A drag still orbits and
+  the ease resumes 1.5 s later.
+- Not saved. The journey knows places and spawn points, never a seat (GDD
+  §12: one object to save), so a reloaded journey is on foot and the car is
+  back at the kerb. The car's position is not saved either: it is set
+  dressing with a verb, not state. A test holds that boarding changes
+  nothing in `GameState.to_dict()`.
+
+### The street
+
+- `tools/street_parts/car.py` parks the car at the north kerb of the
+  east-west road, nose east, where `gen_street.py`'s `PARKED` list stood the
+  same SportsCar2; that entry and its collider box are gone from the list,
+  the one edit to the generator. It also raises four invisible walls
+  (`StaticBody3D` boxes, 6 m tall) just outside the ground slabs (x ±65,
+  z ±45): a car at 11 m/s can never leave the block, and nor can a walker
+  fall off its edge now.
+- `tools/audio_parts/engine.py` makes `engine_loop.ogg`, a 3 s synthesized
+  idle (a 24 Hz firing stack over a 12 Hz sub, low-passed at 500 Hz, ends
+  cross-faded; `loop=true` set by hand in the `.import` as the other beds
+  have it). The car pitches it from 0.8 at rest to 1.6 at top speed: one
+  loop is the whole engine.
+- Strings `verb.drive`, `verb.exit`, `controls.<scheme>.drive`. The controls
+  card's keys are a const `LINE_KEYS` on `controls_hint.gd` now, with
+  `drive` added; its test counts that const rather than five.
+
+### Placeholders
+
+- The SportsCar2 body: a generic stylised vehicle of GDD §5 ("vehicles and
+  clothes are generic") replaces it.
+- `engine_loop.ogg`: a recorded engine under GDD §10's Hollow Vale bed.
+
+### Budget
+
+Not re-measured in this change (no web build in the agent's run). The car
+is one more instance of a model already in the scene (one draw call), the
+walls are colliders with no mesh, and the engine is one 3D stream; the next
+web-build pass should confirm against P6's numbers.
+
+
+## 2026-10-20 — World assets: textures and sounds for the growing world
+
+Owner expansion ("The world grows"): the street now opens onto interiors,
+and the Grove is next. GDD §5 (the Grove riverbank: grass, river, the
+kadamba with a swing, the calf meadow; Hollow Vale's enterable interiors and
+the shrine room) and §10 (palette by realm; "water, cowbells and birds are
+the Grove's bed"). Affects §5, §10. Nothing here is a system: every file is
+an asset, generated, with its final replacement named in a `PLACEHOLDER`
+comment.
+
+### Ten textures, as a part
+
+- `tools/texture_parts/world.py` is the first texture part
+  (`scenegen.load_parts`): `grass`, `river_bed`, `tile_floor`, `parquet`,
+  `fabric_print`, `chalkboard`, `paper`, `stone_old`, `bark_kadamba`,
+  `sari_red`. Each is built from the generator's own helpers (`noise`,
+  `cloth`, `to_rgb`, `periodic_blur`), tiles in both axes (periodic noise;
+  grids that divide 1024; pebbles and strips wrap round the edge with
+  modular indexing) and is 1024 px like the rest.
+- Colour: the Grove's surfaces are warmed toward the rose-gold dusk (amber
+  on the grass tips, a red lift on the bark ridges) without a pink in them;
+  that pink is the Grove's sky and light, not its ground. The sari is red
+  (hue 0°), never magenta. A test samples every new PNG and holds that its
+  average is neither peacock blue nor magenta (hue ranges 180–227° and
+  281–335° at saturation ≥ 0.3).
+- `assets/materials/<name>.tres` for each, triplanar like `timber.tres`,
+  with a `uv1_scale` chosen so one tile is 1–2 m (tiles 25 cm, strips
+  12.5 × 50 cm, stone blocks 25 × 50 cm, the block print 3 cm).
+- `scenegen.MATS` gains the ten names at the end, so every existing
+  `MAT_ID` keeps its number and the generated scenes only grow ten
+  `ext_resource` lines (regenerated and committed). The cost: every
+  generated scene now loads 31 materials and their textures whether it uses
+  them or not, about 7 MB more VRAM per scene. Recorded, not fixed: emitting
+  only the materials a scene uses is a change to `ext_materials()` that
+  belongs with the scene generator, not with an asset drop.
+
+### Ten sounds, as a part
+
+- `tools/audio_parts/world.py`: `door_open` (0.62 s), `door_close`
+  (0.8 s), `footsteps_pavement` and `footsteps_wood` (four steps, 2 s
+  loops), `room_tone` (6 s), `shop_bell` (1.6 s), `bird_calls` (8 s),
+  `river_loop` (6 s), `swing_creak` (3 s), `calf_moo` (1.1 s). Noise and
+  tones through the generator's `lowpass`, `envelope` and `t`; loops are
+  cross-faded on themselves and chirps wrap round the loop's end so
+  nothing clicks. Loops carry `loop=true` in their `.import`; one-shots do
+  not; a test holds both.
+- `door_open` is deliberately short: the Place fades the view over 0.45 s
+  and swaps the scene, so a longer creak would be cut. `door_close` is an
+  asset for the arrival side (a door shutting behind the player as the
+  view returns), which `Place._place_at_spawn` could play; not wired here,
+  as place.gd is shared.
+- The calf's moo is formant-shaped harmonics; a recording replaces it
+  (GDD §3 Act 1).
+
+### Footsteps and the door
+
+- The player carries one `AudioStreamPlayer3D` with the pavement loop,
+  made in `_ready` (no scene edit). It plays while the horizontal velocity
+  after `move_and_slide()` is at least 0.3 m/s, so pushing at a wall is
+  silent; pitch 1.0 walking, 1.35 running (one loop, no cross-fade); it
+  stops when still or on `begin_climb`. `is_footsteps_playing()` and
+  `footsteps_pitch()` are for tests. Surface switching (wood indoors) is
+  not done: the player does not know what it stands on, and adding that
+  knowledge is a Place decision, not an asset one. `footsteps_wood` waits
+  for it.
+- `Door` plays `door_open` at its own position on use, before emitting
+  `used_door`; `is_sound_playing()` for tests.
+
+### Placeholders
+
+Every PNG and OGG here: replaced 1:1 by the painted surfaces and recorded
+sounds of GDD §10. No rights rows: generated, like the street's own.
+
+
+## 2026-10-20 — Sitting for a tale: Puranjana in three sittings, the painted scroll
+
+GDD §3a Act 3 ("Sit with Madhuri; tap to turn a painted scroll: Puranjana,
+in three sittings"), §9a "Tales from the Srimad-Bhagavatam", §6 "The Garden"
+(the creeper is watered by hearing), §8 (voice), §11 (controls). Affects §7
+(the investigate route's shrine room is where the seat belongs) and §16a
+(the daily "three-minute tale" is the same mechanic).
+
+### The data: a tale is sittings of panels, and only flags remember it
+
+- `data/tales.json` holds three tales: *Puranjana* (Canto 4, ch. 25–29) in
+  three sittings of six, six and seven panels; *Prahlada* (Canto 7, ch. 5)
+  and *Dhruva* (Canto 4, ch. 8–12), the two witness tales of §9a, in one
+  sitting each. A tale is `{id, title_id, source_id, journey_line_id,
+  review_status, sittings: [[panel text ids]]}`; every word is in
+  `data/strings/en.json` as `tale.<id>.title`, `tale.<id>.source`,
+  `tale.<id>.<sitting>.<panel>`. Panels are under 40 words, plainly told
+  (§8: they talk about gates, lakes and seats, not philosophy). The one
+  gloss is Puranjana's last panel, which is the Bhagavatam's own.
+- `source_id` is the canto and chapter, shown at the foot of the scroll:
+  §9a says every tale carries its source on its card. `review_status` is
+  `draft` on all three, as on dialogue lines: the panel (GDD §15) has not
+  read them. They are paraphrases, not translations; nothing is quoted.
+- Flags, by one convention off the tale id (as `carrying_<item>`):
+  `heard_tale_<id>_<n>` when sitting n has been heard to its end,
+  `heard_tale_<id>` when the last has. `Tales.next_sitting()` offers the
+  first sitting whose flag is unset; once all are set it offers the last
+  again, so a tale can be heard twice. Nothing else is stored: no
+  position within a sitting, no count of hearings. Closing the scroll
+  early records nothing. The Garden, when it exists, reads these flags.
+- `scripts/core/tales.gd` is a static loader like `Places`, so
+  `scripts/core/content.gd` stays the integrator's.
+
+### The seat and the scroll
+
+- `scenes/quest/TaleSeat.tscn` is an `Interactable` *Sit* and the rule;
+  what it looks like belongs to the place around it. Using it sits the
+  player where they stand (`CharacterRig.hold_pose("Sitting_Idle")`, the
+  bus stop's clip), drifts the camera toward the seat for two seconds and
+  opens `scenes/ui/ScrollScreen.tscn` on the place's `UI` layer, over the
+  HUD. Finishing a sitting sets its flag; finishing the last also sets the
+  tale's flag and adds the tale's line to *Your journey* (§9a: tales are
+  "collected in *Your journey*").
+- While the player sits, the seat stops the player's physics
+  (`set_physics_process(false)`) rather than touching the Place seam; the
+  scroll covers the screen, so no tap or joystick reaches the controls,
+  and a held key cannot walk the body off the cushion. It is one function
+  (`TaleSeat._hold`) to swap if the Place grows a `lock_input` seam; the
+  Counting Man's and Nanda's sittings will want the same thing.
+- The scroll is drawn, not textured: parchment, a frame line, faint fibre
+  lines, a timber roll across the top and bottom with the rolled paper
+  showing at the ends. The words sit on it in the heading serif. Tap or
+  click anywhere on the scroll, Enter, Space or the pad's A (the
+  `contextual` action) turns; *Back* goes back one panel; *Close* rolls
+  it up. Escape stays the pause: the pause menu lies over the scroll and
+  the scroll ignores keys while the tree is paused. The two buttons take
+  no keyboard focus, so Enter always means "turn".
+- Godot 4.3's built-in `ui_cancel` and `ui_accept` carry no joypad
+  buttons (4.4 adds them), so a pad can turn and finish a sitting but
+  cannot go back or close without a pointer. A `back` action (B) in
+  `project.godot` would close that; the integrator owns that file and the
+  slice's gamepad scheme is "PC later" (GDD §11).
+- No page counter, no progress bar, no sitting "2/3": the sitting's name
+  ("Second sitting") and the hint ("Tap to turn the scroll", on the last
+  panel "Tap to roll it up") are the only orientation. GDD §6: no meters.
+- Portrait first: the rolls run across the width because the phone is
+  tall; the layout is computed from the control's size, so a landscape
+  desktop window gets a wider, shorter scroll.
+
+### The seat on the street, for development
+
+- `tools/street_parts/tale_seat.py` puts a cushion (a flat cylinder in
+  the street's `coat` cloth) and the seat on the south-east corner of the
+  step round the fountain, at (5.4, −0.15, 5.4), with a Label3D sign
+  (`sign.tale_seat`) facing the pavement. The asked-for spot
+  (0, −0.15, 6.9) lies inside the lip's torus (inner radius 5.6, outer
+  7.0), where nothing can be seen or stood; the corner is the same step
+  at the same height, in the open.
+- The shrine-room change moves or duplicates this beside Madhuri and may
+  then drop the street's. The scene, the data and the scroll do not know
+  where they are; only `tale_id` is set on the node.
+- PLACEHOLDERS: the cushion stands for Madhuri's mat (GDD §4, §9a); the
+  drawn parchment and the silence stand for the painted frames and the
+  teller's voice (§9a: "static hand-painted frames with light movement,
+  narrated by the character who tells them"), about 70 frames for
+  Chapter 1.
+
+### Budget
+
+Not measured in a web build for this change (no export was run on the
+shared machine). The street gains one cylinder mesh, one Label3D and one
+hidden Area3D; the scroll is a handful of 2D rectangles and three labels
+while it is open. Nothing is simulated.
+
+
+## 2026-10-20 — Remembrance and Home (GDD §3 Act 4 and Act 5)
+
+GDD §3 "Act 4 — Remembrance" and "Act 5 — Home", §3a Act 4 and Act 5, §8
+Scene F "The embrace". Affects §6 ("Remembering Krishna": the tower's
+`played_for_others` and `kept_veena` decide the variant), §10 (the first pink
+in the Vale; Krishna's colours), §12 (flags `remembered`, `embraced`; place
+`home`). Built apart from the tower, the shrine, the Grove and the Veil, on
+flags alone: nothing here knows how a flag came to be set.
+
+### Act 4 on the street: the hum held on the fountain steps
+
+- `scenes/quest/Remembrance.tscn` (`scripts/quest/remembrance.gd`) stands on
+  the fountain's south-east corner step, placed by
+  `tools/street_parts/remembrance.py`. *Hum here* appears once a dawn flag is
+  set. Using it holds the Place's own `hum()` three times over six seconds,
+  so whatever answers a hum answers this one (Tulu's notes, the ripple, the
+  subtitle, the hum count), while the player's physics step is off and the
+  rig holds `Idle_Talking` (PLACEHOLDER for the humming idle). The Place is
+  not touched for this: no lock was added to it.
+- The world's answer is a table on the scene, `answers`: dawn flag → `crowd`,
+  `tint`, `journey`. `played_for_others`: the people stop and turn to the
+  steps, a bubble drifts over the fountain for 8 s, the sun eases to rose
+  over 10 s. `kept_veena`: no crowd, the bubble, a softer tint. The first flag
+  set wins; the script reads no flag name.
+- `path_mover.gd` gained a group (`path_mover`) and `pause_and_face(point,
+  seconds)`: the mover eases to a stop, turns to the point over 0.7 s and
+  turns back after. Only movers carrying a rigged body are asked (a person);
+  the cars drive on. Nothing else about the movers changed; they still notice
+  nothing on their own.
+- `street.gd` gained `tint_sun(colour, seconds)`, the sky's first pink (GDD
+  §10); a mood set later tints from there, so a flag cannot undo the dawn.
+- Sets `remembered` and `journey.act4.street_listened` or
+  `journey.act4.alone`, and nothing else. Madhuri's seed is the shrine's.
+
+### The way Home: a door at the basin's edge
+
+- `tools/street_parts/home_door.py`: a Door to `home`, spawn `bank`, verb
+  *Step into the water*, `requires` `remembered`. It stands on the same
+  corner step as the hum: before `remembered` only *Hum here* is offered
+  there, after it only the door, so the two never compete for the button.
+- Not on the basin floor: the lip is 0.6 m from the pavement and the climb
+  out is the only way over it ("The fountain", above), so a door inside the
+  basin could not be reached once the player has climbed out. The fountain
+  basin is the stand-in for the shrine's basin of GDD §3 Act 4; on the dry
+  paths the verb reads oddly until that basin exists.
+
+### Act 5: Home
+
+- `tools/gen_home.py` (`--check` in CI) writes `scenes/places/Home.tscn`;
+  `scripts/places/home.gd` extends Place. A disc of warm earth (the street's
+  ochre plaster), the river as a rose-tinted sheet to the north that the
+  player wades into, three Quaternius trees, rose-gold fog, a low sun from
+  behind Him, stars as one MultiMesh of unlit boxes on a far dome with
+  `disable_fog`. Place id `home` in `data/places.json`.
+- Krishna, PLACEHOLDER: primitives. GDD §10 says dark-blue skin; peacock blue
+  is forbidden only in the Street, and Home is the Grove's bank, so a deep
+  indigo (`home_indigo.tres`, 0.15 0.13 0.42) with yellow cloth, the
+  Glimpse's feather quad in the hair and a timber flute. For the panel's
+  review (GDD §15). The head is its own node so the script can bow it.
+- One verb, *Garland*, `requires` `garland_made` (data on the scene). The
+  garland is `scenes/quest/Garland.tscn`, carried through the rig's own
+  `carry()` so no change to the player's `carryables` was needed. One tap:
+  He bows (1 s), the garland leaves the hand for His neck, He looks up and
+  steps the last metre (1.4 s), the view goes to white over 3 s (§8 Scene F:
+  white, not the bus stop's black). Then `embraced`, `journey.act5.home`,
+  `slice_ended("home")`; Main shows P6's end screen, whose line is the GDD's
+  own.
+- `garland_made` is another chapter's flag. Until the Grove exists, Home sets
+  it on arrival (`stand_in_flags` on the scene); a test clears it to hold
+  that the verb needs it.
+- No magenta in Home though GDD §10 gives the Grove a magenta sky: the slice
+  keeps the rule it was given (rose-gold horizon, indigo-violet zenith); a
+  test looks at every material and the sky. The panel decides the Grove's
+  sky when the Grove is built.
+- Not built, out of Slice 1 (CLAUDE.md "The slice"): the friends, the calf,
+  the feast, the overhead shot, the ten-second hold, the Song returning
+  instrument by instrument, the coat unravelling, the credits, *Learn more*
+  and *Chapter 2* on the end screen.
+
+### Budget
+
+Not measured in the web build this change (agents may not export; four shared
+cores). Home is about twenty primitives, three trees, one MultiMesh of stars
+and two lights; the street gains one hidden sphere and two areas. Nothing
+here should move the P6 numbers.
+
+
+## 2026-10-20 — The tower climb and the dawn choice
+
+GDD §3a "Climb the tower at dawn: ladder, four landings"; §5 Hollow Vale
+(the tower "reachable by stairs and a ladder, 4 landings; a top beam no one
+can reach") and Rooftop ("the Veena on its stand, the whole city below"); §7
+micro-interactions ("Read Nanda's brother's name carved on the tower's
+second landing"); §8 Scene E "The dawn choice"; §12 (flags only). Built as
+`tools/street_parts/tower_climb.py` on gen_street.py's "Tower" group; the
+generator itself did not change.
+
+### What was built
+
+- **The stair.** An external concrete stair up the tower's east face from
+  the alley: fourteen 0.25 m risers (under the player's 0.36 m step, so the
+  feet climb it with no new code) to the first landing at 3.5 m, a handrail
+  on the open side. One MultiMesh, one collider body.
+- **Segment climbs** (the mechanic's name). `scripts/street/ladder.gd` is an
+  Area3D on each landing, facing the rungs; a body in it moving into them
+  (facing dot ≥ 0.35, as the fountain's ledge) is carried to the next
+  landing's exit marker by the player's own `begin_climb` (0.85 s). Four
+  landings, three segments; holding the stick toward the wall chains them,
+  letting go rests on a landing with rails. No new player API, no state
+  outside the player's existing climb. There is no climbing down: every
+  landing's open side is a drop, and a drop costs nothing (GDD §16a's
+  rooftop rule, applied early). The direction "in" is the area's facing,
+  not the exit's position, because the exit is straight up.
+- **The roof lid.** gen_street's "Parapet" is a 15.6 × 0.5 slab over the
+  whole roof (top 14.45) with no collision, so the Block's top at 14.0 would
+  have put the player's shins in it. The part adds a collider matching the
+  slab; the roof's walkable surface is 14.45 and the fourth landing is flush
+  with it (the brief's "y 14"). No parapet ring: the roof is open, the way
+  down is the edge.
+- **The carving** (`scenes/quest/Carving.tscn`, `scripts/quest/look_point.gd`)
+  on the wall at the second landing: a Label3D whose text is
+  `sign.nanda_brother` from the string table. *Look* opens the dialogue line
+  `carving_look`, whose `sets` marks `read_carving`. The line is shown the way
+  the fountain's *Look* line is (the cards panel, no cards, tap to dismiss),
+  not as a HUD subtitle: subtitles belong to the Place, and the plain
+  no-card line is the codebase's one pattern for *Look*. "RAGHU" is a draft
+  name for the writers; the GDD does not name Nanda's brother.
+- **The roof** (`scenes/quest/TowerTop.tscn`, `scripts/quest/tower_top.gd`).
+  Stepping onto it sets `on_the_tower` once. The Veena stands at the centre
+  on a timber post; *Look* (hands free, choice not yet made) opens
+  `veena_dawn`: *Play it for the street.* / *Take it and go.* The cards set
+  `played_for_others` / `kept_veena` in the dialogue data; one line answers
+  each. The node answers the flags: a line in *Your journey*
+  (`journey.dawn.played` / `journey.dawn.kept`, data on the scene), and when
+  kept, the Veena leaves the stand for the hand (`carryables` "veena" on
+  Player.tscn, flag `carrying_veena`, so an autosave mid-carry comes back
+  holding it). After either, the stand offers nothing.
+- **What Play does not do.** No melody, no camera pull, no light change: the
+  Song and *The Forgotten Song* are out of scope. The flag is set for Act 4
+  to read; a warm step in `street.gd`'s `MOODS` on `played_for_others` would
+  be a one-line follow-up if the owner wants a visible answer.
+- **The top beam** is a rust-red beam above the billboard frame at y 26; no
+  segment's exit is above the roof (a test holds this).
+
+### Convention found on the way
+
+`scenegen.xf` writes the Transform3D basis row by row; Godot reads the
+scene text row by row too, so `xf(pos, yaw)` is a turn of **-yaw** in
+Godot's terms (its forward at yaw = π/2 is +X, not -X). Unit-scale,
+yaw-symmetric uses (π) are unaffected; this part passes -π/2 for the ladder
+areas and writes its pitched rail with the rows spelled out. Worth a look
+at the Glimpse's yaw ("facing the fountain") by whoever owns it.
+
+### Budget
+
+Added, all static and culled with the tower: 7 MultiMesh/mesh nodes (stair,
+rail, decks, rails, posts, poles, rungs), the beam, one Label3D, the stand's
+post and the Veena's four meshes: about 15 draw calls at the tower's angle
+and under a thousand triangles. Not measured in the web build in this pass
+(no exports in the parallel brief); the integrator's measurement replaces
+this estimate.
+
+
+## 2026-10-20 — The Grove riverbank, Act 1
+
+GDD §3 Act 1, §3a Act 1 table, §4 (Lalita, Kuvera), §5 "The Grove
+riverbank", §6 "Carry" and "Call", §7 micro-interactions ("pet the calf",
+"push the swing"), §8 Scene A "The whisper". Affects §10 (the Grove's
+palette, see below) and §12 (two more doors in the journey's `place`/`spawn`).
+
+### A generated place, like the shop insides
+
+- `tools/gen_grove.py` writes `scenes/places/Grove.tscn` through
+  `tools/scenegen.py`, the way `gen_interiors.py` does: the same player,
+  camera and HUD, the Place base script with `place_id = "grove"`, a row in
+  `data/places.json`. ≈80 × 60 m playable, fenced by invisible walls; the
+  river along the north edge is a plane of the fountain's water with a far
+  bank beyond it that cannot be reached (GDD §3: "The player can approach
+  the water but cannot cross"). The walls sit on layer 1 like every solid,
+  so the camera pulls in at the very edge of the meadow; accepted.
+- Lighting is the rose-gold dusk: a `ProceduralSkyMaterial` from a rose
+  zenith to an amber horizon, a low pink-gold `DirectionalLight3D` in the
+  north-north-east (behind the figure across the water, GDD §3 "the sun low
+  and pink behind"), warm fog, ambient from the sky. The stars are one
+  MultiMesh of 240 unlit quads on a 140 m dome (inside the camera's 160 m
+  far plane), brightness per instance through `use_colors`.
+- GDD §10 gives the Grove a "magenta sky" and peacock blue for Krishna.
+  CLAUDE.md forbids both colours in the Street, and the task kept them out
+  of the Grove too, so the sky is rose and amber and the figure across the
+  water is a warm dark silhouette. `tests/test_grove.gd` walks every
+  albedo, light, sky and fog colour and every MultiMesh instance colour and
+  fails on a saturated hue in the teal-to-blue or purple-to-magenta bands.
+  The true colours arrive with the final art and a decision on §10.
+- Lalita and Kuvera are `scenes/npc/Shopkeeper.tscn` with `entry_lines`
+  (the first line whose `requires` hold opens), as the shop insides do.
+  Kuvera says Scene A: "Who was looking at you?", cards *It doesn't matter*
+  / *…no one*, both setting `whispered_kuvera`; a variant line mentions the
+  water once `grove_pot_placed` is set; afterwards he says where the bubble
+  went. Lalita asks for water, sees the pot coming (`carrying_pot`, the
+  player's own flag), and thanks.
+- The water-pot task is `data/quests/grove_water.json`: steps *hear*
+  (`lalita_asked_water`, set by her greeting, or the pot already picked
+  up), *fetch* (`event:pot_picked_up`, the feather's `pickup_item.gd` on a
+  pot at the river), *carry* (`event:pot_placed`, `scripts/grove/
+  pot_place.gd` beside her). Ending sets `grove_pot_placed` and writes one
+  line to *Your journey*. "pot" is a third carryable on `Player.tscn`
+  (`scenes/quest/Pot.tscn`).
+- The calf (`scenes/grove/Calf.tscn`, `scripts/grove/calf.gd`) wanders its
+  meadow, comes when the player hums (it is in `sound_source` and answers
+  `hear_hum()` like Tulu), and follows at two metres once petted: *Pet*
+  sets `pet_calf` and nothing else (GDD §7: no giver, no reward). Its *Pet*
+  area hangs one node below the sound source so the Place's *Listen*
+  subtitle does not fire for a pat.
+- The swing on the kadamba tree (`scripts/grove/swing.gd`): *Push* sets
+  `swing_pushed`, rocks the seat for four swings, and shows *[Lalita
+  laughs]* as a subtitle through the HUD of the Place it hangs in (GDD §11:
+  every vocal sound subtitled). Six bubbles (`scenes/grove/Bubble.tscn`)
+  drift on slow closed curves; *Look* opens `bubble_look`, which sets
+  `looked_bubble`.
+- The Pool is a 12 m dark near-mirror disc at the east edge with a low
+  collider so nobody walks on it. A Door at its edge, *Dive*, leads into
+  the Veil's fall (place "veil_down", built apart) and names the street's
+  new "fountain_basin" spawn as where the fall ends
+  (`tools/street_parts/basin_spawn.py`: where a fresh journey surfaces).
+  The Grove's own arrival point is the spawn "pool_bank", west of the Pool,
+  which the Veil's ascent ("veil_up") names. The *Stay*/*Dive* prompt is
+  Act 1's last beat and not built. For development the street has a Door
+  back into the Grove on the basin floor (`tools/street_parts/grove_door.py`,
+  verb *Step in*, spawn "pool_bank"), gated on `gave_dry_fountain` through
+  a new `requires` export on `door.gd` that passes to the Door's
+  Interactable; a playtester never meets it by accident. Act 2 is one way in
+  the fiction; this door is a tool.
+
+### Placeholders
+
+Grass is the cream plaster texture tinted green (`grass.tres`); the river
+is the fountain's grey-green water (`water.tres`); the Pool is a dark
+metallic disc (`pool.tres`); petals and stars are vertex-coloured quads
+(`petal.tres`, `star.tres`); the calf is boxes; the kadamba is Quaternius'
+Tree_1 scaled up; the figure across the water is the shared body painted
+with `far_figure.tres` and the Glimpse's flute; the Grove's friends wear the
+street's skins. Each carries a PLACEHOLDER comment naming the GDD asset.
+
+### Budget
+
+Not measured in the web build for this change (parallel agents share the
+machine and exports are off); by construction the Grove draws about 70
+calls: one per MultiMesh (petals, stems, stars, stones), one per surface
+per tree batch, six skinned bodies, six bubbles of two meshes, the calf's
+nine boxes, the feast's dozen primitives. The integrator's web profile
+should confirm this under the 200-call limit before the PR merges.
+
+
+## 2026-10-20 — The Path card (GDD §16a)
+
+GDD §16a "Path card": "at every chapter's end, a shareable image of the
+player's route and what they noticed, built for Instagram, WhatsApp and
+Shorts." Affects §6 (*Your journey* leaves the app), §11 (the end screen
+gains a second button), §12 (`route` on the journey). The owner's expansion
+lifts the slice's deferral of §16a for this one piece; nothing else of §16a
+is built.
+
+### What was built
+
+- `GameState.route`: `[x, z]` pairs in metres, oldest first. The Place base
+  samples the player's position every `route_sample_seconds` (3, an export
+  on the scene) of walking, on the street only (`GameState.ROUTE_PLACE`,
+  the street block; shop interiors are not on the card), standing still
+  adds nothing, and the first step of a walk is always on it. Capped at
+  `ROUTE_CAP` (600 points, half an hour of walking): past that the oldest
+  goes first. Saved with the journey and wiped with it. Like `play_seconds`
+  it is not autosaved per point: the next flag, event or door carries it,
+  so a journey killed mid-walk loses at most the walk since then.
+- `scripts/ui/path_card.gd` (`PathCard`): a 1080 x 1920 image, the size of a
+  phone story. Paper, the title, "Your path through Hollow Vale" (the place
+  name from `data/places.json`), the block as the minimap's footprints laid
+  down faintly (the minimap hands them over through `footprints()`; the
+  street remembers them for the card because it is gone by the time the end
+  screen draws), the route as one ink line with a ring where the walk began
+  and a dot where it ended, *Your journey*'s lines, *You noticed* with the
+  noticed sentences if the journey ever carries a `noticed` list (it does
+  not yet; the card checks and leaves the room), and the end line. No
+  number anywhere: no distance, no time, no count; a test reads every label
+  for a digit.
+- The end screen offers *Share your path* beside *Play again*. The brief's
+  §4.6 says *Play again* only; the owner's expansion overrides it with the
+  card, and the P6 test now holds two buttons and nothing else. Pressing it
+  draws the card, saves `user://path_card.png` and hands it over.
+
+### Drawn on the CPU, not in a viewport
+
+The card is drawn into an `Image`: fills for the block, a soft round brush
+stamped every three pixels along the route, and text shaped by the
+TextServer with each glyph's coverage bitmap cut from the font atlas and
+blended in the ink colour. A `SubViewport` with a `_draw` would have been
+less code, but the headless test runner has no renderer (its viewport
+texture reads back empty), so the pixel tests would be impossible there,
+and a CPU image draws the same on Android, the web and the desktop.
+
+The UI fonts follow the window's oversampling (a thirtieth of a pixel
+headless, the phone's ratio on a phone), which mangles their metrics for a
+fixed-size image; the card uses its own copies of the font files at
+oversampling 1. A full card (600 points, two lines) renders in about 30 ms
+and encodes in about 80 ms on the CI machine. Nothing is added to the
+street's frame: the sampling is one array append every three seconds.
+
+### What works where (Godot 4.3 has no share sheet without a plugin)
+
+| Platform | After *Share your path* |
+|---|---|
+| Android | The PNG is saved under the app's files and opened with `OS.shell_open`, which Godot 4.2+ routes through its FileProvider as `ACTION_VIEW`: the system's image viewer opens it, and its share button is the share sheet. The sheet itself (`ACTION_SEND`) needs an Android plugin; deferred. To be confirmed on the device run. |
+| Web | `JavaScriptBridge.download_buffer` offers the PNG as a download; the browser's download is what gets shared. |
+| Desktop | Saved under user:// and opened in the default image viewer. |
+| Headless (tests) | Saved only; there is nothing to hand it to. |
+
+No network call anywhere: the file never leaves the device by the game's
+doing.
+
+### Placeholders
+
+- The paper-and-ink look of the card stands in for the illustrated card of
+  GDD §10 once an artist draws it (`PLACEHOLDER` in `path_card.gd`).
+
+
+## 2026-10-20 — The interface on every device
+
+Owner request ("Make the UI intuitive, very easy for the users on all
+devices"); GDD §11 "Controls" and "Accessibility"; docs/BRIEF_AMENDMENT_1.md
+§A5. Affects §11 only. Touch, desktop web, desktop and gamepad.
+
+### One theme does the sizing
+
+- `assets/ui/theme.tres` is the one place a button's size, states and focus
+  come from. Every `Button` is at least 72 px tall from the theme alone; with
+  the body font chain (Noto Sans, Noto Serif Devanagari as fallback) the line
+  box at the 20 px button size is 60 px, so the 16 px margins make a plain
+  button 92 px, the height the pause menu was laid out for. The theme adds a
+  focus ring (a 4 px dark warm-ink border drawn over the button, 3 px outside
+  it), a darker hover, a darker pressed with a thicker border, a faded
+  disabled, and 10 px corners. `CheckButton` gets its own transparent style
+  with margins that make it 56 px, and the same ring; `HSlider` gets a 10 px
+  track and a 28 px grabber drawn as a radial `GradientTexture2D`, so no
+  image ships for it (PLACEHOLDER for the lotus mark of GDD §10 "UI art").
+- A test holds every `Button` in every UI scene at 56 px or more and that each
+  resolves the theme's focus stylebox, so nothing interactive on touch is
+  under a thumb (the pause button was already 88; the contextual button 96).
+
+### Focus is visible and starts somewhere sensible
+
+- Title, controls card, pause menu, settings and the debug panel grab the
+  focus on their first control when they open (the end screen when *Play
+  again* has faded in). Settings now starts on the first row's control, not
+  on *Back*, and chains `focus_neighbor_bottom`/`top` from row to row down to
+  *Back* and round again, so a gamepad or keyboard reaches every setting.
+  The debug panel's *Close* became focusable for the same reason.
+- Choice cards take focus like buttons and draw the theme's ring themselves
+  (`ChoiceCard` is a `PanelContainer`). On a gamepad the first card has the
+  focus as soon as a line appears: the ring is the cursor and has to be
+  somewhere, and every card draws it the same way, in the data's order, so it
+  is not a cue. On desktop nothing is focused until an arrow or Tab asks, so
+  a card is never picked out by default; the number keys 1–3 (and the keypad)
+  choose in order and Esc dismisses a line that has no cards. These are raw
+  keycodes read by the cards, not input-map actions: `project.godot` is the
+  integrator's, and a phone with a keyboard is unaffected. With cards up, Esc
+  is left alone, so it still pauses.
+- Up and down between cards wrap; the accept action (`ui_accept`: Enter,
+  Space, the gamepad's face button) presses the focused card.
+
+### The HUD on a phone with a notch, upright or on its side
+
+- `TouchControls.layout()` places the pause button (top-left), the compass
+  (top-centre), the contextual button (bottom-right), the subtitle above it
+  and the minimap (below the compass, right) from the edges of
+  `DisplayServer.get_display_safe_area()` plus a 16 px gutter, and re-runs on
+  every resize. Only a mobile build asks the display: a desktop window
+  already sits inside the usable screen and a browser keeps its own bars out
+  of the page. Tests inject a fake rect through the static
+  `safe_area_override`.
+- In portrait the subtitle takes 90 % of the width; in landscape it is an
+  880 px column. The joystick keeps the left zone either way. Tests resize the
+  control directly (as the controls tests do) rather than the window: the
+  headless viewport does not follow a window resize.
+- Off touch, the contextual button wears a small key badge in its corner:
+  `controls.key.desktop_use` ("E") or `controls.key.gamepad_use` ("A"),
+  from the string table, set by `apply_scheme`. Never on touch.
+
+### Where am I
+
+- Arriving through a door (`GameState.spawn` set and found in the place), the
+  place's name (`Places.name_id_of`) is the first subtitle for 2.5 s. It is
+  the subtitle channel GDD §11 already allows, not a toast or a notification;
+  a fresh journey shows nothing.
+
+### Not done
+
+- `Viewport.push_input` in Godot 4.3 does not reach `_unhandled_input` from a
+  test; the tests call `_unhandled_input` directly where the engine's own
+  dispatch is not under test, and go through `Input.parse_input_event` for
+  one real keypress each way.
+- No budget numbers: nothing here touches the 3D scene.
+
+
+## 2026-10-20 — The Song as a skill, and Sarang
+
+GDD §16a "Challenge and mastery: the Song as a skill" (the owner's 2026-10-20
+expansion lifted its deferral), §4 Sarang, §7 Investigate step 4 ("Sarang
+teaches you the first bar") and Mediate step 3 (the missing string), §10
+(Tulu's three notes are the first three notes of the Song), §11 (no number,
+no meter, no visible timer).
+
+### What was built
+
+- **`data/song.json`** is the Song as data: two bars of note events
+  `{time, pitch, hold}` (seconds; semitones from G4, only 0 2 5 7 9 12), the
+  order they are taught, the four strings' tuning (G4 C5 D5 G5, a
+  PLACEHOLDER for the Veena's), and for each bar the flag a lesson sets and
+  the journey line it writes. Bar one opens G4 A4 C5: Tulu's hum.
+- **`Song`** (`scripts/music/song.gd`, RefCounted) loads it, synthesises the
+  notes at run time through an `AudioStreamGenerator` (sine plus triangle
+  plucks, a 4 ms attack and a slow decay; PLACEHOLDER for the recorded veena
+  of §10, so no audio file was added), and scores a performance as one
+  quality in 0–1 from timing, pitch and hold error against the bar. The
+  quality drives effects and is never printed; `Song` has no formatting code.
+- **`SongScreen`** (`scenes/ui/SongScreen.tscn`): four strings across the
+  lower half. The bar plays once — a dot travels, the string the note is
+  played from glows — then the player plays: press for the string's pitch,
+  slide up or down to bend it (pitch is continuous across the gaps, so A4
+  sits two fifths of the way from the G string to the C string), let go to
+  end the note. Keys one to four with Up/Down, and a gamepad's face buttons
+  or d-pad with the left stick, do the same from raw events; `project.godot`
+  gains no action. When the turn ends the opener's callback gets the quality
+  and the screen says one of Sarang's three lines by band (`song.answer.*`,
+  bands in the data), then closes. At the fullest band he plays the bar back.
+- **Sarang** (`scenes/npc/Sarang.tscn`, `tools/street_parts/sarang.py`)
+  sits on a crate near (20, 0, -9), east of the chai stall, his instrument on
+  the ground with three strings and a gap, a sign on a post. His lines are
+  `entry_lines` on the node; which of them open a lesson, and on which bar,
+  is `lessons`; which are skipped while a flag holds is `skip_when`. The
+  lesson card appears once the player has heard Tulu *or* seen the shrine:
+  the dialogue's `requires` is a conjunction, so two greeting lines with the
+  same words carry one requirement each. Finishing a lesson at any quality
+  sets `sarang_taught_bar` (bar two: `sarang_taught_bar_two`) and writes the
+  journey line, both read from the song data. With `has_sarang_string` (set
+  in Nanda's flat) he sees the string; the card that hands it over sets
+  `sarang_string_given`, his thanks follow once (`sarang_thanked`), and the
+  fourth string appears on the instrument.
+
+### Decisions
+
+- **Timing is relative to the first press.** The player's clock starts when
+  they first touch a string, so a lesson judges rhythm and pitch, never the
+  nerve it took to begin, and no count-in is needed (§11: no timed input).
+- **The turn ends by what was played**, not by a timer: once as many notes
+  as the bar has were released, or by a tap above the strings / Escape /
+  Back; a long grace (twice the bar and two seconds) only stops a turn that
+  was abandoned mid-way. Nothing counts down on screen.
+- **The screen pauses the tree** the way the pause menu does, so the street
+  and its keys (Up/Down are also walking keys) hold still under it; the
+  screen itself is `PROCESS_MODE_ALWAYS` and steps its own clock, and tests
+  drive it with `advance()` without awaiting.
+- **Lines said once are data, not inference.** `skip_when` names the flag
+  that retires an entry line; the `sets` on the line (or its card) is what
+  sets it. The dialogue runner was not changed.
+- **No new quest file.** The lesson is a step of the Investigate approach of
+  *The Forgotten Song*, which is another agent's quest file; the flags here
+  are what it waits on.
+
+### What the integrator should check
+
+- `tools/check_data.py`: add `speaker.sarang`, `sign.sarang_corner`,
+  `song.hint.watch`, `song.your_turn`, `song.hint.play.{touch,desktop,gamepad}`,
+  `song.answer.{quiet,warm,full}` to `REQUIRED_STRING_IDS`; consider a
+  `check_song()` for `data/song.json` (times ascending, pitches in the set,
+  `taught_flag` present, `journey_line_id` and answer `text_id`s in strings).
+- CI: nothing new to run; the street part is covered by `gen_street.py --check`.
+- Budget: Sarang is one more skinned mesh and some twenty small boxes; the
+  web-build numbers were not re-measured here (no export in a shared box).
+
+
+## 2026-10-20 — Rooftop running: the stair, the vault, the cables
+
+GDD §3a "Hold to sprint; time jumps at ledges and cables", §16a "Rooftop
+running" (momentum, ledges, cables, awnings, timing; falling drops the
+player to the pavement; nothing is lost), §6 (climbs are contextual; no
+jump button). Affects §3a (the Street's traversal layer), §6, §12 (one
+flag, `reached_rooftop`).
+
+### The leap is the run meeting the edge
+
+- No jump button. `scripts/player/player.gd` reads the ground half a metre
+  ahead of the feet; when it falls away by more than a metre while the body
+  is running, the body looks for a surface 3.5 m to 1.5 m ahead (farthest
+  first, within 0.6 m above or 1.2 m below, nothing at chest height in the
+  way) and, finding one, leaps for it: a 0.6 s arc, the run's momentum kept
+  on landing (`is_vaulting()`, `vault_started`, `vault_finished`). Finding
+  none, it runs off and gravity does the rest. A walk never vaults: a walk
+  off an edge is a drop.
+- A fall from more than 4 m ends in a stumble: the stick is ignored for
+  0.5 s and the run timer starts over (`is_stumbling()`, `stumbled`).
+  Nothing else: no flag, no line, no damage, no state. The GDD's "nothing is
+  lost" is literal; a test compares the whole journey before and after.
+- Cables are StaticBody3D nodes in the group `cable`, their local Z along
+  the run. On one, the stick's push is projected onto the cable and the body
+  eases back to its line (`is_on_cable()`): balance is contextual, as the
+  climb is, because a 0.3 m line cannot be held with a thumb over 14 m.
+  Balance holds for half a second after the feet leave the floor, so a hop
+  at a junction does not hand the body back to the raw stick in mid-air.
+  Each cable begins with a level block in the same group (a "step", 1.6 to
+  2 m wide): stepping onto it is already stepping onto the line, and the
+  body is centred before the cable narrows under it. Measured headless with
+  the stick twenty degrees off the line from four metres back: without the
+  steps the player missed the 0.3 m start and fell; with them, every run
+  reached the pole and the shelter.
+- Parapet lips are 0.3 m, under the player's 0.36 m step: a push into one
+  steps onto it, and only then off. The vault reads the lip as ground and
+  leaps from on top of it. A slide along the edge is caught.
+
+### The route (`tools/street_parts/rooftops.py`)
+
+- The flats' cap slabs (`Flat<i>Parapet`) were meshes 0.4 m above the
+  collider: a deck collider at the slab's top puts the feet on what the eye
+  sees, on Flat9 and Flat10 only.
+- An external stair up Flat9's west face from the alley: 28 treads as one
+  MultiMesh, a ramp collider through their mid-points (within 0.13 m; a
+  CharacterBody3D walks a 35° ramp, and a tread-by-tread collider would
+  only exercise the step-up 28 times), a rail, a landing over the slab's
+  south-west corner. Signed `sign.stairs` ("ROOF ACCESS") on the flat's
+  street corner, from the string table.
+- Flat9 to Flat10 is the two-metre gap the sketch asked for, lip to lip.
+- The sketch ran the first cable from Flat10's roof to the bus-stop shelter
+  roof: 4.7 m down over 4.5 m is steeper than a body can stand on (the
+  floor limit is 45°), and over the shelter's far corner the cable would
+  end mid-roof. So the pole comes first: cable A runs from a step on
+  Flat10's north edge down over the road to a 2 m platform on the
+  traffic-light pole (6.6°), beside the beam where the Glimpse sat (P5);
+  cable B runs from the platform down to the shelter roof (13°). The
+  route's end, and `reached_rooftop`, is the pole platform: "rooftop
+  running to where Krishna was glimpsed" (GDD §3a). The platform has a
+  rail on its north and east sides, the two no cable leaves by, and the
+  stair landing one on its south edge: a run arrives at 4.6 m/s and two
+  metres is less than half a second. An awning over
+  Flat10's ground-floor windows is the short way down: a step off the
+  north lip, 3.5 m, then 3.9 m to the pavement; a run off that lip
+  overshoots it and lands on the pavement with a stumble.
+- `scripts/quest/reach_point.gd` is generic: an Area3D with `flag_set`
+  (data on the node), fires once because the flag persists. Nothing shows,
+  nothing counts.
+
+### Budget
+
+Not measured in the web build this round (the parallel agents share four
+cores and may not export). Added when everything is in view: four
+MultiMeshes (lips, treads, posts), twelve solids (landing, its rail, sign
+board, two cable steps, platform, two platform rails, awning, stair rail
+and the two cables), one label — about seventeen draw calls on P6's max
+of 177, under the 200 limit; the integrator's web-build walk should
+confirm. Colliders (decks, lips, ramp, shelter roof) add no draw calls.
+
+### Placeholders
+
+Treads, landing, lips, cables, platform and awning are primitives in the
+street's materials; PLACEHOLDER for the painted rooftops and cables of GDD
+§10, Hollow Vale row. No peacock blue or magenta: concrete, rust, tyre
+grey and the olive canopy.
+
+## 2026-10-20 — The expansion, integrated: twenty-seven branches on one base
+
+The owner asked for the macro design to be built by twenty or more agents at
+once. Twenty-seven ran, each in its own worktree cut from the E1 base, each
+owning one section of docs/GDD.md and a disjoint set of files (the brief
+each read is kept at the session's scratchpad; its rules are CLAUDE.md's).
+Their sections above, in the order they landed, say what each built. This
+entry records how the branches were joined and what the joining changed.
+
+- Generated scenes were never merged by hand: every conflict in
+  `scenes/street/Street.tscn` and the interiors was resolved by re-running
+  the generators over the union of parts, which is what the parts mechanism
+  was for. Hand-made scenes (`Player.tscn`) kept both sides' additions
+  (carryables now: can, feather, jasmine, string, fruit, veena, pot).
+- JSON data files were merged three-way at the key level (base, ours,
+  theirs), so a line added by one agent beside a line added by another never
+  corrupted the file; `data/strings/en.json` is re-sorted after every merge.
+- Scripts that several agents extended (`game_state.gd`, `place.gd`,
+  `player.gd`, `pause_menu.gd`, `path_mover.gd`, `street.gd`) were merged by
+  top-level block (function, variable, constant); where two agents changed
+  the inside of the same function, the second's lines were carried over by
+  hand and the result re-read. Two merges dropped a function's tail (the
+  same closing lines on both sides); a scan of every agent's additions
+  against the merged tree, and the suite, caught them.
+- Things that landed on the same spot were moved apart, not deleted: the
+  tale seat went to the fountain's north-west step (Act 4's *Hum here* and
+  the way Home have the south-east one, Bhima Lal the south-west); Rukma sleeps at the bus-stop
+  bench's west end (the Counting Man has the east); the cow-shadow Tell's
+  doorway moved six metres west along the tower's foot (Nanda's door is at
+  its east end). The nearest-interactable rule decides the button where
+  areas still overlap.
+- `Door` keeps a gate set on its `%Use` child by a scene (the way Home) and
+  only overrides it when its own `requires` says something (the Grove's
+  door), so both agents' doors work.
+- The main quest's line wins the pause menu's one line over side quests
+  (`"main": true` in the quest file).
+- GameState grew beyond gdlint's default of twenty public methods: it is the
+  one journey object by design (GDD §12), so `.gdlintrc` lifts the cap.
+- Agents noted, independently, that `scenegen.xf(pos, yaw)` writes a yaw
+  Godot reads as `rotation.y = -yaw`, and that `gen_interiors.py` places the
+  inside signs facing the wall. Both are recorded here for the next pass;
+  neither changes play.
+- The daylight stage made the street's ambient light real
+  (`ambient_light_source` had been disabled). Its first setting took the
+  ambient from the sky, and the overcast panorama is HDR: the street came
+  out blown white in the web profile at any energy. The ambient is now the
+  flat colour (`ambient_light_source = 2`) at the stage's energy, which the
+  data still moves; the arrival energy is 0.45, not 1.0, so the first
+  screenshots match P6's contrast with a little fill in the shadows.
+- Not built, by the rules: anything with a backend (companions, Circles,
+  lamps seen by others), analytics, IAP. Not measured here: the web-build
+  budget for the whole expansion, which the next profile run records below
+  the next phase's table; the three-device run (GDD §13's gate) is the
+  owner's from the release APK.
+
+
+## 2026-10-20 — After the join: what review found, and the budget
+
+An adversarial review of the integrated branch (three readers for merge
+damage, data drift and the rules; each finding refuted or confirmed by
+independent verifiers) and the first whole-expansion web profile. What was
+done about each, in the order it was found. Affects GDD §5, §6, §9, §9a.
+
+### Seams the block-wise merge left open
+
+- `tint_sun()` (the Remembrance's rose) was written against the P4 mood
+  system and merged on top of the daylight rewrite that removed the state it
+  drove, so the next mood tweened the sun back from the stage's colour and
+  undid the dawn. The tint lives in `Daylight` now (`set_sun_tint`): a stage
+  or mood that comes later multiplies it, as the function promised.
+- The footsteps loop stopped only after `move_and_slide()`; the wardrobe's
+  `hold_still()`, a vault and the Remembrance's hold returned before it, so
+  the feet sounded under a body standing still. Each silences them now, and
+  the Remembrance holds the body through `hold_still()` like the dais does.
+- With a car boarded nothing is "near", so the desktop and gamepad
+  contextual key opened an offered wisdom card instead of leaving the car.
+  At the wheel the key is the car's; the lotus waits.
+
+### Paths the readers walked
+
+- A door, or Play again, swapped the place while a line was still on the
+  cards; `Content.dialogue` is one runner for every place, so the next place
+  began with a conversation nobody could see and its people waiting on it.
+  The door and the screen swap end the line first.
+- A lamp's record kept only x and z, so one set on a tower landing or the
+  rooftop route came back at street level, inside the building. The record
+  keeps its height and the lamp settles about it.
+- The tale seat froze the body with `set_physics_process(false)`, leaving
+  the footsteps loop and the path card's route sampling running on a stale
+  velocity. It holds the body through `hold_still()`, like the dais and the
+  Remembrance.
+- A lesson opened from a card chosen under the pause menu (the cards took
+  number keys while paused) ended by un-pausing the world under the menu.
+  The lesson gives the pause back as it found it, and the cards take no key
+  while something else has paused the world.
+
+### Names two features never agreed on (data drift)
+
+- The Garden's creeper waited for `creeper_given`, which nothing set:
+  Madhuri's line after the lamp water (`madhuri_after_water`) sets it now,
+  as GDD §6 says (beat 14, "Madhuri gives it with the lamp water").
+- The wisdom card for Act 1 waited on `heard_whisper`; the Grove's whisper
+  sets `whispered_kuvera`. The card's trigger is the Grove's name.
+- The Garden's waters named seven flags; the tales (`heard_tale_<id>_<n>`),
+  the four new Glimpses (`glimpsed_<point>`), Sarang's two bars and the Act 4
+  hum (`remembered`) are what GDD §6 calls hearing, remembering and
+  chanting, so they water too.
+- Two of the three tales had no seat. Dhruva's is a mat in Nanda's flat
+  under his brother's photograph (GDD §9a: "Nanda, on the stairs, about his
+  brother"); Prahlada's, the boy pressed by his teachers, is a mat at the
+  right hand of the one teacher on the Street, Sarang. Both are
+  `TaleSeat.tscn` with the tale id as data; the street's cushion stays.
+- `tools/check_data.py` gained `check_links`: every flag or event that a
+  condition, `requires`, trigger, seed or gate waits on must be set by some
+  card, quest step, scene export, list export or script default; every door
+  must name a place in `data/places.json` and a spawn point in its scene (a
+  passage such as the Veil hands its spawn on); every tale must have a seat.
+  It found the three names above in one run and now runs in CI.
+- The photograph stand-ins in the office and Nanda's flat carry their
+  `PLACEHOLDER` lines naming the prints of GDD §7 and §4.
+- The Grove named grass as its own material after the world assets had made
+  it the street's, so `Grove.tscn` declared `mat_grass` twice. Once now.
+
+### Where two reaches met, and what the tests did not test
+
+The tests reader walked the Street for verbs that could be read by turns
+on one patch of pavement, and for assertions that could not fail.
+
+- The tale seat on the south-west step and Bhima Lal's Talk overlapped by
+  centimetres; the seat is on the north-west step now, which nothing else
+  claims. The first dawn stranger's spot overlapped the wet footprints' Look
+  and the seat; it is east of the footprints on the south pavement.
+- The bus stop's ending Sit (P6) was a seven-metre box over the whole bench,
+  and after ninety seconds of play it won the button from the Counting
+  Man's Sit and Talk and from Rukma: pressing *Sit* beside him ended the
+  slice. The ending Sit is the bench's middle, between the two of them.
+- Nanda had two doors: a look-only one in the tower's face, where he
+  stands, and the real one standing free in the alley four metres south,
+  with the stairwell Glimpse's jasmine lying on its spawn point. The real
+  door is in the tower's face now, with his sign over it; the look-only one
+  and its hollow test are gone (its thought, `nanda_door_look`, stays in
+  the table for a door that can carry it).
+- Tests that could not fail were made to: the main quest's line is now
+  tested with a side quest still active; "every card drawn the same"
+  compares the style and the colour, not the class every card shares; the
+  controls card is pinned to the amendment's lines and the car's, each
+  scheme worded; a texture fails on any peacock-blue or magenta sample, not
+  on its average; and `tests/test_street_colours.gd` walks the Street's
+  materials, lights, signs and fog as the Grove's test walks the Grove,
+  with the Glimpse and its feather excepted.
+- The walk's bands are the texture test's (peacock blue 0.50 to 0.63 on
+  the HSV wheel, magenta 0.78 to 0.93). The nature kit's large bush is
+  aquamarine (hue 0.48) and sits just outside; it is the Vale's one cool
+  green and the painted pass may yet warm it.
+- Not changed: two of Kenney's skins worn on the Street (humanMaleA,
+  skaterMaleA) carry a blue-teal band on about a tenth of their pixels. The
+  skins are the slice's placeholders (GDD §10 "Licensed base"); the painted
+  characters replace them, and no test measures a skin for it.
+
+### Budget after the expansion
+
+The P7 walk (the basin and the street outside, six headings at each, the web
+build in headless Chromium) was run four times as this was worked down.
+
+The first profile of the whole expansion came out at a median of 171 draw
+calls and a worst angle of 251 against the 200 cap, after the detail-shadow
+rule had already taken the worst angle down from 270. The expansion's props
+were the cost: 250 `MeshInstance3D`s in the street, 165 of them
+collision-less boxes and cylinders, each a draw call and most of them a
+second one in the shadow pass.
+
+**Details batch.** `scenegen.Builder` gained `detail()`, `detail_cyl()` and
+`detail_mesh()`: a collision-less primitive goes into one MultiMesh per
+(mesh, material) for the whole scene, written under a `Details` node by
+`flush_details()` when the scene is assembled, so a bucket costs one draw
+call however many boxes it holds. A nested parent that may move (a gate's
+leaf) keeps a bucket of its own. Every part's `solid(..., collide=False)`
+and upright `cyl()` went through it, and the Tells' own helpers batch the
+same way. That took the worst angle to 221.
+
+**A detail is small.** Batching everything also took the roads and the
+fountain's basin out of the tree, and `scripts/ui/minimap.gd` reads the
+block's footprints out of the street's groups by name, for the map and for
+the Path card: both lost them silently, and nothing failed. A primitive 3 m
+or more on any side (`Builder.BATCH_LIMIT`) is structure, not a detail, and
+stays a node under its group. `tests/test_minimap.gd` now stands in the way
+of that happening again; it also found that the minimap's fountain entry
+still named `Wall`, which the square pit had and the round fountain has not
+had since it was built.
+
+**The shadow distance.** With structure back as nodes the worst angle was
+233. Every caster inside the directional shadow's distance is a second draw
+call, and the street is 130 m long: at 45 m the whole block was casting at
+the worst angle. 28 m still reaches the far pavement and the shadows under
+the player, the fountain and the shopfronts are unchanged in the
+screenshots. That is the number in the table below.
+
+A detail is an instance, not a node, so `get_node()` no longer finds one;
+the name a part gives it is for the reader. One side effect is an
+improvement: a yawed box with unequal sides used to go through `xf()`,
+which scales after it rotates (a slight skew), where an instance rotates
+then scales. The street scene is 153 mesh nodes and 48 MultiMeshes (790
+instances in them) where it was 250 and 25.
+
+| Metric | Limit (amendment §C) | P6 | Expansion, first profile | This change |
+|---|---|---|---|---|
+| Draw calls per frame | < 200 | median 112, max 177 | median 171, max 251 | median 156, max 198 |
+| Primitives per frame | < 150k | median 56.0k, max 71.4k | median 65.3k, max 80.6k | median 58.3k, max 80.9k |
+| Web `.pck` | — | 36 MB | 50 MB | 50 MB |
+
+The `.pck` grew by the world's textures and sounds (owner override: the
+install budget no longer binds). The three-device run (GDD §13) stays the
+owner's, from the release APK.
+

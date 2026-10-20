@@ -11,12 +11,20 @@
 ## The scheme decides what is on screen (§A5, owner request 2026-10-20): on
 ## touch the joystick owns the left zone; on desktop (a browser on a PC
 ## included) and gamepad the joystick is hidden, so a drag anywhere orbits
-## and the keys or the left stick move. ControlsHint detects the scheme.
+## and the keys or the left stick move, and the contextual button wears the
+## key that presses it. ControlsHint detects the scheme.
+##
+## Layout (GDD §11 "HUD", owner request 2026-10-20 "intuitive, very easy on
+## all devices"): the pause button top-left, the compass top-centre, the
+## contextual button bottom-right and the subtitle above it are placed from
+## the edges of the display's safe area with a gutter, so a notch or a
+## rounded corner never covers them, in portrait and in landscape alike.
 extends Control
 
 signal camera_dragged(delta: Vector2)
 signal tapped(position: Vector2)
 signal pause_pressed
+signal scheme_changed(scheme: String)
 
 const TAP_SLOP := 10.0
 const TAP_MS := 200
@@ -25,6 +33,31 @@ const TAP_MS := 200
 const STICK_ORBIT_PIXELS_PER_SECOND := 420.0
 const SCHEME_TOUCH := "touch"
 const CONTROLS_HINT := preload("res://scripts/ui/controls_hint.gd")
+## Clearance between the HUD and the edge of the safe area.
+const GUTTER := 16.0
+## The pause button's size and its place inside the gutter (88 px: a thumb).
+const PAUSE_SIZE := 88.0
+const PAUSE_AT := Vector2(16.0, 32.0)
+const COMPASS_SIZE := Vector2(420.0, 44.0)
+const COMPASS_TOP := 24.0
+const BUTTON_SIZE := Vector2(180.0, 96.0)
+## The contextual button's distance from the gutter's corner, right and up.
+const BUTTON_FROM_CORNER := Vector2(32.0, 96.0)
+const SUBTITLE_HEIGHT := 60.0
+## The subtitle sits this far above the contextual button's top edge.
+const SUBTITLE_ABOVE_BUTTON := 62.0
+## In portrait the subtitle takes 90 % of the width; in landscape it is a
+## readable column, never a line the eye has to travel.
+const SUBTITLE_WIDTH_PORTRAIT := 0.9
+const SUBTITLE_WIDTH_LANDSCAPE := 880.0
+const MINIMAP_SIZE := 300.0
+const MINIMAP_FROM_RIGHT := 16.0
+const MINIMAP_BELOW_COMPASS := 12.0
+
+## Tests set this to a fake safe area, in this control's coordinates, in
+## place of what DisplayServer.get_display_safe_area() reports. Null means
+## ask the display.
+static var safe_area_override: Variant = null
 
 var _scheme := SCHEME_TOUCH
 
@@ -42,6 +75,7 @@ var _subtitle_left := 0.0
 @onready var _minimap: Control = %Minimap
 @onready var _subtitle: Label = %Subtitle
 @onready var _compass: Control = %Compass
+@onready var _lotus: Control = %Lotus
 
 
 func _ready() -> void:
@@ -52,14 +86,23 @@ func _ready() -> void:
 	Input.joy_connection_changed.connect(
 		func(_device: int, _connected: bool) -> void: apply_scheme(CONTROLS_HINT.detect_scheme())
 	)
+	resized.connect(layout)
+	layout()
 
 
 ## Shows the controls for "touch", "desktop" or "gamepad". Only touch has the
 ## joystick; without it, the whole screen is the camera's and a tap still
-## walks there.
+## walks there. Off touch, the contextual button wears the key that presses
+## it ("E", the gamepad's face button), so a newcomer at a keyboard is told
+## without a tutorial; on touch there is no key, so no badge.
 func apply_scheme(scheme: String) -> void:
 	_scheme = scheme
 	_joystick.visible = scheme == SCHEME_TOUCH
+	if scheme == SCHEME_TOUCH:
+		_button.set_key_badge("")
+	else:
+		_button.set_key_badge(Strings.t("controls.key.%s_use" % scheme))
+	scheme_changed.emit(scheme)
 
 
 func scheme() -> String:
@@ -72,6 +115,11 @@ func minimap() -> Control:
 
 func compass() -> Control:
 	return _compass
+
+
+## The wisdom lotus (GDD §6 "Optional wisdom"): scripts/ui/wisdom_prompt.gd.
+func lotus() -> Control:
+	return _lotus
 
 
 ## Shows a subtitle by string id for a few seconds (GDD §11 accessibility).
@@ -102,6 +150,73 @@ func has_subtitle_box() -> bool:
 
 func pause_button() -> Button:
 	return _pause
+
+
+func subtitle_label() -> Label:
+	return _subtitle
+
+
+## The part of the screen nothing covers, in this control's coordinates: the
+## whole of it but for a phone's notch, rounded corners or system bars. A
+## desktop window already sits inside the screen's usable area and a browser
+## keeps its own bars out of the page, so only a mobile build asks.
+func safe_area() -> Rect2:
+	if safe_area_override is Rect2:
+		return safe_area_override
+	var full := Rect2(Vector2.ZERO, size)
+	if not OS.has_feature("mobile"):
+		return full
+	var screen := Vector2(DisplayServer.screen_get_size())
+	if screen.x <= 0.0 or screen.y <= 0.0:
+		return full
+	var safe := Rect2(DisplayServer.get_display_safe_area())
+	# Screen pixels to canvas units: on a phone the canvas is the screen.
+	var scale := size / screen
+	return Rect2(safe.position * scale, safe.size * scale)
+
+
+func is_portrait() -> bool:
+	return size.x < size.y
+
+
+## Places every HUD element from the safe area's edges plus the gutter. Runs
+## on every resize, so turning the phone or resizing a window re-lays it.
+func layout() -> void:
+	var safe := safe_area()
+	var left := GUTTER + maxf(safe.position.x, 0.0)
+	var top := GUTTER + maxf(safe.position.y, 0.0)
+	var right := GUTTER + maxf(size.x - safe.end.x, 0.0)
+	var bottom := GUTTER + maxf(size.y - safe.end.y, 0.0)
+
+	_pause.position = Vector2(left, top) + PAUSE_AT
+	# Square, and never smaller than the theme makes a button.
+	var pause_side := maxf(PAUSE_SIZE, _pause.get_combined_minimum_size().y)
+	_pause.size = Vector2(pause_side, pause_side)
+
+	_compass.offset_left = -COMPASS_SIZE.x * 0.5
+	_compass.offset_right = COMPASS_SIZE.x * 0.5
+	_compass.offset_top = top + COMPASS_TOP
+	_compass.offset_bottom = _compass.offset_top + COMPASS_SIZE.y
+
+	_button.offset_right = -(right + BUTTON_FROM_CORNER.x)
+	_button.offset_left = _button.offset_right - BUTTON_SIZE.x
+	_button.offset_bottom = -(bottom + BUTTON_FROM_CORNER.y)
+	_button.offset_top = _button.offset_bottom - BUTTON_SIZE.y
+
+	var subtitle_width := (
+		size.x * SUBTITLE_WIDTH_PORTRAIT
+		if is_portrait()
+		else minf(SUBTITLE_WIDTH_LANDSCAPE, size.x - left - right)
+	)
+	_subtitle.offset_left = -subtitle_width * 0.5
+	_subtitle.offset_right = subtitle_width * 0.5
+	_subtitle.offset_bottom = _button.offset_top - SUBTITLE_ABOVE_BUTTON
+	_subtitle.offset_top = _subtitle.offset_bottom - SUBTITLE_HEIGHT
+
+	_minimap.offset_right = -(right + MINIMAP_FROM_RIGHT)
+	_minimap.offset_left = _minimap.offset_right - MINIMAP_SIZE
+	_minimap.offset_top = _compass.offset_bottom + MINIMAP_BELOW_COMPASS
+	_minimap.offset_bottom = _minimap.offset_top + MINIMAP_SIZE
 
 
 func _process(delta: float) -> void:
@@ -183,5 +298,7 @@ func _on_drag(event: InputEventScreenDrag) -> void:
 
 func _over_button(position: Vector2) -> bool:
 	if _pause.get_global_rect().has_point(position):
+		return true
+	if _lotus.is_showing() and _lotus.get_global_rect().has_point(position):
 		return true
 	return _button.visible and _button.get_global_rect().has_point(position)

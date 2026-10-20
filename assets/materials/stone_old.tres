@@ -1,0 +1,19 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+; PLACEHOLDER: procedural texture from tools/gen_textures.py (tools/texture_parts/
+; world.py), replaced 1:1 by the painted surfaces of GDD §10. Triplanar so every
+; scaled primitive tiles correctly without UVs.
+; Temple stone: the shrine room behind the chai stall (GDD §5). Replaced by the
+; custom shrine interior of GDD §10.
+
+[ext_resource type="Texture2D" path="res://assets/textures/stone_old.png" id="1_tex"]
+
+[resource]
+resource_name = "stone_old"
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("1_tex")
+roughness = 0.9
+specular_mode = 1
+uv1_triplanar = true
+uv1_scale = Vector3(0.5, 0.5, 0.5)
+uv1_triplanar_sharpness = 4.0

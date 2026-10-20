@@ -85,7 +85,7 @@ b.batch("Manholes", "Ground", "manhole",
 b.group("Fountain")
 BASIN_R, LIP_R, FLOOR_Y, STEP_Y = 5.6, 7.0, -0.5, -0.15
 b.solid("Floor", "Fountain", (0, -1.25, 0), (14, 0.3, 14), "concrete_dust")
-b.cyl("Basin", "Fountain", (0, (FLOOR_Y - 1.25) / 2, 0), LIP_R, FLOOR_Y + 1.25, "ph_concrete")
+b.detail_cyl("Basin", "Fountain", (0, (FLOOR_Y - 1.25) / 2, 0), LIP_R, FLOOR_Y + 1.25, "ph_concrete")
 b.nodes.append(
     '[node name="BasinBody" type="StaticBody3D" parent="Fountain"]\n'
     "collision_layer = 1\ncollision_mask = 0\n\n"
@@ -119,8 +119,8 @@ for name, pos, size in (
 ):
     b.solid(name, "Fountain", pos, size, "ph_concrete")
 # The column: pedestal, shaft, two dry bowls, a spout that gives nothing.
-b.cyl("Pedestal", "Fountain", (0, FLOOR_Y + 0.15, 0), 1.3, 0.3, "ph_concrete")
-b.cyl("Shaft", "Fountain", (0, 1.0, 0), 0.32, 2.4, "plaster_white")
+b.detail_cyl("Pedestal", "Fountain", (0, FLOOR_Y + 0.15, 0), 1.3, 0.3, "ph_concrete")
+b.detail_cyl("Shaft", "Fountain", (0, 1.0, 0), 0.32, 2.4, "plaster_white")
 for name, y, radius, height in (("LowerBowlUnder", 1.3, 1.9, 0.5), ("UpperBowlUnder", 2.35, 1.1, 0.3)):
     b.nodes.append(
         f'[node name="{name}" type="MeshInstance3D" parent="Fountain"]\n'
@@ -128,11 +128,11 @@ for name, y, radius, height in (("LowerBowlUnder", 1.3, 1.9, 0.5), ("UpperBowlUn
         'mesh = SubResource("ConeMesh_unit")\n'
         f'surface_material_override/0 = ExtResource("{MAT_ID["plaster_white"]}")\n\n'
     )
-b.cyl("LowerBowl", "Fountain", (0, 1.64, 0), 1.9, 0.18, "plaster_white")
-b.cyl("LowerBowlFloor", "Fountain", (0, 1.75, 0), 1.72, 0.04, "concrete_dust")
-b.cyl("UpperBowl", "Fountain", (0, 2.57, 0), 1.1, 0.14, "plaster_white")
-b.cyl("UpperBowlFloor", "Fountain", (0, 2.66, 0), 0.95, 0.04, "concrete_dust")
-b.cyl("Spout", "Fountain", (0, 2.9, 0), 0.08, 0.5, "rust_metal")
+b.detail_cyl("LowerBowl", "Fountain", (0, 1.64, 0), 1.9, 0.18, "plaster_white")
+b.detail_cyl("LowerBowlFloor", "Fountain", (0, 1.75, 0), 1.72, 0.04, "concrete_dust")
+b.detail_cyl("UpperBowl", "Fountain", (0, 2.57, 0), 1.1, 0.14, "plaster_white")
+b.detail_cyl("UpperBowlFloor", "Fountain", (0, 2.66, 0), 0.95, 0.04, "concrete_dust")
+b.detail_cyl("Spout", "Fountain", (0, 2.9, 0), 0.08, 0.5, "rust_metal")
 b.nodes.append(
     '[node name="Finial" type="MeshInstance3D" parent="Fountain"]\n'
     f"transform = {xf((0, 3.3, 0), 0.0, (0.5, 0.5, 0.5))}\n"
@@ -159,8 +159,8 @@ b.solid("Right", "Shop", (-9.2, 2.0, -1.0), (0.4, 4, 6.8), "plaster_ochre")
 b.solid("Roof", "Shop", (-14, 4.1, -1.0), (10.4, 0.3, 7.2), "ph_corrugated")
 b.solid("Counter", "Shop", (-14, 0.5, 1.9), (8.4, 1.0, 0.6), "timber")
 b.solid("Awning", "Shop", (-14, 3.55, 2.9), (10.6, 0.08, 2.4), "rust_metal", collide=False)
-b.solid("SignBoard", "Shop", (-14, 4.6, 2.3), (7.0, 0.9, 0.12), "sign", collide=False)
-b.solid("SignFrame", "Shop", (-14, 4.6, 2.22), (7.3, 1.1, 0.06), "timber", collide=False)
+b.detail("SignBoard", "Shop", (-14, 4.6, 2.3), (7.0, 0.9, 0.12), "sign")
+b.detail("SignFrame", "Shop", (-14, 4.6, 2.22), (7.3, 1.1, 0.06), "timber")
 # Water cans, stacked where the street can see them (§4.4): a row on the
 # pavement in front of the counter that the player can *Pick up* from
 # (scripts/quest/can_stack.gd hides one per pick-up), and more behind it.
@@ -198,36 +198,39 @@ b.collider("CrateBody", "Shop", (1.3, 1.2, 0.9), [((-18.3, 0.6, 3.2), 0.0), ((-9
 b.group("ChaiStall")
 b.solid("Body", "ChaiStall", (13, 1.4, -9), (5, 2.8, 4), "plaster_cream")
 b.solid("Roof", "ChaiStall", (13, 2.95, -9), (5.8, 0.3, 4.8), "ph_corrugated")
-b.solid("StallSign", "ChaiStall", (13, 3.5, -6.9), (3.4, 0.6, 0.1), "sign", collide=False)
-b.solid("Hatch", "ChaiStall", (13, 1.6, -6.95), (3.2, 1.4, 0.1), "timber", collide=False)
-b.solid("Shelf", "ChaiStall", (13, 0.9, -6.8), (3.6, 0.1, 0.5), "timber", collide=False)
-b.solid("BackDoor", "ChaiStall", (13, 1.05, -11.05), (1.3, 2.1, 0.12), "rust_metal", collide=False)
+b.detail("StallSign", "ChaiStall", (13, 3.5, -6.9), (3.4, 0.6, 0.1), "sign")
+b.detail("Hatch", "ChaiStall", (13, 1.6, -6.95), (3.2, 1.4, 0.1), "timber")
+b.detail("Shelf", "ChaiStall", (13, 0.9, -6.8), (3.6, 0.1, 0.5), "timber")
+b.detail("BackDoor", "ChaiStall", (13, 1.05, -11.05), (1.3, 2.1, 0.12), "rust_metal")
 
 # --- the traffic light -------------------------------------------------------
 b.group("TrafficLight")
 b.solid("Pole", "TrafficLight", (25.5, 3.0, 14), (0.35, 6, 0.35), "rust_metal")
-b.solid("Beam", "TrafficLight", (29.5, 5.7, 14), (8.4, 0.3, 0.3), "rust_metal", collide=False)
-b.solid("Housing", "TrafficLight", (32.6, 5.1, 14), (0.5, 1.2, 0.45), "tyre", collide=False)
+b.detail("Beam", "TrafficLight", (29.5, 5.7, 14), (8.4, 0.3, 0.3), "rust_metal")
+b.detail("Housing", "TrafficLight", (32.6, 5.1, 14), (0.5, 1.2, 0.45), "tyre")
 for i, y in enumerate((5.45, 5.1, 4.75)):
-    b.cyl(f"Lamp{i}", "TrafficLight", (32.6, y, 14.2), 0.13, 0.2, "road_paint")
+    b.detail_cyl(f"Lamp{i}", "TrafficLight", (32.6, y, 14.2), 0.13, 0.2, "road_paint")
 # The Glimpse point (§4.5): the silhouette sits on the beam facing the
-# fountain; its feather falls on the pavement below the pole.
+# fountain (xf's yaw turns the other way: -pi/2 faces -X); its feather falls
+# on the road below the pole. The one point Tulu looks up at (GDD §6); the
+# other four are tools/street_parts/glimpses.py.
 b.nodes.append(
     '[node name="Glimpse" parent="TrafficLight" instance=ExtResource("14_glimpse")]\n'
     "unique_name_in_owner = true\n"
-    f"transform = {xf((29.5, 5.85, 14.0), math.pi / 2)}\n\n"
+    f"transform = {xf((29.5, 5.85, 14.0), -math.pi / 2)}\n"
+    "witnessed = true\n\n"
 )
 
 # --- the billboard tower -----------------------------------------------------
 b.group("Tower")
 b.solid("Block", "Tower", (-31, 7.0, -26), (15, 14, 15), "ph_brick")
-b.solid("Parapet", "Tower", (-31, 14.2, -26), (15.6, 0.5, 15.6), "concrete_dust", collide=False)
+b.detail("Parapet", "Tower", (-31, 14.2, -26), (15.6, 0.5, 15.6), "concrete_dust")
 for i, (dx, dz) in enumerate(((-5, -5), (5, -5), (-5, 5), (5, 5))):
     b.solid(f"Leg{i}", "Tower", (-31 + dx, 17.5, -26 + dz), (0.5, 7, 0.5), "rust_metal")
 for i, (dx, dz) in enumerate(((0, -5), (0, 5), (-5, 0), (5, 0))):
-    b.solid(f"Brace{i}", "Tower", (-31 + dx, 17.5, -26 + dz), (10 if dz else 0.3, 0.3, 0.3 if dz else 10), "rust_metal", collide=False)
-b.solid("Billboard", "Tower", (-31, 22.5, -26), (13, 6, 0.4), "plaster_white", collide=False)
-b.solid("BillboardFrame", "Tower", (-31, 22.5, -26.3), (13.6, 6.6, 0.2), "rust_metal", collide=False)
+    b.detail(f"Brace{i}", "Tower", (-31 + dx, 17.5, -26 + dz), (10 if dz else 0.3, 0.3, 0.3 if dz else 10), "rust_metal")
+b.detail("Billboard", "Tower", (-31, 22.5, -26), (13, 6, 0.4), "plaster_white")
+b.detail("BillboardFrame", "Tower", (-31, 22.5, -26.3), (13.6, 6.6, 0.2), "rust_metal")
 
 # --- flats along the block ---------------------------------------------------
 b.group("Flats")
@@ -262,6 +265,9 @@ b.multimesh("ACUnits", "Flats", "BoxMesh_unit", "corrugated", acs)
 # Two alleys are the gaps left between the north blocks at x≈-29 and x≈+32.
 
 # --- the padlocked fence -----------------------------------------------------
+# The span beside the gate post carries no rail: tools/street_parts/garden.py
+# hangs the garden gate in it (GDD §7 "The Fence").
+GATE_SPAN = 6
 b.group("Fences")
 b.multimesh(
     "FencePosts", "Fences", "BoxMesh_unit", "rust_metal",
@@ -269,7 +275,7 @@ b.multimesh(
 )
 b.multimesh(
     "FenceRails", "Fences", "BoxMesh_unit", "rust_metal",
-    [((-44 + i * 1.9 + 0.95, y, 7.5), 0.0, (1.9, 0.08, 0.06)) for i in range(13) for y in (0.45, 1.05)],
+    [((-44 + i * 1.9 + 0.95, y, 7.5), 0.0, (1.9, 0.08, 0.06)) for i in range(13) if i != GATE_SPAN for y in (0.45, 1.05)],
     shadows=False,
 )
 b.solid("GatePost", "Fences", (-30.6, 0.7, 7.5), (0.2, 1.4, 0.2), "rust_metal")
@@ -284,7 +290,7 @@ b.collider("BenchBody", "BusStop", (4.4, 0.9, 0.8), [((x - 0.2 * math.cos(yaw), 
 b.solid("Shelter", "BusStop", (9, 2.6, 20.8), (5.2, 0.16, 2.6), "corrugated", collide=False)
 b.solid("ShelterPostL", "BusStop", (6.7, 1.3, 21.9), (0.16, 2.6, 0.16), "rust_metal")
 b.solid("ShelterPostR", "BusStop", (11.3, 1.3, 21.9), (0.16, 2.6, 0.16), "rust_metal")
-b.solid("StopSign", "BusStop", (11.9, 2.0, 21.9), (0.7, 0.9, 0.06), "road_paint", collide=False)
+b.detail("StopSign", "BusStop", (11.9, 2.0, 21.9), (0.7, 0.9, 0.06), "road_paint")
 # Where the slice ends (§4.6): arriving with a can placed or taken, or *Sit*.
 b.nodes.append(
     '[node name="BusStopPoint" parent="BusStop" instance=ExtResource("15_bus_stop")]\n'
@@ -319,9 +325,11 @@ bush_spots = [(-42, 6.3), (-36, 6.3), (-26, 6.3), (-60, 25.6), (-14, 25.6), (34,
 b.batch("Bushes", "Dressing", "bush",
       [((x, 0.0, z), (x * 1.3) % 6.28, (4.0, 3.6, 4.0)) for x, z in bush_spots], shadows=False)
 
-# Parked at the kerb: Quaternius cars, and Poly Haven's car under a tarp.
+# Parked at the kerb: Quaternius cars, and Poly Haven's car under a tarp. The
+# SportsCar2 that stood at (-12, 0, 11.4) is the driveable car of
+# tools/street_parts/car.py now.
 PARKED = [("car_normal2", (-24, 0, 11.3), math.pi / 2), ("car_sports", (40, 0, 20.7), -math.pi / 2),
-          ("car_sports2", (-12, 0, 11.4), math.pi / 2), ("car_suv", (34.2, 0, -20), 0.0)]
+          ("car_suv", (34.2, 0, -20), 0.0)]
 for i, (kind, pos, yaw) in enumerate(PARKED):
     b.model(f"ParkedCar{i}", "Dressing", kind, pos, yaw, CAR_SCALE)
 b.model("CoveredCar", "Dressing", "covered_car", (52, 0, 11.3), math.pi / 2)
@@ -345,6 +353,8 @@ lamp_positions += [((22.2, 2.75, z), 0.0, (0.16, 5.5, 0.16)) for z in range(-38,
 LAMP_SCALE = 1.35
 b.batch("LampPosts", "Lamps", "lamp", [((p[0], 0.16, p[2]), 0.0, (LAMP_SCALE,) * 3) for p, _, _ in lamp_positions])
 b.collider("LampBody", "Lamps", (0.4, 5.2, 0.4), [((p[0], 2.6, p[2]), 0.0) for p, _, _ in lamp_positions])
+# The posts' (x, z), for tools/street_parts/lamp_lights.py to light the nearest.
+b.lamp_posts = [(p[0], p[2]) for p, _, _ in lamp_positions]
 
 # --- parts: one file per feature under tools/street_parts/ -------------------
 for part in PARTS:
@@ -414,6 +424,7 @@ header = (
     + COMMON_EXT + ext_skins()
     + "".join(getattr(part, "EXT", "") for part in PARTS)
     + '[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/overcast_soil_puresky.hdr" id="8_sky"]\n'
+    '[ext_resource type="Shader" path="res://assets/shaders/sky_tint.gdshader" id="8_sky_shader"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Tulu.tscn" id="9_tulu"]\n'
     '[ext_resource type="Script" path="res://scripts/quest/can_stack.gd" id="11_can_stack"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Gopal.tscn" id="12_gopal"]\n'
@@ -441,22 +452,29 @@ size = Vector3(7, 1.8, 2.4)
 radius = 0.3
 height = 1.8
 
-[sub_resource type="PanoramaSkyMaterial" id="Sky_overcast"]
-panorama = ExtResource("8_sky")
-filter = true
-energy_multiplier = 1.0
+; The panorama through assets/shaders/sky_tint.gdshader, PanoramaSkyMaterial's
+; own shader plus a tint, so the stages of data/daylight.json can colour the
+; sky (scripts/street/daylight.gd). Values here are the `arrival` stage.
+[sub_resource type="ShaderMaterial" id="Sky_overcast"]
+shader = ExtResource("8_sky_shader")
+shader_parameter/panorama = ExtResource("8_sky")
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/energy = 1.0
 
 [sub_resource type="Sky" id="Sky_flat"]
 sky_material = SubResource("Sky_overcast")
 radiance_size = 2
 
+; Ambient from the sky (3), blended 45 % with the colour below: with the
+; source disabled (1, as it was) ambient_light_energy did nothing, and the
+; daylight stages move it.
 [sub_resource type="Environment" id="Environment_vale"]
 background_mode = 2
 sky = SubResource("Sky_flat")
-ambient_light_source = 1
+ambient_light_source = 2
 ambient_light_color = Color(0.64, 0.66, 0.7, 1)
-ambient_light_sky_contribution = 0.45
-ambient_light_energy = 1.3
+ambient_light_sky_contribution = 0.2
+ambient_light_energy = 0.45
 reflected_light_source = 2
 tonemap_mode = 2
 tonemap_exposure = 1.0
@@ -475,7 +493,10 @@ script = ExtResource("1_street")
 environment = SubResource("Environment_vale")
 
 ; Overcast, but with a sun low enough to throw soft shadows: depth reads far
-; better once surfaces have texture. Orthogonal shadow, 45 m, one cascade.
+; better once surfaces have texture. Orthogonal shadow, 28 m, one cascade:
+; every caster inside it is a second draw call, and the expansion's props
+; took the worst angle past the 200 cap (docs/DECISIONS.md "Budget after the
+; expansion"). At 28 m the shadows reach the far pavement and no further.
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866, -0.35, 0.357, 0, 0.714, 0.7, -0.5, -0.606, 0.618, 0, 24, 0)
 light_energy = 0.95
@@ -486,7 +507,7 @@ shadow_opacity = 0.65
 shadow_bias = 0.06
 shadow_normal_bias = 1.5
 directional_shadow_mode = 0
-directional_shadow_max_distance = 45.0
+directional_shadow_max_distance = 28.0
 directional_shadow_fade_start = 0.85
 
 ; §B5: baked lighting. Baking needs the editor and a GPU (there is no headless
@@ -543,6 +564,7 @@ unique_name_in_owner = true
 
 
 def render() -> str:
+    b.flush_details()
     body = header + b.shape_defs() + "".join(b.multimeshes) + root + "".join(b.nodes) + footer
     body = body.replace("SHADOW_STANDIN", "true" if REALTIME_SHADOW_STANDIN else "false")
     return finish(body)

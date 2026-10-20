@@ -10,6 +10,8 @@ extends Control
 signal dismissed
 
 const SETTING_SEEN := "controls_seen"
+## The card's lines in order; each is the string id `controls.<scheme>.<key>`.
+const LINE_KEYS := ["move", "look", "walk_there", "use", "hum", "places", "drive"]
 
 ## Opened from the pause menu: the button says Close and nothing is recorded.
 var from_pause := false
@@ -26,7 +28,7 @@ func _ready() -> void:
 	_title.text = Strings.t("controls.title")
 	for child in _lines.get_children():
 		child.queue_free()
-	for key in ["move", "look", "walk_there", "use", "hum", "places"]:
+	for key in LINE_KEYS:
 		var label := Label.new()
 		label.text = Strings.t("controls.%s.%s" % [scheme, key])
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

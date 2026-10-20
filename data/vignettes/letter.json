@@ -1,0 +1,92 @@
+{
+  "id": "letter",
+  "giver_name_id": "speaker.vignette_letter",
+  "skin": "survivorMaleB",
+  "spot": "a",
+  "lines": {
+    "vignette_letter_open": {
+      "speaker": "vignette_letter",
+      "text_id": "vignette.letter.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.letter.card.open.take",
+          "sets": [],
+          "next": "vignette_letter_unsealed"
+        },
+        {
+          "text_id": "vignette.letter.card.open.post",
+          "sets": [
+            "vignette_letter_posted"
+          ],
+          "next": "vignette_letter_end_posted"
+        },
+        {
+          "text_id": "vignette.letter.card.open.rest",
+          "sets": [
+            "vignette_letter_together"
+          ],
+          "next": "vignette_letter_end_together"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_letter_unsealed": {
+      "speaker": "vignette_letter",
+      "text_id": "vignette.letter.line.unsealed",
+      "cards": [
+        {
+          "text_id": "vignette.letter.card.unsealed.what",
+          "sets": [
+            "vignette_letter_read"
+          ],
+          "next": "vignette_letter_end_read"
+        },
+        {
+          "text_id": "vignette.letter.card.unsealed.mine",
+          "sets": [
+            "vignette_letter_carried"
+          ],
+          "next": "vignette_letter_end_carried"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_letter_end_read": {
+      "speaker": "vignette_letter",
+      "text_id": "vignette.letter.line.end_read",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_letter_end_carried": {
+      "speaker": "vignette_letter",
+      "text_id": "vignette.letter.line.end_carried",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_letter_end_posted": {
+      "speaker": "vignette_letter",
+      "text_id": "vignette.letter.line.end_posted",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_letter_end_together": {
+      "speaker": "vignette_letter",
+      "text_id": "vignette.letter.line.end_together",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.letter.journey",
+  "outcomes": [
+    "vignette_letter_carried",
+    "vignette_letter_posted",
+    "vignette_letter_read",
+    "vignette_letter_together"
+  ]
+}

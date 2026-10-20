@@ -27,20 +27,36 @@ var _current := ""
 ## an error naming [param source], when any line is not usable.
 static func from_dict(data: Dictionary, source: String) -> Dialogue:
 	var table := Dialogue.new()
+	if not table.add_lines(data, source):
+		return null
+	return table
+
+
+## Adds lines, in the same shape, to a table already built: the dawn
+## vignettes carry their own lines (GDD §16a) and show them through the one
+## running Dialogue, so the cards need no second runner. A card may point at
+## a line being added or at one already in the table; a line id already in
+## the table is replaced, so adding the same lines twice is harmless. Returns
+## false, with the reason pushed as an error naming [param source], and adds
+## nothing, when any line is not usable.
+func add_lines(data: Dictionary, source: String) -> bool:
+	var parsed: Dictionary = {}
 	for line_id in data:
 		var line := _line(data[line_id], str(line_id), source)
 		if line.is_empty():
-			return null
-		table._lines[str(line_id)] = line
-	for line_id in table._lines:
-		for card in table._lines[line_id]["cards"]:
+			return false
+		parsed[str(line_id)] = line
+	for line_id in parsed:
+		for card in parsed[line_id]["cards"]:
 			var next: String = card["next"]
-			if not next.is_empty() and not table._lines.has(next):
+			if not next.is_empty() and not parsed.has(next) and not _lines.has(next):
 				push_error(
 					"Dialogue %s: '%s' points at missing line '%s'" % [source, line_id, next]
 				)
-				return null
-	return table
+				return false
+	for line_id in parsed:
+		_lines[line_id] = parsed[line_id]
+	return true
 
 
 # -- table --------------------------------------------------------------------

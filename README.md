@@ -46,6 +46,17 @@ south side of the street can be walked into: stand at the door and the
 button says *Go in*; inside, the door says *Go out*. The journey remembers
 which side of the door you were on.
 
+Beyond the slice (owner expansion, see `docs/SLICE1_SPEC.md` E1–E4): a car
+to drive at the north kerb (*Drive*, the stick steers, *Get out*), a
+showroom to try clothes on in, the shrine room behind the chai stall,
+Dhanpal's hall and office, Nanda's flat, the community garden, the tower
+with its ladder and the Veena at dawn, a rooftop run over the south flats,
+two stray cows your hum can lead to the fountain, Sarang's music lesson,
+Tells to *Look* at, a lamp you can set down with one of twelve lines, a
+garden of what you chose in the pause menu, a tale on a painted scroll, one
+new stranger a day, and, through the fountain basin once the give path is
+taken, the Grove and the Pool.
+
 The slice ends at the bus stop: walk there after the can has been placed or
 taken, or sit there (the button says *Sit*) once you have played a minute
 and a half. *Play again* starts a fresh journey.

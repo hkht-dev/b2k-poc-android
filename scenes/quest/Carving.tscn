@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3]
+
+; A name cut into the tower's wall at the second landing (GDD §7
+; micro-interactions: "Read Nanda's brother's name carved on the tower's
+; second landing"). *Look* opens one line (scripts/quest/look_point.gd) whose
+; data sets `read_carving`. The origin is at deck level on the wall face;
+; +X is out onto the landing. The name comes from the string table at run
+; time (scripts/lib/label_from_id.gd), never baked in.
+; PLACEHOLDER: a Label3D; replaced by carved geometry in the custom tower of
+; GDD §5 "Reuse plan".
+
+[ext_resource type="Script" path="res://scripts/quest/look_point.gd" id="1_look_point"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+[ext_resource type="Script" path="res://scripts/lib/label_from_id.gd" id="3_label"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_landing"]
+size = Vector3(1.6, 2.0, 1.8)
+
+[node name="Carving" type="Node3D"]
+script = ExtResource("1_look_point")
+line_id = "carving_look"
+
+[node name="Look" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.look"
+
+[node name="Shape" type="CollisionShape3D" parent="Look"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 1.0, 0)
+shape = SubResource("BoxShape3D_landing")
+
+; Turned to face +X (its front is local +Z), beside the ladder, at eye height.
+[node name="Name" type="Label3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.03, 1.35, -0.56)
+script = ExtResource("3_label")
+text_id = "sign.nanda_brother"
+pixel_size = 0.01
+font_size = 18
+outline_size = 6
+modulate = Color(0.3, 0.24, 0.2, 1)
+outline_modulate = Color(0.14, 0.11, 0.09, 1)
+shaded = false
+double_sided = false
+no_depth_test = false

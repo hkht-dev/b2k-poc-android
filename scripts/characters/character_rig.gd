@@ -191,6 +191,17 @@ func is_carrying() -> bool:
 	return _carried != null
 
 
+## Puts another skin on a body already built (the showroom's wardrobe):
+## the export changes and the body is repainted. Before the body exists
+## it only sets the export, which _ready then paints. A null texture
+## leaves the body as it is.
+func set_skin(texture: Texture2D) -> void:
+	skin = texture
+	var body_node := get_node_or_null(BODY_NAME)
+	if body_node != null:
+		_paint(body_node)
+
+
 ## Paints every surface of the body with one material (the Glimpse's
 ## silhouette; GDD §6). The skin, if any, is dropped.
 func paint_all(material: Material) -> void:

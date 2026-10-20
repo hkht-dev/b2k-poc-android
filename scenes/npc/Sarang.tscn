@@ -1,0 +1,55 @@
+[gd_scene load_steps=7 format=3]
+
+; Sarang, the musician whose instrument has a string missing
+; (scripts/npc/sarang.gd): the shared rigged body, sitting, a Talk area round
+; him, and the layer his lesson opens on. His corner — crate, instrument,
+; sign — is built by tools/street_parts/sarang.py, which also sets his lines.
+; PLACEHOLDER body: replaced by the painted Sarang of GDD §4 and §10.
+
+[ext_resource type="Script" path="res://scripts/npc/sarang.gd" id="1_sarang"]
+[ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="3_interact"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-protagonists/skaterMaleA.png" id="4_skin"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
+radius = 2.4
+height = 2.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.3
+height = 1.4
+
+[node name="Sarang" type="Node3D"]
+script = ExtResource("1_sarang")
+
+[node name="Talk" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_interact")
+verb_id = "verb.talk"
+
+[node name="Shape" type="CollisionShape3D" parent="Talk"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("CylinderShape3D_near")
+
+; Thin and nervous: the shared body a touch narrower, sitting on his crate
+; (the library's Sitting_Idle, the clip the Glimpse and the bus stop use).
+[node name="Figure" parent="." instance=ExtResource("2_character")]
+unique_name_in_owner = true
+transform = Transform3D(0.92, 0, 0, 0, 1, 0, 0, 0, 0.92, 0, 0, 0)
+skin = ExtResource("4_skin")
+idle_animation = "Sitting_Idle"
+walk_animation = "Sitting_Idle"
+run_animation = "Sitting_Idle"
+
+[node name="Body" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+; The lesson opens here, above the place's own HUD layer.
+[node name="Overlay" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+layer = 2

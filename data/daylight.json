@@ -1,0 +1,131 @@
+{
+  "_comment": "The Street's light moves with the story (GDD §5, Hollow Vale row). Ordered stages; the latest whose `when` holds wins; stages come only from flags, never a clock. Read by scripts/street/daylight.gd. Colours are [r, g, b] in 0..1; angles in degrees, azimuth clockwise from north (-Z), east +X. Peacock blue and magenta are forbidden here (GDD §10); the rose of `remembrance` is the first pink Act 4 allows.",
+  "transition_seconds": 6.0,
+  "stages": [
+    {
+      "id": "arrival",
+      "when": "true",
+      "sun_colour": [
+        1.0,
+        0.98,
+        0.94
+      ],
+      "sun_energy": 0.95,
+      "sun_elevation_degrees": 44.4,
+      "sun_azimuth_degrees": 150.0,
+      "ambient_energy": 0.45,
+      "fog_colour": [
+        0.86,
+        0.83,
+        0.77
+      ],
+      "fog_density": 0.0014,
+      "sky_tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "lamps_on": false
+    },
+    {
+      "id": "after_fountain",
+      "when": "flag:gave_dry_fountain or flag:took_dry_fountain",
+      "sun_colour": [
+        1.0,
+        0.95,
+        0.86
+      ],
+      "sun_energy": 0.9,
+      "sun_elevation_degrees": 30.0,
+      "sun_azimuth_degrees": 215.0,
+      "ambient_energy": 0.414,
+      "fog_colour": [
+        0.85,
+        0.8,
+        0.72
+      ],
+      "fog_density": 0.0016,
+      "sky_tint": [
+        1.0,
+        0.97,
+        0.92
+      ],
+      "lamps_on": false
+    },
+    {
+      "id": "evening",
+      "when": "flag:garden_open and flag:counting_man_freed or flag:garden_open and flag:bhima_medicine_given or flag:garden_open and flag:rukma_heard or flag:counting_man_freed and flag:bhima_medicine_given or flag:counting_man_freed and flag:rukma_heard or flag:bhima_medicine_given and flag:rukma_heard",
+      "sun_colour": [
+        1.0,
+        0.82,
+        0.6
+      ],
+      "sun_energy": 0.7,
+      "sun_elevation_degrees": 12.0,
+      "sun_azimuth_degrees": 250.0,
+      "ambient_energy": 0.315,
+      "fog_colour": [
+        0.74,
+        0.64,
+        0.52
+      ],
+      "fog_density": 0.0022,
+      "sky_tint": [
+        0.92,
+        0.82,
+        0.68
+      ],
+      "lamps_on": true
+    },
+    {
+      "id": "dawn",
+      "when": "flag:on_the_tower",
+      "sun_colour": [
+        0.82,
+        0.87,
+        0.95
+      ],
+      "sun_energy": 0.6,
+      "sun_elevation_degrees": 6.0,
+      "sun_azimuth_degrees": 95.0,
+      "ambient_energy": 0.27,
+      "fog_colour": [
+        0.66,
+        0.7,
+        0.76
+      ],
+      "fog_density": 0.0024,
+      "sky_tint": [
+        0.78,
+        0.84,
+        0.92
+      ],
+      "lamps_on": true
+    },
+    {
+      "id": "remembrance",
+      "when": "flag:played_for_others or flag:kept_veena",
+      "sun_colour": [
+        1.0,
+        0.8,
+        0.72
+      ],
+      "sun_energy": 0.65,
+      "sun_elevation_degrees": 8.0,
+      "sun_azimuth_degrees": 255.0,
+      "ambient_energy": 0.338,
+      "fog_colour": [
+        0.82,
+        0.68,
+        0.64
+      ],
+      "fog_density": 0.002,
+      "sky_tint": [
+        1.0,
+        0.86,
+        0.84
+      ],
+      "lamps_on": true
+    }
+  ]
+}

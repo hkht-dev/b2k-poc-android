@@ -5,6 +5,11 @@
 ## data below; the controls are built from it. Each control carries its
 ## label as tooltip, the nearest thing to a screen-reader label Godot 4.3
 ## has (docs/DECISIONS.md).
+##
+## Every control is a thumb target (owner request 2026-10-20; GDD §11), the
+## first row's control takes the focus when the screen opens, and up and
+## down walk the rows in order to *Back*, so a gamepad or a keyboard reaches
+## every setting without a pointer.
 extends Control
 
 signal changed(key: String)
@@ -25,6 +30,9 @@ const ROWS := [
 ]
 const SIDE_RIGHT := "right"
 const SIDE_LEFT := "left"
+## Nothing a thumb presses is smaller than this (GDD §11; owner request).
+const THUMB := 56.0
+const SLIDER_WIDTH := 300.0
 
 var _controls: Dictionary = {}
 
@@ -38,13 +46,38 @@ func _ready() -> void:
 	_title.text = Strings.t("settings.title")
 	_close.text = Strings.t("settings.close")
 	_close.pressed.connect(func() -> void: closed.emit())
+	var previous: Control = null
 	for row: Array in ROWS:
 		_rows.add_child(_build_row(row))
-	_close.grab_focus()
+		var control: Control = _controls[row[0]]
+		_link_focus(previous, control)
+		previous = control
+	_link_focus(previous, _close)
+	if previous != null:
+		# Back is last: the chain wraps from it to the first row.
+		_link_focus(_close, _controls[ROWS[0][0]])
+	first_control().grab_focus()
 
 
 func control_for(key: String) -> Control:
 	return _controls.get(key)
+
+
+## The control that has the focus when the screen opens: the first row's.
+func first_control() -> Control:
+	if ROWS.is_empty():
+		return _close
+	return _controls[ROWS[0][0]]
+
+
+## Down from [param above] lands on [param below], and up goes back.
+func _link_focus(above: Control, below: Control) -> void:
+	if above == null or below == null:
+		return
+	above.focus_neighbor_bottom = above.get_path_to(below)
+	above.focus_next = above.focus_neighbor_bottom
+	below.focus_neighbor_top = below.get_path_to(above)
+	below.focus_previous = below.focus_neighbor_top
 
 
 ## The stored value, or the row's default. Joystick side is stored as the
@@ -72,6 +105,7 @@ func _build_row(row: Array) -> Control:
 	var control: Control
 	if row[1] == "toggle":
 		var toggle := CheckButton.new()
+		toggle.custom_minimum_size = Vector2(THUMB, THUMB)
 		toggle.button_pressed = bool(value_of(key))
 		toggle.toggled.connect(func(on: bool) -> void: _store(key, on))
 		control = toggle
@@ -81,7 +115,7 @@ func _build_row(row: Array) -> Control:
 		slider.max_value = row[4]
 		slider.step = row[5]
 		slider.value = float(value_of(key))
-		slider.custom_minimum_size = Vector2(300, 48)
+		slider.custom_minimum_size = Vector2(SLIDER_WIDTH, THUMB)
 		slider.value_changed.connect(func(v: float) -> void: _store(key, v))
 		control = slider
 	control.tooltip_text = label_text

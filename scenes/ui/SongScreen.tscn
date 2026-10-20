@@ -1,0 +1,56 @@
+[gd_scene load_steps=4 format=3]
+
+; The Song, played (scripts/ui/song_screen.gd). The four strings are drawn
+; by the script across the lower half; the only text is the teacher's line
+; and a hint, both from the string table at run time. No score, no meter.
+; PLACEHOLDER look: the painted Veena of GDD §10 replaces the lines.
+
+[ext_resource type="Script" path="res://scripts/ui/song_screen.gd" id="1_song"]
+[ext_resource type="FontVariation" path="res://assets/ui/font_heading.tres" id="2_heading"]
+[ext_resource type="FontVariation" path="res://assets/ui/font_body.tres" id="3_body"]
+
+[node name="SongScreen" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_song")
+
+[node name="Header" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 56.0
+offset_top = 120.0
+offset_right = -56.0
+offset_bottom = 560.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="Speaker" type="Label" parent="Header"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_heading")
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+
+[node name="Line" type="Label" parent="Header"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_body")
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Hint" type="Label" parent="Header"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_body")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+autowrap_mode = 3

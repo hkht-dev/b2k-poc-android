@@ -53,6 +53,12 @@ func refresh_visibility() -> void:
 	visible = enabled()
 
 
+## The footprints collected from the street, for anything else that draws
+## the block (the Path card, GDD §16a).
+func footprints() -> Array[Dictionary]:
+	return _rects
+
+
 ## Footprints of the named groups, as world-space XZ rectangles.
 func _collect() -> void:
 	_rects.clear()
@@ -60,7 +66,10 @@ func _collect() -> void:
 		return
 	for entry: Array in [
 		["Ground", ROAD, "Road"],
-		["Fountain", WATER, "Wall"],
+		# "Wall" was the square pit's; the round fountain's footprint is its
+		# basin (docs/DECISIONS.md "a round fountain").
+		["Fountain", WATER, "Basin"],
+		["Fountain", WATER, "Floor"],
 		["Shop", BLOCK, ""],
 		["ChaiStall", BLOCK, "Body"],
 		["Tower", BLOCK, "Block"],

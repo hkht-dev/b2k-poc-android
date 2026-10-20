@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+; The garland made in the Grove (GDD §3 Act 1 beat 2; Act 5 "the garland from
+; beat 2 is in their hands"): a ring of jasmine white, in the hand (carried)
+; and then round His neck (scenes/places/Home.tscn).
+; PLACEHOLDER: a torus; replaced by the threaded jasmine garland of GDD §10.
+
+[ext_resource type="Material" path="res://assets/materials/garland.tres" id="1_mat"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_garland"]
+inner_radius = 0.12
+outer_radius = 0.16
+rings = 32
+ring_segments = 8
+
+[node name="Garland" type="Node3D"]
+
+[node name="Ring" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.26, -0.97, 0, 0.97, 0.26, 0, 0.05, 0.1)
+mesh = SubResource("TorusMesh_garland")
+surface_material_override/0 = ExtResource("1_mat")
+cast_shadow = 0

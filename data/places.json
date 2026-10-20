@@ -10,5 +10,33 @@
   "store": {
     "scene": "res://scenes/places/Store.tscn",
     "name_id": "place.store"
+  },
+  "office": {
+    "scene": "res://scenes/places/Office.tscn",
+    "name_id": "place.office"
+  },
+  "nanda_flat": {
+    "scene": "res://scenes/places/NandaFlat.tscn",
+    "name_id": "place.nanda_flat"
+  },
+  "shrine": {
+    "scene": "res://scenes/places/Shrine.tscn",
+    "name_id": "place.shrine"
+  },
+  "veil_down": {
+    "scene": "res://scenes/places/VeilDown.tscn",
+    "name_id": "place.veil_down"
+  },
+  "veil_up": {
+    "scene": "res://scenes/places/VeilUp.tscn",
+    "name_id": "place.veil_up"
+  },
+  "home": {
+    "scene": "res://scenes/places/Home.tscn",
+    "name_id": "place.home"
+  },
+  "grove": {
+    "scene": "res://scenes/places/Grove.tscn",
+    "name_id": "place.grove"
   }
 }

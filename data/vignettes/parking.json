@@ -1,0 +1,112 @@
+{
+  "id": "parking",
+  "giver_name_id": "speaker.vignette_parking",
+  "skin": "survivorMaleB",
+  "spot": "b",
+  "lines": {
+    "vignette_parking_open": {
+      "speaker": "vignette_parking",
+      "text_id": "vignette.parking.line.open",
+      "cards": [
+        {
+          "text_id": "vignette.parking.card.open.where",
+          "sets": [],
+          "next": "vignette_parking_where"
+        },
+        {
+          "text_id": "vignette.parking.card.open.nobodys",
+          "sets": [
+            "vignette_parking_nobodys"
+          ],
+          "next": "vignette_parking_end_nobodys"
+        },
+        {
+          "text_id": "vignette.parking.card.open.years",
+          "sets": [],
+          "next": "vignette_parking_remember"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_parking_where": {
+      "speaker": "vignette_parking",
+      "text_id": "vignette.parking.line.where",
+      "cards": [
+        {
+          "text_id": "vignette.parking.card.where.tell",
+          "sets": [
+            "vignette_parking_told"
+          ],
+          "next": "vignette_parking_end_told"
+        },
+        {
+          "text_id": "vignette.parking.card.where.fence",
+          "sets": [
+            "vignette_parking_moved"
+          ],
+          "next": "vignette_parking_end_moved"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_parking_remember": {
+      "speaker": "vignette_parking",
+      "text_id": "vignette.parking.line.remember",
+      "cards": [
+        {
+          "text_id": "vignette.parking.card.remember.best",
+          "sets": [
+            "vignette_parking_remembered"
+          ],
+          "next": "vignette_parking_end_remembered"
+        },
+        {
+          "text_id": "vignette.parking.card.remember.tell",
+          "sets": [
+            "vignette_parking_told"
+          ],
+          "next": "vignette_parking_end_told"
+        }
+      ],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_parking_end_nobodys": {
+      "speaker": "vignette_parking",
+      "text_id": "vignette.parking.line.end_nobodys",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_parking_end_told": {
+      "speaker": "vignette_parking",
+      "text_id": "vignette.parking.line.end_told",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_parking_end_moved": {
+      "speaker": "vignette_parking",
+      "text_id": "vignette.parking.line.end_moved",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    },
+    "vignette_parking_end_remembered": {
+      "speaker": "vignette_parking",
+      "text_id": "vignette.parking.line.end_remembered",
+      "cards": [],
+      "requires": [],
+      "review_status": "draft"
+    }
+  },
+  "journey_line_id": "vignette.parking.journey",
+  "outcomes": [
+    "vignette_parking_moved",
+    "vignette_parking_nobodys",
+    "vignette_parking_remembered",
+    "vignette_parking_told"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "counting_man",
+  "giver": "counting_man",
+  "start_condition": "flag:counting_man_met or event:counting_man_laughed",
+  "steps": [
+    {
+      "id": "free_him",
+      "objective_text_id": "quest.counting_man.free",
+      "complete_when": "flag:counting_man_freed",
+      "flags_set": []
+    }
+  ],
+  "branches": [
+    {
+      "id": "counted",
+      "when": "event:counting_man_counted",
+      "flags_set": [
+        "counting_man_freed"
+      ],
+      "journey_line_id": "journey.counting_man.counted"
+    },
+    {
+      "id": "coin",
+      "when": "flag:counting_man_given_coin",
+      "flags_set": [
+        "counting_man_freed"
+      ],
+      "journey_line_id": "journey.counting_man.coin"
+    },
+    {
+      "id": "sat",
+      "when": "event:counting_man_laughed",
+      "flags_set": [
+        "counting_man_freed"
+      ],
+      "journey_line_id": "journey.counting_man.sat"
+    }
+  ],
+  "end_condition": "flag:counting_man_freed",
+  "flags_set_on_end": [
+    "counting_man_freed"
+  ],
+  "journey_line_id": "journey.counting_man.freed"
+}

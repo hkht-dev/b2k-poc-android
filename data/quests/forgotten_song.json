@@ -1,0 +1,85 @@
+{
+  "id": "forgotten_song",
+  "main": true,
+  "giver": "dhanpal",
+  "start_condition": "flag:heard_tulu or flag:met_dhanpal",
+  "steps": [
+    {
+      "id": "hear_of_it",
+      "objective_text_id": "quest.forgotten_song.hear_of_it",
+      "complete_when": "flag:met_dhanpal or flag:saw_shrine or flag:rukma_heard or flag:bhima_medicine_given or flag:sarang_string_given or flag:nanda_listened or flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "the_tower_waits",
+      "objective_text_id": "quest.forgotten_song.the_tower_waits",
+      "complete_when": "flag:accepted_contest or flag:saw_shrine or flag:rukma_heard or flag:bhima_medicine_given or flag:sarang_string_given or flag:nanda_listened or flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "compete_key",
+      "objective_text_id": "quest.forgotten_song.compete_key",
+      "complete_when": "flag:rukma_key_taken or flag:rukma_key_traded or flag:saw_shrine or flag:rukma_heard or flag:bhima_medicine_given or flag:sarang_string_given or flag:nanda_listened or flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "compete_shortcut",
+      "objective_text_id": "quest.forgotten_song.compete_shortcut",
+      "complete_when": "flag:nanda_told_shortcut or flag:saw_shrine or flag:rukma_heard or flag:bhima_medicine_given or flag:sarang_string_given or flag:nanda_listened or flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "mediate_second",
+      "objective_text_id": "quest.forgotten_song.mediate_second",
+      "complete_when": "flag:rukma_heard and flag:bhima_medicine_given or flag:rukma_heard and flag:sarang_string_given or flag:rukma_heard and flag:nanda_listened or flag:bhima_medicine_given and flag:sarang_string_given or flag:bhima_medicine_given and flag:nanda_listened or flag:sarang_string_given and flag:nanda_listened or flag:saw_shrine or flag:nanda_told_shortcut or flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "mediate_all",
+      "objective_text_id": "quest.forgotten_song.mediate_all",
+      "complete_when": "flag:rukma_heard and flag:bhima_medicine_given and flag:sarang_string_given and flag:nanda_listened or flag:saw_shrine or flag:nanda_told_shortcut or flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "investigate_lamp",
+      "objective_text_id": "quest.forgotten_song.investigate_lamp",
+      "complete_when": "flag:lamp_watered or flag:nanda_told_shortcut or flag:rukma_heard and flag:bhima_medicine_given and flag:sarang_string_given and flag:nanda_listened or flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "investigate_bar",
+      "objective_text_id": "quest.forgotten_song.investigate_bar",
+      "complete_when": "flag:sarang_taught_bar or flag:nanda_told_shortcut or flag:rukma_heard and flag:bhima_medicine_given and flag:sarang_string_given and flag:nanda_listened or flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "climb",
+      "objective_text_id": "quest.forgotten_song.climb",
+      "complete_when": "flag:on_the_tower",
+      "flags_set": []
+    },
+    {
+      "id": "dawn",
+      "objective_text_id": "quest.forgotten_song.dawn",
+      "complete_when": "flag:played_for_others or flag:kept_veena",
+      "flags_set": []
+    }
+  ],
+  "branches": [
+    {
+      "id": "played",
+      "when": "flag:played_for_others",
+      "flags_set": [],
+      "journey_line_id": "journey.forgotten_song.played"
+    },
+    {
+      "id": "kept",
+      "when": "flag:kept_veena",
+      "flags_set": [],
+      "journey_line_id": "journey.forgotten_song.kept"
+    }
+  ],
+  "end_condition": "flag:played_for_others or flag:kept_veena",
+  "flags_set_on_end": [],
+  "journey_line_id": ""
+}

@@ -1,0 +1,31 @@
+{
+  "id": "grove_water",
+  "giver": "lalita",
+  "start_condition": "true",
+  "steps": [
+    {
+      "id": "hear",
+      "objective_text_id": "quest.grove_water.hear",
+      "complete_when": "flag:lalita_asked_water or event:pot_picked_up",
+      "flags_set": []
+    },
+    {
+      "id": "fetch",
+      "objective_text_id": "quest.grove_water.fetch",
+      "complete_when": "event:pot_picked_up",
+      "flags_set": []
+    },
+    {
+      "id": "carry",
+      "objective_text_id": "quest.grove_water.carry",
+      "complete_when": "event:pot_placed",
+      "flags_set": []
+    }
+  ],
+  "branches": [],
+  "end_condition": "event:pot_placed",
+  "flags_set_on_end": [
+    "grove_pot_placed"
+  ],
+  "journey_line_id": "journey.grove_water"
+}

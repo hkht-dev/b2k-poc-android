@@ -1,0 +1,65 @@
+{
+  "tells": [
+    {
+      "id": "clock_chai_stall",
+      "sentence_id": "tell.clock_chai_stall",
+      "place": "street",
+      "requires_humming": true
+    },
+    {
+      "id": "puddle_world",
+      "sentence_id": "tell.puddle_world",
+      "place": "street"
+    },
+    {
+      "id": "window_glow",
+      "sentence_id": "tell.window_glow",
+      "place": "street"
+    },
+    {
+      "id": "poster_feather",
+      "sentence_id": "tell.poster_feather",
+      "place": "street"
+    },
+    {
+      "id": "cow_shadow",
+      "sentence_id": "tell.cow_shadow",
+      "place": "street"
+    },
+    {
+      "id": "kite_no_string",
+      "sentence_id": "tell.kite_no_string",
+      "place": "street"
+    },
+    {
+      "id": "bird_still",
+      "sentence_id": "tell.bird_still",
+      "place": "street"
+    },
+    {
+      "id": "shadow_toward_sun",
+      "sentence_id": "tell.shadow_toward_sun",
+      "place": "street"
+    },
+    {
+      "id": "chalk_three_notes",
+      "sentence_id": "tell.chalk_three_notes",
+      "place": "street"
+    },
+    {
+      "id": "jasmine_dust",
+      "sentence_id": "tell.jasmine_dust",
+      "place": "street"
+    },
+    {
+      "id": "footprints_wet",
+      "sentence_id": "tell.footprints_wet",
+      "place": "street"
+    },
+    {
+      "id": "tarp_breath",
+      "sentence_id": "tell.tarp_breath",
+      "place": "street"
+    }
+  ]
+}

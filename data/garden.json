@@ -1,0 +1,70 @@
+{
+  "_comment": "GDD §6 'The Garden: seeds, fruit and the creeper'. Which flags and choices plant which seeds, each with the sentence it came from. A source is 'flag:<name>' or 'choice:<line_id>:<card_index>'. Kinds: sweet (giving, patience, help), bitter (taking, pride, holding), weed (a desire that looks like devotion). Read by scripts/core/garden.gd; nothing here is ever shown as a number.",
+  "seeds": [
+    {
+      "source": "flag:took_dry_fountain",
+      "kind": "bitter",
+      "sentence_id": "seed.took_dry_fountain"
+    },
+    {
+      "source": "flag:gave_dry_fountain",
+      "kind": "sweet",
+      "sentence_id": "seed.gave_dry_fountain"
+    },
+    {
+      "source": "choice:gopal_admit:0",
+      "kind": "sweet",
+      "sentence_id": "seed.gopal_carry_one"
+    },
+    {
+      "source": "flag:rukma_key_taken",
+      "kind": "bitter",
+      "sentence_id": "seed.rukma_key_taken"
+    },
+    {
+      "source": "flag:nanda_listened",
+      "kind": "sweet",
+      "sentence_id": "seed.nanda_listened"
+    },
+    {
+      "source": "flag:accepted_contest",
+      "kind": "weed",
+      "sentence_id": "seed.accepted_contest"
+    }
+  ],
+  "creeper": {
+    "_comment": "The creeper's seed is given, never found (Madhuri, beat 14; another feature sets the flag). It climbs one step per watered play-day; at shade_steps it shades the saplings and they stop fruiting.",
+    "given_flag": "creeper_given",
+    "sentence_id": "garden.creeper",
+    "shade_steps": 3
+  },
+  "waters": {
+    "_comment": "Flags of hearing, chanting, remembering and service (GDD §6 'The creeper': hearing a tale, humming or playing the Song, a Glimpse, a service). A play-day on which one of these is newly set waters the creeper once.",
+    "flags": [
+      "heard_tulu",
+      "hummed",
+      "remembered",
+      "glimpsed_traffic_light",
+      "glimpsed_tower",
+      "glimpsed_stairwell",
+      "glimpsed_garden",
+      "glimpsed_chai_stall",
+      "gave_dry_fountain",
+      "saw_shrine",
+      "nanda_listened",
+      "played_for_others",
+      "heard_tale_puranjana_1",
+      "heard_tale_puranjana_2",
+      "heard_tale_puranjana_3",
+      "heard_tale_prahlada_1",
+      "heard_tale_dhruva_1",
+      "sarang_taught_bar",
+      "sarang_taught_bar_two"
+    ]
+  },
+  "growth": {
+    "_comment": "Play-days since planting. A play-day is a calendar date on which the player played; the clock between plays counts for nothing (GDD §16a).",
+    "sapling_after_days": 1,
+    "fruiting_after_days": 2
+  }
+}

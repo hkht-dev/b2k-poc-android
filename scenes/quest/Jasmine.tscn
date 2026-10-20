@@ -1,0 +1,87 @@
+[gd_scene load_steps=6 format=3]
+
+; A single jasmine flower: six white petals round a pale centre on a short
+; green stem, from primitives. In a hand (carried) or on the ground (what a
+; Glimpse leaves when it is not a feather, GDD §6). White and a muted green:
+; nothing here is peacock blue or magenta.
+; PLACEHOLDER: replaced by the painted jasmine of GDD §10 (the Grove's
+; "jasmine white"; Krishna's garland).
+
+[sub_resource type="StandardMaterial3D" id="Mat_petal"]
+resource_name = "jasmine_petal"
+albedo_color = Color(0.97, 0.96, 0.9, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_centre"]
+resource_name = "jasmine_centre"
+albedo_color = Color(0.93, 0.85, 0.55, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_stem"]
+resource_name = "jasmine_stem"
+albedo_color = Color(0.32, 0.45, 0.26, 1)
+roughness = 0.9
+
+[sub_resource type="SphereMesh" id="SphereMesh_petal"]
+radius = 0.5
+height = 1.0
+radial_segments = 8
+rings = 4
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_stem"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.13
+radial_segments = 6
+rings = 0
+
+[node name="Jasmine" type="Node3D"]
+
+; The stem lies along +Z, out of the hand, the flower at its end.
+[node name="Stem" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.01, 0.065)
+mesh = SubResource("CylinderMesh_stem")
+surface_material_override/0 = SubResource("Mat_stem")
+cast_shadow = 0
+
+[node name="Centre" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.014, 0, 0, 0, 0.01, 0, 0, 0, 0.014, 0, 0.014, 0.14)
+mesh = SubResource("SphereMesh_petal")
+surface_material_override/0 = SubResource("Mat_centre")
+cast_shadow = 0
+
+[node name="Petal0" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.018, 0, 0, 0, 0.005, 0, 0, 0, 0.032, 0, 0.012, 0.158)
+mesh = SubResource("SphereMesh_petal")
+surface_material_override/0 = SubResource("Mat_petal")
+cast_shadow = 0
+
+[node name="Petal1" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.009, 0, -0.01559, 0, 0.005, 0, 0.02771, 0, 0.016, 0.01559, 0.012, 0.149)
+mesh = SubResource("SphereMesh_petal")
+surface_material_override/0 = SubResource("Mat_petal")
+cast_shadow = 0
+
+[node name="Petal2" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.009, 0, -0.01559, 0, 0.005, 0, 0.02771, 0, -0.016, 0.01559, 0.012, 0.131)
+mesh = SubResource("SphereMesh_petal")
+surface_material_override/0 = SubResource("Mat_petal")
+cast_shadow = 0
+
+[node name="Petal3" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.018, 0, 0, 0, 0.005, 0, 0, 0, -0.032, 0, 0.012, 0.122)
+mesh = SubResource("SphereMesh_petal")
+surface_material_override/0 = SubResource("Mat_petal")
+cast_shadow = 0
+
+[node name="Petal4" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.009, 0, 0.01559, 0, 0.005, 0, -0.02771, 0, -0.016, -0.01559, 0.012, 0.131)
+mesh = SubResource("SphereMesh_petal")
+surface_material_override/0 = SubResource("Mat_petal")
+cast_shadow = 0
+
+[node name="Petal5" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.009, 0, 0.01559, 0, 0.005, 0, -0.02771, 0, 0.016, -0.01559, 0.012, 0.149)
+mesh = SubResource("SphereMesh_petal")
+surface_material_override/0 = SubResource("Mat_petal")
+cast_shadow = 0

@@ -25,6 +25,10 @@ const BRANCH_REQUIRED := ["id", "when"]
 const MAX_PASSES := 16
 
 var id := ""
+## The main quest's line wins the pause menu's one line over side quests
+## (GDD §6 "Quests": one line saying what the player is doing now). Data:
+## `"main": true` in the quest file.
+var main := false
 var giver := ""
 var start_condition := "true"
 var steps: Array[Dictionary] = []
@@ -50,6 +54,7 @@ static func from_dict(data: Dictionary, source: String) -> Quest:
 			return null
 	var quest := Quest.new()
 	quest.id = str(data["id"])
+	quest.main = bool(data.get("main", false))
 	quest.giver = str(data["giver"])
 	quest.start_condition = str(data["start_condition"])
 	quest.end_condition = str(data["end_condition"])

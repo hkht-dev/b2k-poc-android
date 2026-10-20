@@ -207,13 +207,22 @@ func test_pause_opens_a_menu_with_controls_and_stops_the_world() -> void:
 	assert_false(street.is_paused())
 
 
-func test_the_card_names_a_scheme_and_six_lines() -> void:
+func test_the_card_names_a_scheme_and_a_line_per_key() -> void:
 	var hint: Control = add_child_autofree(HINT.instantiate())
 	await wait_frames(1)
 	assert_true(["touch", "desktop", "gamepad"].has(hint.current_scheme()))
 	assert_eq(
-		hint.get_node("%Lines").get_child_count(), 6, "move, look, walk there, use, hum, doors"
+		hint.LINE_KEYS,
+		["move", "look", "walk_there", "use", "hum", "places", "drive"],
+		"the amendment's six lines and the car's"
 	)
+	assert_eq(hint.get_node("%Lines").get_child_count(), hint.LINE_KEYS.size())
+	for scheme: String in ["touch", "desktop", "gamepad"]:
+		for key: String in hint.LINE_KEYS:
+			assert_true(
+				Strings.has_id("controls.%s.%s" % [scheme, key]),
+				"%s has words for %s" % [scheme, key]
+			)
 
 
 func test_the_hint_shows_until_the_player_first_moves() -> void:

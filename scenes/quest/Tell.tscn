@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3]
+
+; A Tell (scripts/quest/tell.gd): a small, silent wrongness the player can
+; *Look* at (GDD §6 "Tells"). Which one is data on the node (tell_id, a row
+; of data/tells.json); the prop that shows it is built beside the node by
+; tools/street_parts/tells.py.
+
+[ext_resource type="Script" path="res://scripts/quest/tell.gd" id="1_tell"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
+radius = 1.8
+height = 2.4
+
+[node name="Tell" type="Node3D"]
+script = ExtResource("1_tell")
+
+[node name="Look" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.look"
+
+[node name="Shape" type="CollisionShape3D" parent="Look"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+shape = SubResource("CylinderShape3D_near")
