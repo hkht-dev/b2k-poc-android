@@ -10,7 +10,7 @@ const SCROLL := preload("res://scenes/ui/ScrollScreen.tscn")
 const SCRATCH := "user://test_tales_journey.json"
 ## Where the player stands to be offered the street's seat: the pavement
 ## corner beside the cushion on the fountain's south-east step.
-const BESIDE_SEAT := Vector3(6.3, 0.0, 6.3)
+const BESIDE_SEAT := Vector3(-6.3, 0.0, 6.3)
 const MAX_PANEL_WORDS := 40
 
 var _real_path := ""
