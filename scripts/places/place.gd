@@ -23,6 +23,13 @@ const HUM_REACH := 40.0
 const CONTROLS_HINT := preload("res://scenes/ui/ControlsHint.tscn")
 const CHOICE_CARDS := preload("res://scenes/ui/ChoiceCards.tscn")
 const SETTINGS_SCREEN := preload("res://scenes/ui/SettingsScreen.tscn")
+# -- lamps (GDD §16a): the block at the end of this file ------------------------
+const LAMP_LINES_SCREEN := preload("res://scenes/ui/LampLinesScreen.tscn")
+const LAMP := preload("res://scenes/quest/Lamp.tscn")
+## How long a lamp's line stays on screen after *Sit*.
+const LAMP_LINE_SECONDS := 4.0
+const LAMPS_NODE := "Lamps"
+# -- end lamps ------------------------------------------------------------------
 const LARGE_TEXT_SCALE := 1.2
 ## §A4: touch sensitivity is half the desktop default.
 const TOUCH_SENSITIVITY := 0.5
@@ -43,6 +50,10 @@ var _fade: ColorRect = null
 ## Set while the player may not move: leaving through a door, or the end.
 var _input_locked := false
 var _leaving := false
+# -- lamps ----------------------------------------------------------------------
+var _lamps_root: Node3D = null
+var _lamp_lines_overlay: Control = null
+# -- end lamps ------------------------------------------------------------------
 
 @onready var _player: CharacterBody3D = %Player
 @onready var _camera_rig: Node3D = %CameraRig
@@ -77,6 +88,7 @@ func _ready() -> void:
 		# Arrived through a door: the view comes back from black.
 		_fade.color.a = 1.0
 		create_tween().tween_property(_fade, "color:a", 0.0, DOOR_FADE_SECONDS)
+	_lamps_ready()  # lamps
 
 
 func _physics_process(delta: float) -> void:
@@ -247,6 +259,7 @@ func pause() -> void:
 	_pause_menu.resumed.connect(resume)
 	_pause_menu.controls_requested.connect(_show_controls)
 	_pause_menu.settings_requested.connect(_show_settings)
+	_pause_menu.lamp_requested.connect(_show_lamp_lines)  # lamps
 	_pause_menu.map_toggled.connect(
 		func(_on: bool) -> void: _controls.minimap().refresh_visibility()
 	)
@@ -308,3 +321,106 @@ func _on_tapped(screen: Vector2) -> void:
 	var point: Variant = _camera_rig.ground_point(screen)
 	if point != null:
 		_player.walk_to(point)
+
+
+# -- lamps (GDD §16a "Social: lamps") -------------------------------------------
+# Owner expansion 2026-10-20. Every lamp of this place in the journey stands
+# here as a small light (scenes/quest/Lamp.tscn); *Set a lamp here* on the
+# pause menu opens the twelve lines and sets one down where the player is.
+# No network: the lamps are the player's own (docs/DECISIONS.md).
+
+
+func _lamps_ready() -> void:
+	_lamps_root = Node3D.new()
+	_lamps_root.name = LAMPS_NODE
+	add_child(_lamps_root)
+	GameState.lamp_set.connect(_on_lamp_set)
+	_sync_lamps()
+
+
+## The lamp nodes standing in this place.
+func lamps() -> Array[Lamp]:
+	var out: Array[Lamp] = []
+	if _lamps_root != null:
+		for node in _lamps_root.get_children():
+			out.append(node as Lamp)
+	return out
+
+
+func lamp_lines_overlay() -> Control:
+	return _lamp_lines_overlay
+
+
+## One Lamp node per record of this place that still burns: none for another
+## place's lamps, none for a lamp that has faded (LampLines.is_lit).
+func _sync_lamps() -> void:
+	var wanted: Array[Dictionary] = []
+	for record in GameState.lamps_in(place_id):
+		if LampLines.is_lit(record):
+			wanted.append(record)
+	for node in _lamps_root.get_children():
+		var lamp := node as Lamp
+		var index := _index_of_record(wanted, lamp.lamp)
+		if index < 0:
+			_lamps_root.remove_child(lamp)
+			lamp.queue_free()
+		else:
+			wanted.remove_at(index)
+	for record in wanted:
+		var lamp: Lamp = LAMP.instantiate()
+		lamp.lamp = record
+		lamp.position = Vector3(float(record.get("x", 0.0)), 0.0, float(record.get("z", 0.0)))
+		lamp.sat.connect(_on_lamp_sat)
+		_lamps_root.add_child(lamp)
+
+
+static func _index_of_record(records: Array[Dictionary], record: Dictionary) -> int:
+	for index in records.size():
+		if is_same(records[index], record):
+			return index
+	return -1
+
+
+func _on_lamp_set(_lamp: Dictionary) -> void:
+	_sync_lamps()
+
+
+## *Sit* by a lamp: its line, as a subtitle, for a moment.
+func _on_lamp_sat(line_id: String) -> void:
+	_controls.subtitle(line_id, LAMP_LINE_SECONDS)
+
+
+func _show_lamp_lines() -> void:
+	if _lamp_lines_overlay != null or _input_locked or _leaving:
+		return
+	_lamp_lines_overlay = LAMP_LINES_SCREEN.instantiate()
+	_lamp_lines_overlay.chosen.connect(_on_lamp_line_chosen)
+	_lamp_lines_overlay.closed.connect(_close_lamp_lines)
+	_ui.add_child(_lamp_lines_overlay)
+
+
+func _close_lamp_lines() -> void:
+	if _lamp_lines_overlay == null:
+		return
+	_ui.remove_child(_lamp_lines_overlay)
+	_lamp_lines_overlay.queue_free()
+	_lamp_lines_overlay = null
+
+
+## A line was chosen: the lamp goes down where the player stands, into the
+## journey first (this place then shows it), and play resumes.
+func _on_lamp_line_chosen(line_id: String) -> void:
+	if not LampLines.has_line(line_id):
+		return
+	var at := _player.global_position
+	var record := {
+		"place": place_id,
+		"x": at.x,
+		"z": at.z,
+		"line_id": line_id,
+		"lit_day": LampLines.play_day(),
+	}
+	GameState.set_lamp(record, LampLines.max_per_place())
+	_close_lamp_lines()
+	resume()
+# -- end lamps ------------------------------------------------------------------

@@ -4,12 +4,15 @@
 ## *Your journey* is here since P5, the rest arrive in P6.
 ## docs/BRIEF_AMENDMENT_1.md §A5 asks for *Controls* to be reachable here
 ## always, so the menu exists now with that and *Resume*.
+## *Set a lamp here* (GDD §16a) came with the owner's 2026-10-20 expansion.
 extends Control
 
 signal resumed
 signal controls_requested
 signal settings_requested
 signal map_toggled(on: bool)
+## *Set a lamp here*: the Place opens the twelve lines (GDD §16a).
+signal lamp_requested
 
 const MINIMAP := preload("res://scripts/ui/minimap.gd")
 
@@ -18,6 +21,7 @@ const MINIMAP := preload("res://scripts/ui/minimap.gd")
 @onready var _controls: Button = %ControlsButton
 @onready var _map: Button = %MapButton
 @onready var _settings: Button = %SettingsButton
+@onready var _lamp: Button = %LampButton
 @onready var _now: Label = %Now
 @onready var _journey_title: Label = %JourneyTitle
 @onready var _journey: VBoxContainer = %Journey
@@ -32,6 +36,8 @@ func _ready() -> void:
 	_controls.pressed.connect(func() -> void: controls_requested.emit())
 	_settings.text = Strings.t("pause.settings")
 	_settings.pressed.connect(func() -> void: settings_requested.emit())
+	_lamp.text = Strings.t("pause.set_lamp")
+	_lamp.pressed.connect(func() -> void: lamp_requested.emit())
 	_refresh_map_label()
 	_map.pressed.connect(_on_map)
 	_now.text = now_line()

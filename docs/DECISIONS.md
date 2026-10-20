@@ -1040,3 +1040,75 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — Lamps: the player's own (GDD §16a "Social: lamps")
+
+Owner expansion 2026-10-20 (the macro design, built in parallel). GDD §16a:
+"Anywhere in the Street ... the player can set down a lamp with one of twelve
+preset lines ... Others see lamps as small lights, can sit by them and leave
+a flower. No free text ... lamps fade after thirty days unless re-lit."
+Affects §6 (one more thing to *Sit* by), §11 (one more pause-menu button),
+§12 (`lamps` on the journey), §15 ("lamps are preset lines only"). The
+brief's slice list deferred §16a; the owner asked for this half of it now.
+
+### What is built
+
+- `data/lamp_lines.json`: the twelve line ids (`lamp.line.<id>`), `days`
+  (30), `max_per_place` (8) and `seconds_per_day` (900). The texts live in
+  the string table; a lamp record carries an id, never text. The GDD's four
+  lines come first; the other eight are in the same voice, written for any
+  place, none naming a quest. `scripts/core/lamp_lines.gd` reads the file
+  once, like `places.gd`.
+- *Set a lamp here* on the pause menu opens `scenes/ui/LampLinesScreen.tscn`:
+  twelve buttons in the data's order, one style, the focus starting on the
+  first (keyboard, gamepad), each carrying its text as tooltip; *Not now* or
+  the cancel action goes back to the pause menu. Choosing a line records
+  `{place, x, z, line_id, lit_day}` in `GameState.lamps` (place from the
+  Place's `place_id`, x and z from the player's feet) and resumes play.
+- `scenes/quest/Lamp.tscn` (`scripts/quest/lamp.gd`): a low clay cylinder,
+  a small unlit warm sphere for the flame, an `OmniLight3D` (range 3 m, the
+  Glimpse's warm orange `(1, .72, .42)`, no shadow) and an Interactable
+  *Sit*. Sitting shows the lamp's line as a subtitle for 4 s and holds
+  `Sitting_Idle` on the player's rig (the bus stop's clip) until the
+  player's horizontal speed passes 0.15 m/s, which the lamp watches in the
+  player's velocity; *Sit* is withheld while sitting. PLACEHOLDER: the
+  hand-painted clay diya of GDD §10 replaces the primitives.
+- The Place base spawns one Lamp per record of its own place that still
+  burns, at ready and whenever a lamp is set (`GameState.lamp_set`), in a
+  delimited block at the end of `scripts/places/place.gd` (two one-line
+  hooks in `_ready` and `pause`, marked `# lamps`). The record keeps no
+  height: the lamp finds the ground beneath its x, z with one ray on its
+  first physics tick, so a lamp set on a kerb comes back on the kerb.
+- Eight lamps to a place: the ninth puts out the oldest there
+  (`GameState.set_lamp`); other places are untouched.
+- Fading: a play-day is `floor(play_seconds / seconds_per_day)`; a lamp with
+  `play_day - lit_day >= days` is not spawned. Fifteen minutes to a day
+  follows §16a "Days and lives" ("about fifteen minutes from dawn to dusk").
+  Nothing shows the day and nothing counts down (§15: the sun is never a
+  timer). A faded record stays in the journey until the eight-per-place rule
+  replaces it; "re-lit" is not built.
+
+### What is not built, and why
+
+- Other people's lamps, and the flower left at one. Both need the lamps
+  store of §16a and §12 ("a minimal backend"), and the brief forbids any
+  network call or backend in this repository. The record is the shape such a
+  store would hold (place, position, line id, day), so the client half is
+  ready; the "others" half is future work for the integrator's backend
+  decision.
+- No count of lamps anywhere, and *Your journey* does not list them
+  (§16a's *Noticed* list is not in the slice).
+
+### Strings, data, state, tests
+
+- Strings: `pause.set_lamp`, `lamp.title`, `lamp.cancel`, twelve
+  `lamp.line.*`.
+- `GameState.lamps: Array[Dictionary]`, `set_lamp()`, `lamps_in()`, signal
+  `lamp_set`; saved, loaded and wiped with the rest of the journey.
+- `tests/test_lamps.gd` holds the data, the pause-menu path, setting,
+  sitting, save and load, the ninth lamp, the fade, and a read of every
+  lamp file for network words.
+- `tools/check_data.py` should learn `data/lamp_lines.json` (twelve ids,
+  each in the string table, `days` a positive integer) and the new required
+  string ids; the integrator owns that file.
