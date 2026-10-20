@@ -43,9 +43,14 @@ const TOUCH_SENSITIVITY := 0.5
 const DESKTOP_SENSITIVITY := 1.0
 ## Through a door the view goes black over this long, and comes back as long.
 const DOOR_FADE_SECONDS := 0.45
+## Slower than this, horizontally, the player is standing (walking is 2.2).
+const ROUTE_MOVING_SPEED := 0.3
 
 ## This place's id in data/places.json.
 @export var place_id := "street"
+## GDD §16a "Path card": on the street, where the player stands joins
+## GameState.route every this many seconds of walking.
+@export var route_sample_seconds := 3.0
 
 var _pause_menu: Control = null
 var _controls_overlay: Control = null
@@ -58,6 +63,11 @@ var _fade: ColorRect = null
 ## Set while the player may not move: leaving through a door, or the end.
 var _input_locked := false
 var _leaving := false
+## Path card (GDD §16a): whether this place is the one the card draws, and
+## the time walked since the last sample.
+var _tracks_route := false
+var _route_clock := 0.0
+
 # -- lamps ----------------------------------------------------------------------
 var _lamps_root: Node3D = null
 var _lamp_lines_overlay: Control = null
@@ -128,6 +138,27 @@ func _physics_process(delta: float) -> void:
 ## the wheel, the car's.
 func heading() -> float:
 	return _car.rotation.y if _car != null else _player.rotation.y
+
+
+# -- Path card (GDD §16a) -------------------------------------------------------
+
+
+## Every route_sample_seconds of walking about the street, where the player
+## stands joins GameState.route. Standing still adds nothing, and the shop
+## interiors are not on the card.
+func _sample_route(delta: float) -> void:
+	if not _tracks_route:
+		return
+	if Vector2(_player.velocity.x, _player.velocity.z).length() < ROUTE_MOVING_SPEED:
+		return
+	_route_clock += delta
+	if _route_clock < route_sample_seconds:
+		return
+	_route_clock = 0.0
+	GameState.add_route_point(_player.global_position.x, _player.global_position.z)
+
+
+# -------------------------------------------------------------------------------
 
 
 ## Puts the player on the spawn point the journey names, if this place has

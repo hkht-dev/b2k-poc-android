@@ -24,6 +24,10 @@ const SAVE_VERSION := 1
 const HUMMED_FLAG := "hummed"
 const HUMMED_AT := 3
 const DEFAULT_PLACE := "street"
+## The Path card (GDD §16a) draws the walk about one place: the street block.
+const ROUTE_PLACE := DEFAULT_PLACE
+## Route points kept; past this the oldest goes first.
+const ROUTE_CAP := 600
 
 ## Beats are an ordered list of ids in data (GDD §12). The slice has one.
 var beat: String = ""
@@ -56,6 +60,10 @@ var play_seconds: float = 0.0
 ## which side of one the player is on.
 var place: String = DEFAULT_PLACE
 var spawn: String = ""
+## The way the player walked about the street (GDD §16a "Path card"): [x, z]
+## pairs in metres, oldest first, sampled by the place every few seconds of
+## walking. Not a number anyone sees; the card draws it as one ink line.
+var route: Array = []
 ## Real days ("YYYY-MM-DD") whose dawn vignette the journey has been granted
 ## (GDD §16a "Dawn vignettes": missed days queue, nothing is lost). Which of
 ## them has been played is a flag, `vignette_<id>_done`, like everything else.
@@ -146,6 +154,15 @@ func set_place(place_id: String, spawn_id: String) -> void:
 	place = place_id
 	spawn = spawn_id
 	_save_if_enabled()
+
+
+## Adds where the player stands to the route, dropping the oldest point past
+## the cap. Like play time, not autosaved on its own: the next flag, event or
+## door carries it.
+func add_route_point(x: float, z: float) -> void:
+	route.append([snappedf(x, 0.01), snappedf(z, 0.01)])
+	while route.size() > ROUTE_CAP:
+		route.pop_front()
 
 
 ## The player put something else on (the showroom's wardrobe). The body

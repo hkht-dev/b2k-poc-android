@@ -53,6 +53,12 @@ func refresh_visibility() -> void:
 	visible = enabled()
 
 
+## The footprints collected from the street, for anything else that draws
+## the block (the Path card, GDD §16a).
+func footprints() -> Array[Dictionary]:
+	return _rects
+
+
 ## Footprints of the named groups, as world-space XZ rectangles.
 func _collect() -> void:
 	_rects.clear()

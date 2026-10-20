@@ -96,7 +96,7 @@ func test_play_time_is_counted_and_saved() -> void:
 	street.queue_free()
 
 
-func test_the_end_screen_says_the_one_line_in_white_at_24_and_offers_play_again_only() -> void:
+func test_the_end_screen_says_the_one_line_in_white_at_24_and_offers_play_again_and_share() -> void:
 	var screen: Control = add_child_autofree(END.instantiate())
 	await wait_frames(1)
 	assert_eq(screen.line_text(), "The journey back begins again wherever you are.")
@@ -106,7 +106,9 @@ func test_the_end_screen_says_the_one_line_in_white_at_24_and_offers_play_again_
 	var buttons := 0
 	for node: Node in screen.find_children("*", "Button", true, false):
 		buttons += 1
-	assert_eq(buttons, 1, "Play again only")
+	# The brief's "Play again only"; the owner's expansion of 2026-10-20 adds
+	# *Share your path* (GDD §16a, tests/test_path_card.gd) and nothing else.
+	assert_eq(buttons, 2, "Play again and Share your path")
 	assert_eq(screen.get_node("%PlayAgainButton").text, "Play again")
 
 
