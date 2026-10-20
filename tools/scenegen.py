@@ -178,6 +178,8 @@ class Builder:
     # street past 200 at the worst angle (docs/DECISIONS.md "Budget after the
     # expansion"). Pass shadows=True to keep a small thing's shadow.
     DETAIL_SIZE = 1.5
+    # The root node the scene-wide detail buckets hang from.
+    DETAILS_ROOT = "Details"
 
     def solid(self, name, parent, pos, size, mat, yaw=0.0, collide=True, shadows=None) -> None:
         """A box. With collision it is a StaticBody3D; without, a bare mesh.
@@ -261,10 +263,18 @@ class Builder:
     # thing a script or a test must find by name stays a solid() or a cyl().
 
     def detail_mesh(self, parent, mesh_id, mat, pos, rotation_y, scale, shadows) -> None:
-        """One instance in the bucket for (parent, mesh, material, shadows).
-        `rotation_y` is Godot's rotation.y."""
-        key = (parent, mesh_id, mat, bool(shadows))
-        self.details.setdefault(key, []).append((pos, rotation_y, scale))
+        """One instance in the bucket for (mesh, material). Details under a
+        top-level group share the scene's bucket (one draw call for every
+        timber box in the street); details under a nested node, which may
+        move (a gate's leaf), keep a bucket of their own under it.
+        `rotation_y` is Godot's rotation.y. `shadows` is kept for the
+        caller's record: a bucket casts shadows if any member is not a
+        detail-sized thing, and a bucket is one draw call either way."""
+        owner = self.DETAILS_ROOT if "/" not in parent and parent != "." else parent
+        key = (owner, mesh_id, mat)
+        bucket = self.details.setdefault(key, {"instances": [], "shadows": False})
+        bucket["instances"].append((pos, rotation_y, scale))
+        bucket["shadows"] = bucket["shadows"] or bool(shadows)
 
     def detail(self, name, parent, pos, size, mat, yaw=0.0, shadows=None) -> None:
         """solid(..., collide=False), batched. `yaw` is read as solid() reads
@@ -282,18 +292,17 @@ class Builder:
         self.detail_mesh(parent, "CylinderMesh_unit", mat, pos, -yaw, (radius * 2, height, radius * 2), shadows)
 
     def flush_details(self) -> None:
-        """Writes every bucket as one MultiMeshInstance3D under its parent.
-        Call once, after every part has built and before the nodes are joined."""
-        names = {}
-        for (parent, mesh_id, mat, shadows), instances in self.details.items():
-            kind = {"BoxMesh_unit": "Boxes", "CylinderMesh_unit": "Cylinders", "SphereMesh_unit": "Spheres"}
+        """Writes every bucket as one MultiMeshInstance3D: the scene's under a
+        root node named DETAILS_ROOT, a nested node's under that node. Call
+        once, after every part has built and before the nodes are joined."""
+        if any(owner == self.DETAILS_ROOT for owner, _, _ in self.details):
+            self.group(self.DETAILS_ROOT)
+        kind = {"BoxMesh_unit": "Boxes", "CylinderMesh_unit": "Cylinders", "SphereMesh_unit": "Spheres"}
+        for (owner, mesh_id, mat), bucket in self.details.items():
             stem = "".join(word.capitalize() for word in re.split(r"[^A-Za-z0-9]+", mat) if word)
-            stem += kind.get(mesh_id, mesh_id) + ("" if shadows else "Flat")
-            n = names.get((parent, stem), 0)
-            names[(parent, stem)] = n + 1
-            name = stem if n == 0 else f"{stem}{n + 1}"
-            mm_id = "MultiMesh_" + re.sub(r"[^A-Za-z0-9]+", "_", f"{parent}_{name}")
-            self.multimesh(name, parent, mesh_id, mat, instances, shadows=shadows, mm_id=mm_id)
+            name = stem + kind.get(mesh_id, mesh_id)
+            mm_id = "MultiMesh_" + re.sub(r"[^A-Za-z0-9]+", "_", f"{owner}_{name}")
+            self.multimesh(name, owner, mesh_id, mat, bucket["instances"], shadows=bucket["shadows"], mm_id=mm_id)
         self.details = {}
 
     def batch(self, name, parent, model, instances, shadows=True) -> None:

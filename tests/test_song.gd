@@ -384,8 +384,8 @@ func test_a_lesson_closed_under_the_pause_menu_leaves_the_world_paused() -> void
 	street.pause()
 	var screen: Control = sarang.open_lesson("bar_one")
 	assert_true(get_tree().paused)
+	# No awaits while paused: GUT's own frame waits stop with the tree.
 	screen._close()
-	await wait_frames(1)
 	assert_true(get_tree().paused, "the pause menu still holds the world")
 	assert_true(street.is_paused())
 	street.resume()
