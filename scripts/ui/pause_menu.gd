@@ -21,6 +21,8 @@ const MINIMAP := preload("res://scripts/ui/minimap.gd")
 @onready var _now: Label = %Now
 @onready var _journey_title: Label = %JourneyTitle
 @onready var _journey: VBoxContainer = %Journey
+@onready var _noticed_title: Label = %NoticedTitle
+@onready var _noticed: VBoxContainer = %Noticed
 
 
 func _ready() -> void:
@@ -36,6 +38,7 @@ func _ready() -> void:
 	_map.pressed.connect(_on_map)
 	_now.text = now_line()
 	_fill_journey()
+	_fill_noticed()
 	_resume.grab_focus()
 
 
@@ -60,6 +63,32 @@ func _fill_journey() -> void:
 func journey_texts() -> PackedStringArray:
 	var out := PackedStringArray()
 	for child in _journey.get_children():
+		out.append((child as Label).text)
+	return out
+
+
+## *Noticed* (GDD §6 "Tells", §16a): under *Your journey*, the sentence each
+## Tell was seen in, in the order seen, each from the string table through
+## the tell's row in data/tells.json. Hidden until there is one; never a
+## count.
+func _fill_noticed() -> void:
+	for child in _noticed.get_children():
+		child.queue_free()
+	_noticed_title.text = Strings.t("pause.noticed")
+	var ids: PackedStringArray = GameState.noticed
+	_noticed_title.visible = not ids.is_empty()
+	_noticed.visible = not ids.is_empty()
+	for tell_id in ids:
+		var label := Label.new()
+		label.text = Strings.t(Tells.sentence_id_of(tell_id))
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.add_theme_font_size_override("font_size", 18)
+		_noticed.add_child(label)
+
+
+func noticed_texts() -> PackedStringArray:
+	var out := PackedStringArray()
+	for child in _noticed.get_children():
 		out.append((child as Label).text)
 	return out
 

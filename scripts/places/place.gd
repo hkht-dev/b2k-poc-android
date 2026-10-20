@@ -174,6 +174,17 @@ func hum() -> void:
 			source.hear_hum()
 
 
+## Whether the player's hum is sounding now (GDD §6 "Call"). A Tell may
+## need it (GDD §6 "Tells": "a clock that stops while the hum is held").
+func is_humming() -> bool:
+	return _hum_player != null and _hum_player.playing
+
+
+## Says something on the HUD for a while: a subtitle from the string table.
+func subtitle(text_id: String, seconds: float = 2.5) -> void:
+	_controls.subtitle(text_id, seconds)
+
+
 ## A door was used: the journey remembers where the player is going and on
 ## which spawn point to land, the view fades, and Main swaps the place.
 func _on_door_used(target_place: String, spawn_id: String) -> void:

@@ -67,6 +67,18 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
+[node name="NoticedTitle" type="Label" parent="Panel/Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Noticed"
+horizontal_alignment = 1
+
+[node name="Noticed" type="VBoxContainer" parent="Panel/Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
 [node name="Title" type="Label" parent="Panel/Margin/Layout"]
 unique_name_in_owner = true
 layout_mode = 2

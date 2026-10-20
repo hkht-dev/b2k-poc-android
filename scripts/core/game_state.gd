@@ -13,6 +13,7 @@ signal flag_changed(flag: String, is_set: bool)
 signal event_fired(event: String)
 signal beat_changed(beat: String)
 signal journey_line_added(line_id: String)
+signal noticed_added(tell_id: String)
 signal wiped
 
 const SAVE_PATH := "user://journey.json"
@@ -30,6 +31,10 @@ var flags := FlagStore.new()
 var events := FlagStore.new()
 var choice_history: Array[Dictionary] = []
 var journey_lines: Array[String] = []
+## The Tells the player has looked at (GDD §6 "Tells", §16a "Noticed"):
+## tell ids from data/tells.json, in the order seen. Never counted, never a
+## number anywhere; *Your journey* lists their sentences.
+var noticed: Array[String] = []
 var settings: Dictionary = {}
 ## Times the player has hummed (CLAUDE_CODE_BRIEF.md §4.2 "Track hummed
 ## count"). The flag `hummed` is set at three (GDD §6 "Remembering Krishna").
@@ -142,6 +147,17 @@ func add_journey_line(line_id: String) -> bool:
 	return true
 
 
+## Records that the player looked at a Tell. Returns false if it was already
+## noticed: the list holds each once, and nothing counts them (GDD §6).
+func notice(tell_id: String) -> bool:
+	if tell_id.is_empty() or noticed.has(tell_id):
+		return false
+	noticed.append(tell_id)
+	noticed_added.emit(tell_id)
+	_save_if_enabled()
+	return true
+
+
 # -- persistence --------------------------------------------------------------
 
 
@@ -153,6 +169,7 @@ func to_dict() -> Dictionary:
 		"events": Array(events.all()),
 		"choice_history": choice_history.duplicate(true),
 		"journey_lines": journey_lines.duplicate(),
+		"noticed": noticed.duplicate(),
 		"settings": settings.duplicate(true),
 		"hum_count": hum_count,
 		"play_seconds": play_seconds,
@@ -174,6 +191,9 @@ func from_dict(data: Dictionary) -> void:
 	journey_lines.clear()
 	for line in _string_array(data.get("journey_lines", [])):
 		journey_lines.append(line)
+	noticed.clear()
+	for tell_id in _string_array(data.get("noticed", [])):
+		noticed.append(tell_id)
 	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
 	hum_count = int(data.get("hum_count", 0))
 	play_seconds = float(data.get("play_seconds", 0.0))
@@ -215,6 +235,7 @@ func wipe() -> void:
 	events.clear_all()
 	choice_history.clear()
 	journey_lines.clear()
+	noticed.clear()
 	settings = {}
 	hum_count = 0
 	play_seconds = 0.0

@@ -1040,3 +1040,79 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — Tells and the *Noticed* list
+
+GDD §6 "Tells", §16a "Noticed" (the owner asked for the macro design to be
+built in parallel; this supersedes the brief's Slice 1 exclusion of Tells).
+Affects §3a (the Street's *Look* row), §6, §11 (the pause menu), §12 (the
+journey gains a list).
+
+### What a Tell is here
+
+- A Tell is a small, silent wrongness the player can *Look* at and nothing
+  more: `scenes/quest/Tell.tscn` is an `Interactable` with `verb.look` and a
+  1.8 m reach; which tell it is, is `tell_id` on the node, a row of
+  `data/tells.json` (`{id, sentence_id, place, requires_humming?}`), read by
+  the static loader `scripts/core/tells.gd` (`Tells`) the way `Places` reads
+  places. Twelve for the Street, every sentence `tell.<id>` in the string
+  table, written in the GDD's tone: affectionate, unexplained.
+- *Look* calls `GameState.notice(id)`, which appends the id to `noticed`
+  (a plain `Array[String]`, saved with the journey, wiped by *Play again*)
+  once and only once, and shows the sentence as a subtitle for four
+  seconds. It sets no flag, fires no event, adds no journey line: the
+  journey tests hold that the flag and event counts do not move. *Look*
+  stays offered after noticing, so the poster can be looked at twice.
+- The clock over the chai stall "stops while the hum is held": its row has
+  `requires_humming`, and the tell offers *Look* only while the Place's hum
+  player is playing (`Place.is_humming()`, new). The hum is 1.6 s, so the
+  player hums and looks; nothing times them.
+- `Place.subtitle(text_id, seconds)` is new and tiny: the HUD's subtitle
+  reached from a node that is not the Place.
+
+### Nothing counts them
+
+- The pause menu gains *Noticed* under *Your journey*: the title string
+  `pause.noticed` and the sentences, in the order seen, hidden until there
+  is one, built exactly as the journey list is. No total, no "x of 12", no
+  number anywhere; a test searches the section for digits. The data file's
+  `tells` list is the only place twelve appears, and the game never reads
+  its length for the player.
+- Tells are not Glimpses: they have no flag, no feather and no journey
+  line, and the Glimpse is unchanged.
+
+### Where they stand
+
+- `tools/street_parts/tells.py` places each tell with a prop built from
+  primitives: the clock (rim, face, two stopped hands) on the chai stall's
+  front; a puddle (`water.tres`) with two small spheres turning in it west
+  of Gopal Seth's shop; a warm unlit quad in front of a flat's barred
+  window; a poster (the sign texture) with a figure and a timber sliver of
+  a feather; a dark doorway in the tower's foot with a cow-shaped decal
+  lying out of it; a kite on two spars over the crossing; a bird on the
+  westernmost cable; a lamp post's shadow lying toward the sun; three
+  chalk marks north of the fountain; a jasmine flower by the fence; wet
+  footprints over the south kerb; a tarpaulin corner under a brick by the
+  covered car. All kept clear of the fountain's *Look*, the shop's *Pick
+  up*, Tulu's route and the bus stop's *Sit*, and at least four metres
+  apart, so the one button never has to choose.
+- Two new materials, `assets/materials/tell_shadow.tres` (dark, unlit,
+  translucent: shadows and wet marks) and `tell_glow.tres` (warm, unlit,
+  faint). No peacock blue, no magenta, no pink: the poster's feather is
+  timber and only the sentence says what it is.
+- The part carries its own transform helpers (`yaw_xf`, `roll_xf`,
+  `face_xf`) because `scenegen.xf` writes a yaw with a non-uniform size as
+  a sheared basis (Godot's `.tscn` lists the basis row by row); the street
+  only ever used it with yaw on uniform sizes or yaw 0, so nothing there
+  changes. Worth folding into `scenegen.py` when it is next touched.
+- PLACEHOLDER: every prop is primitives with the street's procedural
+  textures, replaced by the painted props and decals of GDD §10.
+
+### Not done
+
+- Tulu "acknowledging" a Tell (GDD §6) is not built: no Tulu line exists
+  for it in Slice 1 and it would need dialogue data; nothing here stops it
+  being added as a line with `requires`.
+- `tools/check_data.py` does not yet check `data/tells.json`; the
+  integrator owns that file (see the report).
