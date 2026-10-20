@@ -1040,3 +1040,89 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — The Counting Man (GDD §7)
+
+GDD §7 "The Counting Man", §3a Act 3 ("Tap coins in a 30-second count, or
+sit"), §11 ("No timed input anywhere; the counting mini-game can be
+skipped"). Affects §7 (the side quest's data), §11 (the one overlay screen).
+
+### What was built
+
+- `tools/street_parts/counting_man.py` seats him at the east end of the
+  bus-stop bench (`scenes/npc/CountingMan.tscn`, criminalMaleA skin, the
+  library's `Sitting_Idle`) with one MultiMesh of coins on the seat beside
+  him: four short stacks and fourteen loose. The route he walks when freed is
+  data on the node (`walk_points`), as Tulu's waypoints are.
+- Three ways out, all data: the card *Let me count them with you* sets
+  `counting_man_counting`, on which his script opens
+  `scenes/ui/CountScreen.tscn`; the card *Here's one more* sets
+  `counting_man_given_coin`; *Sit* on the seat beside him sits the player
+  (the bus stop's own pose) for `sit_seconds` (3), then he laughs
+  (subtitled) and fires `counting_man_laughed`. Tapping the last coin fires
+  `counting_man_counted`. `data/quests/counting_man.json` ends on one of
+  three branches, each setting `counting_man_freed` and its own *Your
+  journey* line; the end condition is the flag, so a tester setting it in
+  the debug panel ends the quest too (with the quest-level line).
+- Freed, he waits until the screen or his line is out of the way, stands,
+  takes the coins (the MultiMesh hides), walks four points east and then
+  south down the kerb of the north-south road, hums one note on reaching the
+  second point (`assets/audio/one_note.ogg`, G4, the first of Tulu's three,
+  from `tools/audio_parts/one_note.py`, subtitled), and is hidden at the
+  last. A loaded journey with `counting_man_freed` set has an empty bench.
+
+### Decisions
+
+- **No number, no timer.** The count screen is a grid of a hundred and eight
+  identical brass buttons; a tapped coin dims and stays dimmed. Nothing
+  counts down and nothing is shown until the last coin, when the hint line
+  becomes *"...a hundred and eight."* from the string table. The GDD's
+  "30-second" is the time a hundred and eight taps take, not a limit. A
+  *Stop counting* button (and Escape / B) closes it with nothing lost; the
+  card's flag is cleared on close so the count starts over next time.
+  Enter, Space and the gamepad's A tap the next coin: the screen takes
+  `ui_accept`, `ui_cancel` and the existing `contextual` action in
+  `_input()` and marks them handled so a press never reaches the contextual
+  button underneath. No new input actions.
+- **A count interrupted by quitting is not resumed.** His script clears a
+  stale `counting_man_counting` on load; the player starts again from the
+  card. Progress inside the count is not state worth saving.
+- **Sitting with him is meeting him.** The quest starts on
+  `flag:counting_man_met or event:counting_man_laughed`, so a player who
+  never talks to him and simply sits still frees him through the data. The
+  quest does not start on `true` (as the Dry Fountain does) so that its
+  objective does not take over the pause menu's *now* line before the
+  player has found him; once met, `counting_man` sorts before
+  `dry_fountain` and the line reads *"A man at the bus stop has lost
+  count."* until he is freed.
+- **He waits for the player to look.** On the coin path his line is on
+  screen when the quest ends; on the count path the screen is. He stands
+  only once `Content.dialogue` is idle and the screen is closed.
+- **The count screen lives on the place's `UI` layer**, found by walking up
+  to the nearest ancestor with a `CanvasLayer` child named `UI` (where the
+  choice cards also live), so the pause menu, added later to the same layer,
+  still draws above it. Alone in a test the man makes a layer of his own.
+  Subtitles go through the place's `%TouchControls`, found the same way; no
+  shared file was edited for either.
+- **Seat height is eyeballed.** The clips keep the hips at standing height
+  (position tracks are dropped, see "The true walk"), so the seated figure
+  hangs `seated_drop` (−0.46 m) below his node, which stands on the kerb;
+  the coins sit at kerb + 0.45 m. Both are exports/constants to tune in the
+  editor; this was built headless.
+- **The bus stop is still the end.** Arriving here with `gave_` or `took_`
+  set ends the slice (P6) before he can be talked to; the quest is for the
+  stretch of the journey before the fountain is settled, or the ignore
+  path. Not changed here; noted for the owner.
+
+### Placeholders
+
+- The body: the shared Kenney rig (GDD §10 painted characters replace it).
+- The coins: scaled unit cylinders in `plaster_ochre`.
+- `one_note.ogg`: a hummed triangle G4; the composer's sung note replaces it.
+
+### Budget
+
+Not re-measured (the brief for this change forbids export builds): one more
+skinned mesh at the bus stop, one MultiMesh (one draw call) that hides when
+he leaves, and an overlay of plain Controls shown only while counting.
