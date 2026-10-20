@@ -26,6 +26,8 @@ const STATE_WALK := "walk"
 const STATE_RUN := "run"
 const BLEND := 0.18
 const BODY_NAME := "Body"
+const HAND_BONE := "RightHand"
+const CARRIED_NAME := "Carried"
 ## Slower than this, in m/s, is standing still.
 const MOVING := 0.15
 
@@ -54,6 +56,10 @@ static var _clip_cache: Dictionary = {}
 @export_range(0.2, 10.0, 0.1) var run_reference_speed := 4.6
 ## Faster than this is a run; slower, a walk; below MOVING, idle.
 @export_range(0.5, 10.0, 0.1) var run_above := 3.2
+## What the hand holds when carrying (a water can, CLAUDE_CODE_BRIEF.md §4.4).
+@export var carried_scene: PackedScene
+
+var _carried: Node3D = null
 
 var _player: AnimationPlayer
 var _skeleton: Skeleton3D
@@ -130,6 +136,33 @@ func animation_player() -> AnimationPlayer:
 
 func skeleton() -> Skeleton3D:
 	return _skeleton
+
+
+## Puts `carried_scene` in the right hand, or takes it away. The hand bone
+## sits under the scaled body, so the item is scaled back to world size.
+func carry(on: bool) -> void:
+	if not on:
+		if _carried != null:
+			_carried.get_parent().queue_free()
+			_carried = null
+		return
+	if _carried != null or _skeleton == null or carried_scene == null:
+		return
+	var bone := _skeleton.find_bone(HAND_BONE)
+	if bone < 0:
+		push_warning("CharacterRig: no %s bone to carry with" % HAND_BONE)
+		return
+	var attachment := BoneAttachment3D.new()
+	attachment.name = CARRIED_NAME
+	attachment.bone_name = HAND_BONE
+	_skeleton.add_child(attachment)
+	_carried = carried_scene.instantiate()
+	_carried.scale = Vector3.ONE * (body_height / height)
+	attachment.add_child(_carried)
+
+
+func is_carrying() -> bool:
+	return _carried != null
 
 
 func _play(wanted: String) -> void:

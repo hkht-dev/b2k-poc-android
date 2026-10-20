@@ -27,6 +27,9 @@ const ARRIVE_DISTANCE := 0.45
 ## coping, but not a wall. A CharacterBody3D has no step-up of its own, and
 ## without this the kerb between pavement and road is a wall.
 const STEP_HEIGHT := 0.36
+## What the player carries persists as a flag (GDD §12: the flag model is the
+## only state), so an autosave mid-carry comes back with the can in hand.
+const FLAG_CARRYING := "carrying_can"
 
 var _move_input := Vector2.ZERO
 var _deflection := 0.0
@@ -41,12 +44,34 @@ var _walk_target := Vector3.ZERO
 var _has_walk_target := false
 var _has_moved := false
 
+@onready var _rig: CharacterRig = %Mesh
+
+
+func _ready() -> void:
+	_rig.carry(is_carrying())
+
 
 func _physics_process(delta: float) -> void:
 	if _is_climbing:
 		_advance_climb(delta)
 		return
 	_advance_ground(delta)
+
+
+## Picks up a can: the flag is set and the body shows it in hand.
+func carry() -> void:
+	GameState.set_flag(FLAG_CARRYING)
+	_rig.carry(true)
+
+
+## The can leaves the hand (placed, or taken away by a scene).
+func put_down() -> void:
+	GameState.clear_flag(FLAG_CARRYING)
+	_rig.carry(false)
+
+
+func is_carrying() -> bool:
+	return GameState.has_flag(FLAG_CARRYING)
 
 
 ## Sets this frame's movement wish (camera-relative, curved) and the raw

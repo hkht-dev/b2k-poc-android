@@ -58,7 +58,7 @@ func test_the_audio_placeholders_exist_and_load() -> void:
 func test_the_button_reads_listen_only_next_to_tulu() -> void:
 	var street := _street_with_player_at(Vector3(-10, 0.3, 16))
 	var button: Button = street.get_node("%TouchControls").contextual_button()
-	await wait_frames(3)
+	await wait_frames(8)
 	assert_eq(button.current_verb(), "", "nothing near on the road")
 	var tulu: Node3D = street.get_node("%Tulu")
 	street.get_node("%Player").global_position = tulu.global_position + Vector3(0.8, 0, 0.8)
@@ -123,7 +123,7 @@ func test_ignored_he_follows_the_player_at_a_distance() -> void:
 func test_holding_the_button_with_nothing_near_hums_and_counts() -> void:
 	var street := _street_with_player_at(Vector3(-10, 0.3, 16))
 	var controls: Control = street.get_node("%TouchControls")
-	await wait_frames(3)
+	await wait_frames(8)
 	assert_eq(controls.contextual_button().current_verb(), "", "nothing near")
 	controls.contextual_button().hold_for(1.0)
 	assert_eq(GameState.hum_count, 1, "one hum counted (brief §4.2)")
@@ -184,5 +184,5 @@ func test_there_is_still_no_marker_arrow_or_objective_on_the_hud() -> void:
 	var controls: Control = street.get_node("%TouchControls")
 	await wait_frames(2)
 	assert_eq(controls.subtitle_text(), "", "no text on the HUD until a sound")
-	assert_eq(controls.contextual_button().current_verb(), "", "no verb in the basin")
+	assert_eq(controls.contextual_button().current_verb(), "verb.look", "in the basin the fountain offers Look (P4); nothing else")
 	assert_false(controls.minimap().visible, "no map")

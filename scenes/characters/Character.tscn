@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 ; A rigged human for the Street: Kenney's "Animated Characters Retro" body
 ; with Quaternius' Universal Animation Library clips (both CC0, docs/
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://assets/thirdparty/kenney/animated-characters-retro/characterMedium.fbx" id="2_body"]
 [ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-retro/humanMaleA.png" id="3_skin"]
 [ext_resource type="PackedScene" path="res://assets/thirdparty/quaternius/universal-animation-library/UAL1_Standard.glb" id="4_clips"]
+[ext_resource type="PackedScene" path="res://scenes/quest/WaterCan.tscn" id="5_can"]
 
 [node name="Character" type="Node3D"]
 script = ExtResource("1_rig")
@@ -28,3 +29,4 @@ run_scene = ExtResource("4_clips")
 run_animation = "Jog_Fwd"
 run_reference_speed = 3.6
 run_above = 3.2
+carried_scene = ExtResource("5_can")

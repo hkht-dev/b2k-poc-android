@@ -1,0 +1,33 @@
+[gd_scene load_steps=6 format=3]
+
+; Gopal Seth behind his counter (scripts/npc/gopal.gd). The body is
+; scenes/characters/Character.tscn. PLACEHOLDER: replaced by Gopal of GDD §4
+; "Characters".
+
+[ext_resource type="Script" path="res://scripts/npc/gopal.gd" id="1_gopal"]
+[ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-survivors/survivorMaleB.png" id="3_skin"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="4_interact"]
+[ext_resource type="PackedScene" path="res://scenes/quest/WaterCan.tscn" id="5_can"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
+radius = 3.2
+height = 2.5
+
+[node name="Gopal" type="Node3D"]
+script = ExtResource("1_gopal")
+entry_lines = PackedStringArray("gopal_after_give", "gopal_hurt", "gopal_agree", "gopal_decline", "gopal_greet")
+
+[node name="Talk" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_interact")
+verb_id = "verb.talk"
+
+[node name="Shape" type="CollisionShape3D" parent="Talk"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 1.2)
+shape = SubResource("CylinderShape3D_near")
+
+[node name="Figure" parent="." instance=ExtResource("2_character")]
+unique_name_in_owner = true
+skin = ExtResource("3_skin")
+carried_scene = ExtResource("5_can")

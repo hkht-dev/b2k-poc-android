@@ -17,6 +17,15 @@ const STREET_BED := preload("res://assets/audio/street_bed.ogg")
 ## How far the player's hum carries to anything that can answer it.
 const HUM_REACH := 40.0
 const CONTROLS_HINT := preload("res://scenes/ui/ControlsHint.tscn")
+const CHOICE_CARDS := preload("res://scenes/ui/ChoiceCards.tscn")
+## The street's light answers the Dry Fountain (CLAUDE_CODE_BRIEF.md §4.4):
+## a step darker after a can is taken, a step warmer after one is given.
+## Data: flag -> (sun colour, ambient energy factor).
+const MOODS := {
+	"took_dry_fountain": [Color(0.93, 0.94, 0.98), 0.85],
+	"gave_dry_fountain": [Color(1.0, 0.93, 0.82), 1.12],
+}
+const MOOD_SECONDS := 4.0
 ## §A4: touch sensitivity is half the desktop default.
 const TOUCH_SENSITIVITY := 0.5
 const DESKTOP_SENSITIVITY := 1.0
@@ -26,11 +35,17 @@ var _controls_overlay: Control = null
 var _near: Interactable = null
 var _hum_player: AudioStreamPlayer = null
 var _bed_player: AudioStreamPlayer = null
+var _cards: Control = null
+var _base_sun_colour := Color.WHITE
+var _base_ambient := 1.0
+var _mood_tween: Tween = null
 
 @onready var _player: CharacterBody3D = %Player
 @onready var _camera_rig: Node3D = %CameraRig
 @onready var _controls: Control = %TouchControls
 @onready var _ui: CanvasLayer = $UI
+@onready var _sun: DirectionalLight3D = $Sun
+@onready var _environment: WorldEnvironment = $Environment
 
 
 func _ready() -> void:
@@ -51,6 +66,15 @@ func _ready() -> void:
 	_bed_player.play()
 	_player.moved_first_time.connect(func() -> void: _controls.joystick().dismiss_hint())
 	_ui.process_mode = Node.PROCESS_MODE_ALWAYS
+	_cards = CHOICE_CARDS.instantiate()
+	_ui.add_child(_cards)
+	_cards.bind(Content.dialogue)
+	_base_sun_colour = _sun.light_color
+	_base_ambient = _environment.environment.ambient_light_energy
+	for flag in MOODS:
+		if GameState.has_flag(flag):
+			_apply_mood(flag, 0.0)
+	GameState.flag_changed.connect(_on_flag_changed)
 
 
 func _physics_process(_delta: float) -> void:
@@ -81,6 +105,36 @@ func _scan_interactables() -> void:
 
 func near() -> Interactable:
 	return _near
+
+
+func cards() -> Control:
+	return _cards
+
+
+func _on_flag_changed(flag: String, is_set: bool) -> void:
+	if is_set and MOODS.has(flag):
+		_apply_mood(flag, MOOD_SECONDS)
+		if flag == "gave_dry_fountain":
+			_controls.subtitle("sub.can_placed", 4.0)
+
+
+## The light's answer to a flag: sun colour and ambient energy ease over.
+func _apply_mood(flag: String, seconds: float) -> void:
+	var colour: Color = _base_sun_colour * MOODS[flag][0]
+	var ambient: float = _base_ambient * MOODS[flag][1]
+	if _mood_tween != null:
+		_mood_tween.kill()
+	if seconds <= 0.0:
+		_sun.light_color = colour
+		_environment.environment.ambient_light_energy = ambient
+		return
+	_mood_tween = create_tween().set_parallel(true)
+	_mood_tween.tween_property(_sun, "light_color", colour, seconds)
+	_mood_tween.tween_property(_environment.environment, "ambient_light_energy", ambient, seconds)
+
+
+func mood_sun_colour() -> Color:
+	return _sun.light_color
 
 
 func _on_verb_used(_verb_id: String) -> void:

@@ -325,6 +325,11 @@ nodes.append(
 )
 collider("ColumnBody", "Fountain", (2.6, 2.2, 2.6), [((0, FLOOR_Y + 1.1, 0), 0.0)])
 # Dry for long enough to collect litter.
+nodes.append(
+    '[node name="FountainPoint" parent="Fountain" instance=ExtResource("13_fountain_point")]\n'
+    "unique_name_in_owner = true\n"
+    f"transform = {xf((0, FLOOR_Y, 0))}\n\n"
+)
 batch("Litter", "Fountain", "can",
       [((1.8, FLOOR_Y, -1.2), 0.4, (1.4, 1.4, 1.4)), ((-2.6, FLOOR_Y, 2.1), 2.0, (1.4, 1.4, 1.4)),
        ((3.9, FLOOR_Y, 2.8), 1.1, (1.4, 1.4, 1.4)), ((-4.1, FLOOR_Y, -1.6), 2.9, (1.4, 1.4, 1.4))],
@@ -340,10 +345,31 @@ solid("Counter", "Shop", (-14, 0.5, 1.9), (8.4, 1.0, 0.6), "timber")
 solid("Awning", "Shop", (-14, 3.55, 2.9), (10.6, 0.08, 2.4), "rust_metal", collide=False)
 solid("SignBoard", "Shop", (-14, 4.6, 2.3), (7.0, 0.9, 0.12), "sign", collide=False)
 solid("SignFrame", "Shop", (-14, 4.6, 2.22), (7.3, 1.1, 0.06), "timber", collide=False)
-# Water cans, stacked where the street can see them (§4.4).
-for i in range(12):
-    col, row = i % 4, i // 4
-    cyl(f"Can{i}", "Shop", (-17.2 + col * 2.1, 0.35, -2.6 + row * 1.1), 0.33, 0.7, "rust_metal")
+# Water cans, stacked where the street can see them (§4.4): a row on the
+# pavement in front of the counter that the player can *Pick up* from
+# (scripts/quest/can_stack.gd hides one per pick-up), and more behind it.
+nodes.append(
+    '[node name="CanStack" type="Node3D" parent="Shop"]\n'
+    'script = ExtResource("11_can_stack")\n\n'
+    '[node name="PickUp" type="Area3D" parent="Shop/CanStack"]\n'
+    "unique_name_in_owner = true\n"
+    'script = ExtResource("2_interact")\n'
+    'verb_id = "verb.pick_up"\n\n'
+    '[node name="Shape" type="CollisionShape3D" parent="Shop/CanStack/PickUp"]\n'
+    f"transform = {xf((-14, 1.0, 3.4))}\n"
+    'shape = SubResource("BoxShape3D_cans")\n\n'
+)
+for i in range(6):
+    cyl(f"Can{i}", "Shop/CanStack", (-17.5 + i * 1.4, 0.35, 3.3), 0.33, 0.7, "rust_metal")
+for i in range(6, 12):
+    col, row = (i - 6) % 3, (i - 6) // 3
+    cyl(f"Can{i}", "Shop/CanStack", (-16.4 + col * 2.4, 0.35, -2.6 + row * 1.2), 0.33, 0.7, "rust_metal")
+# Gopal Seth, behind the counter, facing the street.
+nodes.append(
+    '[node name="Gopal" parent="Shop" instance=ExtResource("12_gopal")]\n'
+    "unique_name_in_owner = true\n"
+    f"transform = {xf((-13.2, 0, 0.9), math.pi)}\n\n"
+)
 # Delivery crates stacked by the counter's end.
 CRATE = 1.5  # the model is 0.3 x 0.26 x 0.41 m; a crate, at this scale
 batch("Crates", "Shop", "crate",
@@ -563,6 +589,10 @@ header = (
     + '[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/overcast_soil_puresky.hdr" id="8_sky"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Tulu.tscn" id="9_tulu"]\n'
     '[ext_resource type="Script" path="res://scripts/street/model_batch.gd" id="batch"]\n'
+    '[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]\n'
+    '[ext_resource type="Script" path="res://scripts/quest/can_stack.gd" id="11_can_stack"]\n'
+    '[ext_resource type="PackedScene" path="res://scenes/npc/Gopal.tscn" id="12_gopal"]\n'
+    '[ext_resource type="PackedScene" path="res://scenes/quest/FountainPoint.tscn" id="13_fountain_point"]\n'
     + "".join(
         f'[ext_resource type="PackedScene" path="res://assets/thirdparty/{path}" id="{MODEL_ID[m]}"]\n'
         for m, path in MODELS.items()
@@ -598,6 +628,9 @@ ring_segments = 10
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_basin"]
 radius = 7.0
 height = 0.75
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cans"]
+size = Vector3(9.5, 2.0, 3.6)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_climb"]
 size = Vector3(7, 1.8, 2.4)

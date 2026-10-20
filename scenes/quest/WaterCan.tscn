@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3]
+
+; A water can in a hand. PLACEHOLDER: a rust-red cylinder, as the shop's
+; stack is; replaced by the can of GDD §10 "Props".
+
+[ext_resource type="Material" path="res://assets/materials/rust_metal.tres" id="1_rust"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_can"]
+top_radius = 0.16
+bottom_radius = 0.16
+height = 0.4
+radial_segments = 12
+rings = 0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_handle"]
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.14
+radial_segments = 6
+rings = 0
+
+[node name="WaterCan" type="Node3D"]
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.28, 0.04)
+mesh = SubResource("CylinderMesh_can")
+surface_material_override/0 = ExtResource("1_rust")
+
+[node name="Handle" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.03, 0.04)
+mesh = SubResource("CylinderMesh_handle")
+surface_material_override/0 = ExtResource("1_rust")
