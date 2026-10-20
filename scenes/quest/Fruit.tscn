@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+; A fruit from the community garden, in a hand (GDD §7 "The Fence"; §6
+; "Carry": "pot, rope, fruit"). PLACEHOLDER: a warm-orange sphere; replaced by
+; the painted fruit of GDD §10 "Props".
+
+[ext_resource type="Material" path="res://assets/materials/fruit.tres" id="1_mat"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_fruit"]
+radius = 0.1
+height = 0.2
+radial_segments = 12
+rings = 6
+
+[node name="Fruit" type="Node3D"]
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 0.03)
+mesh = SubResource("SphereMesh_fruit")
+surface_material_override/0 = ExtResource("1_mat")

@@ -262,6 +262,9 @@ b.multimesh("ACUnits", "Flats", "BoxMesh_unit", "corrugated", acs)
 # Two alleys are the gaps left between the north blocks at x≈-29 and x≈+32.
 
 # --- the padlocked fence -----------------------------------------------------
+# The span beside the gate post carries no rail: tools/street_parts/garden.py
+# hangs the garden gate in it (GDD §7 "The Fence").
+GATE_SPAN = 6
 b.group("Fences")
 b.multimesh(
     "FencePosts", "Fences", "BoxMesh_unit", "rust_metal",
@@ -269,7 +272,7 @@ b.multimesh(
 )
 b.multimesh(
     "FenceRails", "Fences", "BoxMesh_unit", "rust_metal",
-    [((-44 + i * 1.9 + 0.95, y, 7.5), 0.0, (1.9, 0.08, 0.06)) for i in range(13) for y in (0.45, 1.05)],
+    [((-44 + i * 1.9 + 0.95, y, 7.5), 0.0, (1.9, 0.08, 0.06)) for i in range(13) if i != GATE_SPAN for y in (0.45, 1.05)],
     shadows=False,
 )
 b.solid("GatePost", "Fences", (-30.6, 0.7, 7.5), (0.2, 1.4, 0.2), "rust_metal")

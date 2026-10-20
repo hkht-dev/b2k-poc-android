@@ -1040,3 +1040,82 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — The Fence (side quest)
+
+GDD §7 "The Fence", §4 Vasanti, §6 "Carry" and "Choice", §12 (the flag
+model). All three outcomes play from `data/quests/the_fence.json` and
+`data/dialogue/en.json`; no code reads a path.
+
+### What was built
+
+- **The garden** (`tools/street_parts/garden.py`, generated into the
+  street as `Garden`): north of the padlocked fence, six timber beds with
+  dusty soil and a few plants (Kenney's bush, small), a water drum, a path
+  from the gate, a white sign board whose words come from the string table
+  (`sign.garden`, `sign.garden_rule`), and the fruit tree: Quaternius'
+  Tree_5 at 0.7 with five warm-orange fruit on the higher branches
+  (`assets/materials/fruit.tres`; the low branch is bare, which is the
+  quest). The one shared-file edit: `tools/gen_street.py` leaves the gate's
+  span of fence rail out (`GATE_SPAN`), so the part can hang a gate in it.
+- **The gate** (`scripts/quest/garden_gate.gd` on `GardenGate`): a leaf of
+  rails and bars hinged on the fence post west of the opening, hanging ajar
+  into the garden (yaw 0.45) so the padlock on the gate post keeps nobody
+  out — GDD §4: she *wants* to fence the tree; she has not managed it.
+  *Mend* (`verb.fix`) is an Interactable with `requires = ["talked_vasanti"]`
+  (data), enabled only with free hands; it fires `fence_mended` and the leaf
+  swings true. When `garden_open` is set the padlock — the street's own
+  `Fences/Padlock`, named by `padlock_path` — disappears and the leaf swings
+  wide. The flag and the event are exports on the node.
+- **The tree** (`scripts/quest/fruit_tree.gd`): *Pick up* hands the player
+  a `fruit`, hides one sphere and fires `fruit_picked`. `fruit` joined the
+  player's `carryables` (`scenes/quest/Fruit.tscn`, held in the palm).
+- **Vasanti** (`scenes/npc/Vasanti.tscn`, `scripts/npc/vasanti.gd`, the
+  skaterFemaleA skin) on the kerb at the gate. *Talk* opens the first of
+  `entry_lines` whose `requires` hold (gift, opens, after-fixed, hum clue,
+  again, greet). While the player holds a fruit she offers *Place* instead
+  (`requires = ["carrying_fruit"]`); placing fires `fruit_given` and she holds
+  the fruit from then on. When the quest sets `has_fruit` she puts a fruit
+  in the player's hand and says so.
+- **The quest** starts on `talked_vasanti` or `fruit_picked` (she is the
+  giver; a player who never meets her never sees its line in the pause
+  menu). Branches: `fixed` on `event:fence_mended` → `has_fruit`,
+  *"You lifted Vasanti's gate back onto its hinge; she gave you fruit."*;
+  `open_told` on `flag:told_vasanti_thief` and `open_gift` on
+  `event:fruit_given` → `garden_open` (and `fruit_received` for the gift),
+  both *"Vasanti took the padlock off the garden gate."*
+
+### Decisions
+
+- **Finding the thief** is Tulu (GDD §7: hungry; he gave it to Nanda), but
+  Tulu has only *Listen* in the slice. The clue comes from Vasanti's second
+  visit, and only once the player has heard Tulu: `vasanti_hum_clue`
+  requires `heard_tulu` and `sets` `fence_thief_known` as it is shown; the
+  card that names him sets `told_vasanti_thief`, which the quest turns into
+  `garden_open`, so her answer (`vasanti_opens`, requires `garden_open`) is
+  available in the same breath. A player who has not heard Tulu gets
+  `vasanti_again` instead, with nothing to accuse anyone of.
+- The three endings exclude each other through the gate and her hands,
+  not through code that knows the paths: *Mend* is gone once the gate is
+  settled (mended or open); *Place* is gone once a fruit has changed hands
+  either way (`fruit_given` or `has_fruit`).
+- The fence has no collision (it never had); the gate is a picture, not a
+  wall. Making it a wall would make (c) impossible while locked.
+- `garden_open` is set by the quest, not by the card, so both open paths
+  set it in one place (as `gave_dry_fountain` is set by the Dry Fountain's
+  step, not by the fountain).
+- Orange is an albedo here, not a light: the Glimpse's warm backlight stays
+  the only warm *source* in the scene (GDD §10).
+- Placeholders: the body (GDD §4 Vasanti), the beds, drum, sign and gate
+  (GDD §10 props), Tree_5 and the sphere fruit (GDD §10 "fruit").
+
+### Budget
+
+Not measured in a web build here (the parallel-agent brief forbids exports
+on the shared machine). Added to the street at the garden angle: five
+MultiMesh/batch draws (planks, soil, stakes, plants, tree ×2 surfaces),
+five fruit spheres, eight gate solids, a board, two labels, two posts, a
+drum and one more skinned body — on the order of twenty-five draw calls and
+a few thousand triangles, against P6's median 112 / max 177 and 56k.
+The integrator should record the numbers with the next web build.

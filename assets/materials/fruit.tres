@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The community garden's fruit (GDD §7 "The Fence"): a warm orange, which the
+; Hollow Vale row of GDD §10 allows — never peacock blue, never magenta. An
+; albedo, not a light: the Glimpse's warm backlight stays the one of its kind.
+; PLACEHOLDER: replaced by the painted fruit of GDD §10 "Props".
+
+[resource]
+resource_name = "fruit"
+albedo_color = Color(0.92, 0.52, 0.14, 1)
+roughness = 0.55

@@ -1,0 +1,49 @@
+{
+  "id": "the_fence",
+  "giver": "vasanti",
+  "start_condition": "flag:talked_vasanti or event:fruit_picked",
+  "steps": [
+    {
+      "id": "meet",
+      "objective_text_id": "quest.the_fence.meet",
+      "complete_when": "flag:talked_vasanti",
+      "flags_set": []
+    },
+    {
+      "id": "decide",
+      "objective_text_id": "quest.the_fence.decide",
+      "complete_when": "event:fence_mended or flag:garden_open",
+      "flags_set": []
+    }
+  ],
+  "branches": [
+    {
+      "id": "fixed",
+      "when": "event:fence_mended",
+      "flags_set": [
+        "has_fruit"
+      ],
+      "journey_line_id": "journey.the_fence.fixed"
+    },
+    {
+      "id": "open_told",
+      "when": "flag:told_vasanti_thief",
+      "flags_set": [
+        "garden_open"
+      ],
+      "journey_line_id": "journey.the_fence.open"
+    },
+    {
+      "id": "open_gift",
+      "when": "event:fruit_given",
+      "flags_set": [
+        "garden_open",
+        "fruit_received"
+      ],
+      "journey_line_id": "journey.the_fence.open"
+    }
+  ],
+  "end_condition": "flag:garden_open or flag:has_fruit",
+  "flags_set_on_end": [],
+  "journey_line_id": ""
+}

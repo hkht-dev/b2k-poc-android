@@ -171,5 +171,147 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "vasanti_greet": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_greet",
+    "sets": [
+      "talked_vasanti"
+    ],
+    "cards": [
+      {
+        "text_id": "card.vasanti_greet.who",
+        "sets": [],
+        "next": "vasanti_who"
+      },
+      {
+        "text_id": "card.vasanti_greet.fence",
+        "sets": [],
+        "next": "vasanti_fence"
+      },
+      {
+        "text_id": "card.vasanti_greet.lock",
+        "sets": [],
+        "next": "vasanti_lock"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_who": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_who",
+    "cards": [
+      {
+        "text_id": "card.vasanti_who.hungry",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.vasanti_who.listen",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_fence": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_fence",
+    "cards": [
+      {
+        "text_id": "card.vasanti_fence.see_to_it",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.vasanti_fence.later",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_lock": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_lock",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "vasanti_again": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_again",
+    "cards": [
+      {
+        "text_id": "card.vasanti_again.maybe",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.vasanti_again.who",
+        "sets": [],
+        "next": "vasanti_who"
+      }
+    ],
+    "requires": [
+      "talked_vasanti"
+    ],
+    "review_status": "draft"
+  },
+  "vasanti_hum_clue": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_hum_clue",
+    "sets": [
+      "fence_thief_known"
+    ],
+    "cards": [
+      {
+        "text_id": "card.vasanti_hum_clue.the_boy",
+        "sets": [
+          "told_vasanti_thief"
+        ],
+        "next": "vasanti_opens"
+      },
+      {
+        "text_id": "card.vasanti_hum_clue.lots_hum",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [
+      "talked_vasanti",
+      "heard_tulu"
+    ],
+    "review_status": "draft"
+  },
+  "vasanti_opens": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_opens",
+    "cards": [],
+    "requires": [
+      "garden_open"
+    ],
+    "review_status": "draft"
+  },
+  "vasanti_gift": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_gift",
+    "cards": [],
+    "requires": [
+      "fruit_received"
+    ],
+    "review_status": "draft"
+  },
+  "vasanti_after_fixed": {
+    "speaker": "vasanti",
+    "text_id": "line.vasanti_after_fixed",
+    "cards": [],
+    "requires": [
+      "has_fruit"
+    ],
+    "review_status": "draft"
   }
 }

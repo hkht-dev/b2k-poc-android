@@ -1,0 +1,58 @@
+[gd_scene load_steps=8 format=3]
+
+; Vasanti, padlocking the community garden gate (scripts/npc/vasanti.gd; GDD
+; §4, §7 "The Fence"). The same rigged body as everyone else in Kenney's
+; skaterFemaleA skin; Talk in front of her, and Place in the same spot while
+; the player holds a fruit (`requires`, data). Her lines are in data/dialogue.
+; PLACEHOLDER body: replaced by Vasanti of GDD §4 "Characters".
+
+[ext_resource type="Script" path="res://scripts/npc/vasanti.gd" id="1_vasanti"]
+[ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="3_interact"]
+[ext_resource type="Texture2D" path="res://assets/thirdparty/kenney/animated-characters-protagonists/skaterFemaleA.png" id="4_skin"]
+[ext_resource type="PackedScene" path="res://scenes/quest/Fruit.tscn" id="5_fruit"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_near"]
+radius = 1.8
+height = 2.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.3
+height = 1.8
+
+[node name="Vasanti" type="Node3D"]
+script = ExtResource("1_vasanti")
+entry_lines = PackedStringArray("vasanti_gift", "vasanti_opens", "vasanti_after_fixed", "vasanti_hum_clue", "vasanti_again", "vasanti_greet")
+fruit_scene = ExtResource("5_fruit")
+
+[node name="Talk" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_interact")
+verb_id = "verb.talk"
+
+[node name="Shape" type="CollisionShape3D" parent="Talk"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -0.5)
+shape = SubResource("CylinderShape3D_near")
+
+; Offered instead of Talk while the player holds a fruit (requires).
+[node name="Place" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_interact")
+verb_id = "verb.place"
+requires = PackedStringArray("carrying_fruit")
+
+[node name="Shape" type="CollisionShape3D" parent="Place"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -0.5)
+shape = SubResource("CylinderShape3D_near")
+
+[node name="Figure" parent="." instance=ExtResource("2_character")]
+unique_name_in_owner = true
+skin = ExtResource("4_skin")
+
+[node name="Body" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_body")
