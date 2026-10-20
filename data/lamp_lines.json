@@ -1,0 +1,19 @@
+{
+  "days": 30,
+  "lines": [
+    "lamp.line.kind_here",
+    "lamp.line.look_up",
+    "lamp.line.kept_sorry",
+    "lamp.line.sit_a_while",
+    "lamp.line.lost_here_too",
+    "lamp.line.gave_it_away",
+    "lamp.line.someone_humming",
+    "lamp.line.afraid_passed",
+    "lamp.line.thank_you",
+    "lamp.line.rested_here",
+    "lamp.line.not_only_one",
+    "lamp.line.came_back"
+  ],
+  "max_per_place": 8,
+  "seconds_per_day": 900
+}

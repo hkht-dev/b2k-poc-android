@@ -14,6 +14,8 @@ signal event_fired(event: String)
 signal beat_changed(beat: String)
 signal journey_line_added(line_id: String)
 signal outfit_changed(outfit_id: String)
+## A lamp was set down (GDD §16a); the place it is in shows it.
+signal lamp_set(lamp: Dictionary)
 signal wiped
 
 const SAVE_PATH := "user://journey.json"
@@ -58,6 +60,11 @@ var garden: Dictionary = Garden.empty()
 ## the skin the player scene carries. Owner request 2026-10-20 (the
 ## showroom's wardrobe); cosmetic, Street-only, and the body listens.
 var outfit: String = ""
+## Lamps the player has set down (GDD §16a "Social: lamps"), oldest first:
+## each {place, x, z, line_id, lit_day}. Owner expansion 2026-10-20. In this
+## build they are the player's own; other people's lamps need the backend
+## the slice does not have (docs/DECISIONS.md).
+var lamps: Array[Dictionary] = []
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -179,6 +186,41 @@ func grant_vignette_day(date: String) -> bool:
 	return true
 
 
+# -- lamps --------------------------------------------------------------------
+
+
+## Sets a lamp down: {place, x, z, line_id, lit_day}. A place holds at most
+## `max_per_place` lamps; past that, the oldest one there goes out. Returns
+## the lamp that went out, or an empty Dictionary.
+func set_lamp(lamp: Dictionary, max_per_place: int) -> Dictionary:
+	lamps.append(lamp)
+	var place_id := str(lamp.get("place", ""))
+	var gone := {}
+	while max_per_place > 0 and lamps_in(place_id).size() > max_per_place:
+		var popped: Variant = lamps.pop_at(_oldest_lamp_index(place_id))
+		if popped is Dictionary:
+			gone = popped
+	lamp_set.emit(lamp)
+	_save_if_enabled()
+	return gone
+
+
+## The lamps set in one place, oldest first.
+func lamps_in(place_id: String) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for lamp in lamps:
+		if str(lamp.get("place", "")) == place_id:
+			out.append(lamp)
+	return out
+
+
+func _oldest_lamp_index(place_id: String) -> int:
+	for index in lamps.size():
+		if str(lamps[index].get("place", "")) == place_id:
+			return index
+	return -1
+
+
 # -- persistence --------------------------------------------------------------
 
 
@@ -198,6 +240,7 @@ func to_dict() -> Dictionary:
 		"vignette_days": vignette_days.duplicate(),
 		"garden": garden.duplicate(true),
 		"outfit": outfit,
+		"lamps": lamps.duplicate(true),
 	}
 
 
@@ -226,6 +269,10 @@ func from_dict(data: Dictionary) -> void:
 		vignette_days.append(date)
 	garden = Garden.normalised(data.get("garden"))
 	outfit = str(data.get("outfit", ""))
+	lamps.clear()
+	for lamp in data.get("lamps", []):
+		if lamp is Dictionary:
+			lamps.append(lamp)
 
 
 func save() -> bool:
@@ -268,6 +315,7 @@ func wipe() -> void:
 	vignette_days.clear()
 	garden = Garden.empty()
 	outfit = ""
+	lamps.clear()
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)
