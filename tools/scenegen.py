@@ -20,6 +20,10 @@ MATS = [
     # CC0, Poly Haven, via tools/fetch_polyhaven.py — see docs/RIGHTS_REGISTER.md
     "ph_asphalt", "ph_concrete", "ph_plaster", "ph_brick", "ph_corrugated",
     "sign", "canopy",
+    # tools/texture_parts/world.py: the Grove and the interiors (GDD §5, §10).
+    # Appended so the ids above never move.
+    "grass", "river_bed", "tile_floor", "parquet", "fabric_print",
+    "chalkboard", "paper", "stone_old", "bark_kadamba", "sari_red",
 ]
 MAT_ID = {m: f"{i + 10}_{m}" for i, m in enumerate(MATS)}
 
