@@ -41,32 +41,14 @@ USER_AGENT = "b2k-poc-android fetch_kenney.py (https://github.com/hkht-dev/b2k-p
 # and wheels share one material, so joining them costs nothing and saves four
 # draw calls a car; the nature kit's two materials stay two surfaces.
 KITS = {
-    "car-kit": (
-        ["sedan", "hatchback-sports", "taxi", "van", "truck", "suv", "delivery"],
-        "vehicles on the road and parked at the kerb",
-        True,
-    ),
+    # The bush only: the kit's trees and the car kit gave way to Quaternius'
+    # textured trees and life-size cars (tools/fetch_quaternius.py).
     "nature-kit": (
-        ["tree_default", "tree_oak", "tree_tall", "tree_simple", "plant_bushLarge", "plant_bush"],
-        "trees and bushes along the pavements",
+        ["plant_bushLarge"],
+        "bushes along the pavements",
         False,
     ),
 }
-
-
-def fetch(url: str) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(request, timeout=300) as r:
-        return r.read()
-
-
-def zip_url(kit: str) -> str:
-    page = fetch(f"https://kenney.nl/assets/{kit}").decode("utf-8", "replace")
-    match = re.search(rf"https://kenney\.nl/media/pages/assets/{kit}/[^'\"]+/kenney_{kit}\.zip", page)
-    if not match:
-        raise RuntimeError(f"fetch_kenney: no zip link on the {kit} page")
-    return match.group(0)
-
 
 # Files taken as shipped from a kit, by their path inside the zip:
 # kit -> (paths, where used, retarget). Kenney's animated characters are FBX
