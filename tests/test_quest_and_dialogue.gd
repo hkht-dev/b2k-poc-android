@@ -31,7 +31,7 @@ func before_each() -> void:
 func test_the_quest_starts_at_once_and_waits_on_the_fountain() -> void:
 	assert_eq(_quest.status(), Quest.Status.ACTIVE, "start_condition is true")
 	assert_eq(_quest.current_step_id(), "notice")
-	assert_eq(_quest.waiting_on(), "flag:looked_dry_fountain")
+	assert_eq(_quest.waiting_on(), "flag:looked_dry_fountain or flag:gopal_admitted_fear")
 
 
 func test_looking_at_the_fountain_advances_to_hearing_gopal_out() -> void:
@@ -55,13 +55,14 @@ func test_the_give_path_ends_with_the_fountain_full() -> void:
 	assert_eq(_state.journey_lines, ["journey.dry_fountain.gave"])
 
 
-func test_talking_to_gopal_before_looking_still_counts_once_you_look() -> void:
-	# Steps are sequential, but the flags are not: a player who hears Gopal out
-	# first and only then looks at the fountain clears both steps on the look.
+func test_talking_to_gopal_before_looking_counts_as_noticing() -> void:
+	# Steps are sequential, but the flags are not: hearing Gopal out counts as
+	# having noticed the fountain (P4 decision), so both steps clear at once,
+	# and a later look changes nothing.
 	_state.set_flag("gopal_admitted_fear")
-	assert_eq(_quest.current_step_id(), "notice", "still waiting on the look")
-	_state.set_flag("looked_dry_fountain")
 	assert_eq(_quest.current_step_id(), "carry", "both steps cleared in one go")
+	_state.set_flag("looked_dry_fountain")
+	assert_eq(_quest.current_step_id(), "carry", "the look is not owed any more")
 
 
 func test_the_take_path_ends_the_quest_from_any_step() -> void:

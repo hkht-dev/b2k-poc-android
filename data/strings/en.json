@@ -69,10 +69,15 @@
   "quest.dry_fountain.notice": "The fountain is dry. The shop beside it is full.",
   "speaker.fountain": "",
   "speaker.gopal": "Gopal Seth",
+  "sub.can_placed": "[Water. Slowly, then not slowly.]",
   "sub.player_hum": "[You hum]",
   "sub.tulu_hum": "[Tulu hums three notes]",
   "title.begin": "Begin",
   "title.build_label": "Build %s",
   "verb.idle": "…",
-  "verb.listen": "Listen"
+  "verb.listen": "Listen",
+  "verb.look": "Look",
+  "verb.pick_up": "Pick up",
+  "verb.place": "Place",
+  "verb.talk": "Talk"
 }

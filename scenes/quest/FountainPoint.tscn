@@ -1,0 +1,59 @@
+[gd_scene load_steps=6 format=3]
+
+; The fountain as a place the player can use (scripts/quest/fountain_point.gd):
+; Look at it, Place a can in it. Sits at the basin floor; the water plane
+; rises from there when the fountain runs (CLAUDE_CODE_BRIEF.md §4.4).
+
+[ext_resource type="Script" path="res://scripts/quest/fountain_point.gd" id="1_point"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+[ext_resource type="Material" path="res://assets/materials/water.tres" id="3_water"]
+[ext_resource type="AudioStream" path="res://assets/audio/water_loop.ogg" id="4_loop"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_basin"]
+radius = 5.2
+height = 2.4
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_water"]
+top_radius = 5.5
+bottom_radius = 5.5
+height = 0.02
+radial_segments = 48
+rings = 0
+
+[node name="FountainPoint" type="Node3D"]
+script = ExtResource("1_point")
+water_loop = ExtResource("4_loop")
+
+[node name="Look" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.look"
+
+[node name="Shape" type="CollisionShape3D" parent="Look"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+shape = SubResource("CylinderShape3D_basin")
+
+; Offered only while carrying a can Gopal agreed to walk (requires).
+[node name="Place" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.place"
+requires = PackedStringArray("gopal_will_carry")
+
+[node name="Shape" type="CollisionShape3D" parent="Place"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+shape = SubResource("CylinderShape3D_basin")
+
+[node name="WaterPlane" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+visible = false
+mesh = SubResource("CylinderMesh_water")
+surface_material_override/0 = ExtResource("3_water")
+cast_shadow = 0
+
+[node name="WaterLoop" type="AudioStreamPlayer3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+volume_db = -6.0
+unit_size = 6.0
+max_distance = 40.0

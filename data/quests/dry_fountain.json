@@ -6,7 +6,7 @@
     {
       "id": "notice",
       "objective_text_id": "quest.dry_fountain.notice",
-      "complete_when": "flag:looked_dry_fountain",
+      "complete_when": "flag:looked_dry_fountain or flag:gopal_admitted_fear",
       "flags_set": []
     },
     {
@@ -19,14 +19,18 @@
       "id": "carry",
       "objective_text_id": "quest.dry_fountain.carry",
       "complete_when": "event:can_placed_at_fountain",
-      "flags_set": ["gave_dry_fountain"]
+      "flags_set": [
+        "gave_dry_fountain"
+      ]
     }
   ],
   "branches": [
     {
       "id": "take",
       "when": "event:can_taken_from_shop and not flag:gopal_will_carry",
-      "flags_set": ["took_dry_fountain"],
+      "flags_set": [
+        "took_dry_fountain"
+      ],
       "journey_line_id": "journey.dry_fountain.took"
     },
     {

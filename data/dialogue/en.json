@@ -2,7 +2,9 @@
   "fountain_look": {
     "speaker": "fountain",
     "text_id": "line.fountain_look",
-    "sets": ["looked_dry_fountain"],
+    "sets": [
+      "looked_dry_fountain"
+    ],
     "cards": [],
     "requires": [],
     "review_status": "draft"
@@ -11,8 +13,16 @@
     "speaker": "gopal",
     "text_id": "line.gopal_greet",
     "cards": [
-      { "text_id": "card.gopal_greet.why", "sets": [], "next": "gopal_fear_1" },
-      { "text_id": "card.gopal_greet.tomorrow", "sets": [], "next": "" }
+      {
+        "text_id": "card.gopal_greet.why",
+        "sets": [],
+        "next": "gopal_fear_1"
+      },
+      {
+        "text_id": "card.gopal_greet.tomorrow",
+        "sets": [],
+        "next": ""
+      }
     ],
     "requires": [],
     "review_status": "draft"
@@ -21,8 +31,16 @@
     "speaker": "gopal",
     "text_id": "line.gopal_fear_1",
     "cards": [
-      { "text_id": "card.gopal_fear_1.how_many", "sets": [], "next": "gopal_fear_2" },
-      { "text_id": "card.gopal_fear_1.street", "sets": [], "next": "gopal_fear_2" }
+      {
+        "text_id": "card.gopal_fear_1.how_many",
+        "sets": [],
+        "next": "gopal_fear_2"
+      },
+      {
+        "text_id": "card.gopal_fear_1.street",
+        "sets": [],
+        "next": "gopal_fear_2"
+      }
     ],
     "requires": [],
     "review_status": "draft"
@@ -31,8 +49,16 @@
     "speaker": "gopal",
     "text_id": "line.gopal_fear_2",
     "cards": [
-      { "text_id": "card.gopal_fear_2.a_lot", "sets": [], "next": "gopal_admit" },
-      { "text_id": "card.gopal_fear_2.check", "sets": [], "next": "gopal_admit" }
+      {
+        "text_id": "card.gopal_fear_2.a_lot",
+        "sets": [],
+        "next": "gopal_admit"
+      },
+      {
+        "text_id": "card.gopal_fear_2.check",
+        "sets": [],
+        "next": "gopal_admit"
+      }
     ],
     "requires": [],
     "review_status": "draft"
@@ -43,12 +69,17 @@
     "cards": [
       {
         "text_id": "card.gopal_admit.carry_one",
-        "sets": ["gopal_admitted_fear", "gopal_will_carry"],
+        "sets": [
+          "gopal_admitted_fear",
+          "gopal_will_carry"
+        ],
         "next": "gopal_agree"
       },
       {
         "text_id": "card.gopal_admit.keep_them",
-        "sets": ["gopal_admitted_fear"],
+        "sets": [
+          "gopal_admitted_fear"
+        ],
         "next": "gopal_decline"
       }
     ],
@@ -59,28 +90,36 @@
     "speaker": "gopal",
     "text_id": "line.gopal_agree",
     "cards": [],
-    "requires": [],
+    "requires": [
+      "gopal_will_carry"
+    ],
     "review_status": "draft"
   },
   "gopal_decline": {
     "speaker": "gopal",
     "text_id": "line.gopal_decline",
     "cards": [],
-    "requires": [],
+    "requires": [
+      "gopal_admitted_fear"
+    ],
     "review_status": "draft"
   },
   "gopal_hurt": {
     "speaker": "gopal",
     "text_id": "line.gopal_hurt",
     "cards": [],
-    "requires": ["took_dry_fountain"],
+    "requires": [
+      "took_dry_fountain"
+    ],
     "review_status": "draft"
   },
   "gopal_after_give": {
     "speaker": "gopal",
     "text_id": "line.gopal_after_give",
     "cards": [],
-    "requires": ["gave_dry_fountain"],
+    "requires": [
+      "gave_dry_fountain"
+    ],
     "review_status": "draft"
   }
 }

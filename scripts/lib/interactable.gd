@@ -18,6 +18,8 @@ const SOUND_SOURCE_GROUP := "sound_source"
 @export var verb_id := "verb.listen"
 ## Switched off while the thing cannot be used (mid-climb, mid-walk).
 @export var enabled := true
+## Flags that must all be set before the verb is offered (data, GDD §12).
+@export var requires: PackedStringArray = PackedStringArray()
 
 
 func _ready() -> void:
@@ -28,9 +30,14 @@ func _ready() -> void:
 
 
 func is_available() -> bool:
-	return enabled
+	if not enabled:
+		return false
+	for flag in requires:
+		if not GameState.has_flag(flag):
+			return false
+	return true
 
 
 func use(player: Node3D) -> void:
-	if enabled:
+	if is_available():
 		used.emit(player)

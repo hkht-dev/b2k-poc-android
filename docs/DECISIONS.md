@@ -851,3 +851,64 @@ Same walk as before. The textured trees cost ten thousand triangles and four
 draw calls more than the blocks; still well inside. Checked in the browser:
 the birches and broadleaf trees read as trees at street distance, the cars
 sit at the kerb at real size.
+
+
+## 2026-10-20 — P4: The Dry Fountain
+
+CLAUDE_CODE_BRIEF.md §4.4, GDD §7 "The Dry Fountain", §12 (the flag model).
+All three outcomes play from `data/quests/dry_fountain.json` and
+`data/dialogue/en.json`; no code reads a path.
+
+### What was built
+
+- **The fountain as a giver** (`scenes/quest/FountainPoint.tscn`,
+  `scripts/quest/fountain_point.gd`): *Look* opens the fountain's one line,
+  whose `sets` marks `looked_dry_fountain`. *Place* is an Interactable with
+  `requires = ["gopal_will_carry"]` — a new, data-only field on
+  `Interactable`: the verb is offered only while the flags hold — and is
+  enabled only while the player carries. It fires `can_placed_at_fountain`;
+  the quest's carry step sets `gave_dry_fountain`; the water plane rises over
+  six seconds from the basin floor and the water loop starts. A can taken
+  without him can never be placed: the fountain stays dry on that path.
+- **Gopal Seth** (`scenes/npc/Gopal.tscn`, `scripts/npc/gopal.gd`) behind
+  his counter, the survivor skin. *Talk* opens the first of `entry_lines`
+  (data on the scene: after-give, hurt, agree, decline, greet) whose
+  `requires` the flags meet; two lines gained `requires` in the dialogue
+  file so the order works. Once he has agreed and the player picks up a
+  can, he walks with them holding his own can, and goes back behind the
+  counter after the placing.
+- **The cans** (`scripts/quest/can_stack.gd`, generated into the shop): a
+  row on the pavement in front of the counter the player can *Pick up*
+  from, one at a time; the rest stay stacked behind. Picking up fires
+  `can_taken_from_shop`; the quest's `take` branch (`event and not
+  flag:gopal_will_carry`) sets `took_dry_fountain` and writes the journey
+  line. Carrying is the flag `carrying_can`, so it survives an autosave;
+  the body shows the can in the right hand (`CharacterRig.carry()`, a
+  `BoneAttachment3D`; the item is scaled back to world size).
+- **The light answers** (`street.gd`, `MOODS` data): a taken can cools the
+  sun and drops ambient to 0.85×; a given can warms it and lifts ambient
+  to 1.12×, easing over four seconds; a loaded journey applies it at once.
+- **Choice cards** are now bound to the dialogue in the street (they were
+  only in the debug panel). No icon, colour or order marks an answer.
+
+### Decisions
+
+- The quest's first step, *notice*, also completes on
+  `gopal_admitted_fear`: a player who talks to Gopal before looking at the
+  fountain has noticed it. Steps are sequential by design (the runner
+  re-derives progress from flags); this keeps the give path reachable in
+  either order without a path variable.
+- The ignore path needs nothing: no flag, no timer. The end of the slice
+  (bus stop, P6) is where it resolves.
+- Water is a dull grey-green (`assets/materials/water.tres`): peacock blue
+  is forbidden in the Street.
+
+### Performance in the web build (this change)
+
+| Metric | Limit (amendment §C) | Before | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 112, max 177 | median 112, max 182 |
+| Primitives per frame | < 150k | median 55.6k, max 68.3k | median 56.2k, max 70.4k |
+
+Same walk as before. Gopal (one skinned mesh), the fountain point and the
+cans on the pavement add a handful of draw calls at the shop angle.
