@@ -2002,3 +2002,88 @@ reward). Affects §5, §7.
   `double_sided = false`. The office plaque and the street plaque use a yaw
   of π (`FACE_NORTH`) so they read from the north. The shops' inside signs
   (`gen_interiors.py`) still use `NORTH`; theirs to turn.
+
+
+## 2026-10-20 — The shrine room behind the chai stall, and Madhuri
+
+GDD §5 Hollow Vale (the shrine room: "old photographs, a lamp, a stone
+basin", tucked behind the chai stall, leaking "a faint drone of Madhuri's
+chanting"), §7 main quest "Investigate" steps 1–3, §8 Scene D, §6
+"Remembering Krishna" (`saw_shrine`), §7 micro-interaction "Hum near the
+shrine: Madhuri's chant rises to meet the note". Affects §3a Act 3 ("Carry a
+can into the shrine room; set it by the lamp").
+
+### The place
+
+- `tools/interiors/shrine.py` generates `scenes/places/Shrine.tscn`, place
+  id `shrine` (`data/places.json`, name `place.shrine`): 6 x 5 m, a low
+  timber ceiling, plaster walls, no windows. It uses `assemble()` from the
+  interiors generator but not `room()`: the shops' room comes with windows
+  and ceiling lamps, and this one is lit by its single lamp. The shops'
+  ambient light is taken down by replacing the two lines `assemble()`
+  writes; each replacement is asserted, so if the generator changes, the
+  shrine's build fails rather than quietly turning bright.
+- `tools/street_parts/shrine_door.py` turns the chai stall's existing
+  `BackDoor` mesh into a door (`verb.enter` → `shrine`, spawn `shrine_door`)
+  with the spawn outside facing north, and puts the chant at the door,
+  faint, 12 m reach: the room is found by sound (GDD §5), not by a marker.
+  `gen_street.py` is untouched; Tulu's waypoints already end here.
+- Inside, `DoorOut` (`verb.leave`) returns to `street` on `shrine_door`, as
+  the two shops do.
+
+### Madhuri and her chant
+
+- `scenes/npc/Madhuri.tscn` + `scripts/npc/madhuri.gd`: the shared rigged
+  body in `humanFemaleA`, idle, by the lamp with her empty jar, facing it
+  (Scene D: she does not turn round). *Talk* opens the first of
+  `entry_lines` whose `requires` hold: `madhuri_after_water` (needs
+  `lamp_watered`), `madhuri_ask_water` (needs `met_madhuri`, set by the
+  greeting's own `sets`), `madhuri_greet`. So she greets once, then asks for
+  water each time until she has it, then says it will see the dawn. No
+  negated requirement was needed: the order of the list does it.
+- Lines are Scene D's, trimmed under 20 words, with the Veena left out (out
+  of scope for the slice); what was played at the fountain is "something
+  this street sang every dawn". Two cards each; no card is marked.
+- The chant is its own node (`scripts/npc/madhuri_chant.gd`, in
+  `sound_source`) rather than Madhuri's root: `Place._on_verb_used` shows
+  Tulu's subtitle for any verb used on a sound source or its child, and
+  *Talk* on Madhuri must not say "[Tulu hums three notes]". On `hear_hum()`
+  the loop comes up 7 dB over 0.6 s, holds 4 s, settles over 1.2 s, and the
+  HUD shows `sub.madhuri_chant` (GDD §11: every vocal sound subtitled). A
+  sound answering a sound: no flag, no reward.
+- `tools/audio_parts/chant.py` → `assets/audio/madhuri_chant.ogg`: 8 s,
+  two sung tones a tone apart (D3/E3) cross-fading once a loop over a root
+  drone, every rate a whole number of cycles per loop so it has no seam.
+  PLACEHOLDER for the recorded maha-mantra of GDD §10 "Sound".
+
+### The photographs and `saw_shrine`
+
+- `scenes/quest/Photograph.tscn` + `scripts/quest/photograph.gd`, three
+  instances on the east wall. *Look* opens the first of the photo's
+  `entry_lines` whose `requires` hold. Each photograph has two lines with
+  the same words: `photo_<x>` sets `saw_photo_<x>`; `photo_<x>_last`
+  requires the other two and also sets `saw_shrine`. Whichever is looked at
+  last marks the shrine seen, in data; nothing counts in code. The GDD's
+  `saw_shrine` is "visits the shrine"; the owner's brief for this feature
+  asked for all three photographs, which is what the data does.
+- The speaker `photo` has an empty name, like `fountain`: a narrator line.
+
+### Water for the lamp
+
+- `scenes/quest/LampPoint.tscn` + `scripts/quest/lamp_point.gd`, mirroring
+  the fountain point. *Place* is offered only while `carrying_can` is set
+  (the `requires` on the Interactable); using it puts the can down, fires
+  `event_id` (`can_placed_at_shrine`) and sets `sets` (`lamp_watered`), all
+  exports set in the scene. The lamp (the room's one `OmniLight3D`, inside
+  this scene so it can answer) comes up from 0.8 to 1.6 over 4 s and the
+  can appears by the stand; a loaded journey with `lamp_watered` starts lit.
+- No quest file: *The Forgotten Song* is out of scope for the slice and not
+  to be scaffolded. The flags and the event are there for it; a later quest
+  file can wait on `event:can_placed_at_shrine` the way the fountain's does.
+
+### Placeholders
+
+Primitives in the street's textures for the room, the stand, the basin and
+the cushion (GDD §5 "custom work is limited to ... the shrine interior");
+pale panes in timber frames for the photographs; the shared Kenney body for
+Madhuri (GDD §4); a synthesised drone for the chant (GDD §10).

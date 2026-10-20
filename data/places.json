@@ -18,5 +18,9 @@
   "nanda_flat": {
     "scene": "res://scenes/places/NandaFlat.tscn",
     "name_id": "place.nanda_flat"
+  },
+  "shrine": {
+    "scene": "res://scenes/places/Shrine.tscn",
+    "name_id": "place.shrine"
   }
 }
