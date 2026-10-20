@@ -135,7 +135,14 @@ for _part in load_parts("audio_parts"):
 
 def encode(samples: np.ndarray) -> bytes:
     buf = io.BytesIO()
-    sf.write(buf, np.clip(samples, -1, 1).astype(np.float32), RATE, format="OGG", subtype="VORBIS")
+    data = np.clip(samples, -1, 1).astype(np.float32)
+    # libsndfile's Vorbis encoder segfaults when handed more than ~2M frames
+    # in one write (the Veil's 90 s loops, tools/audio_parts/veil.py); feed
+    # it ten seconds at a time. Short sounds are unaffected.
+    chunk = RATE * 10
+    with sf.SoundFile(buf, "w", samplerate=RATE, channels=1, format="OGG", subtype="VORBIS") as out:
+        for start in range(0, len(data), chunk):
+            out.write(data[start : start + chunk])
     return buf.getvalue()
 
 

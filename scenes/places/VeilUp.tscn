@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3]
+
+; The way up (GDD §3 Act 5 "Rising"): from the shrine's basin back to the
+; Grove's Pool. Data only: Veil.tscn with its exports set. Nothing is said
+; on the way home; the Song returning is the whole of it.
+
+[ext_resource type="PackedScene" path="res://scenes/places/Veil.tscn" id="1_veil"]
+
+[node name="VeilUp" instance=ExtResource("1_veil")]
+direction = "up"
+next_place = "grove"
+next_spawn = "pool_bank"
+seconds = 90.0
+early_end_after = 20.0
+hold_seconds = 1.0
+line_ids = PackedStringArray()

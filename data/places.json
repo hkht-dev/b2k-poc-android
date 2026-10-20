@@ -10,5 +10,13 @@
   "store": {
     "scene": "res://scenes/places/Store.tscn",
     "name_id": "place.store"
+  },
+  "veil_down": {
+    "scene": "res://scenes/places/VeilDown.tscn",
+    "name_id": "place.veil_down"
+  },
+  "veil_up": {
+    "scene": "res://scenes/places/VeilUp.tscn",
+    "name_id": "place.veil_up"
   }
 }
