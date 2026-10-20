@@ -1,0 +1,56 @@
+[gd_scene load_steps=7 format=3]
+
+; A car the player can drive (scripts/vehicles/car.gd). The body is
+; Quaternius' SportsCar2 (CC0, docs/RIGHTS_REGISTER.md), life size, which
+; faces +Z in the file; this body faces -Z like everything that moves, so
+; the model is turned half round. tools/street_parts/car.py parks it.
+; PLACEHOLDER: a generic stylised vehicle of GDD §5 ("vehicles and clothes
+; are generic") replaces the pack model.
+
+[ext_resource type="Script" path="res://scripts/vehicles/car.gd" id="1_car"]
+[ext_resource type="PackedScene" path="res://assets/thirdparty/quaternius/realistic-car-pack/SportsCar2.glb" id="2_model"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="3_interact"]
+[ext_resource type="AudioStream" path="res://assets/audio/engine_loop.ogg" id="4_engine"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hull"]
+size = Vector3(1.8, 1.4, 4.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_enter"]
+size = Vector3(4.0, 2.2, 6.4)
+
+; Layer 1 so the player and the camera meet it as they meet a wall; layer 2
+; so it collides with the world the way the player does (mask 1).
+[node name="Car" type="CharacterBody3D"]
+collision_layer = 3
+collision_mask = 1
+floor_snap_length = 0.3
+script = ExtResource("1_car")
+exit_verb_id = "verb.exit"
+
+[node name="Hull" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+shape = SubResource("BoxShape3D_hull")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
+
+; *Drive* is offered all round the car, a step out from its sides.
+[node name="Enter" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_interact")
+verb_id = "verb.drive"
+
+[node name="Shape" type="CollisionShape3D" parent="Enter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("BoxShape3D_enter")
+
+; PLACEHOLDER: a synthesized loop (tools/audio_parts/engine.py) until the
+; sound designer records an engine for GDD §10's Hollow Vale bed.
+[node name="Engine" type="AudioStreamPlayer3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -1.4)
+stream = ExtResource("4_engine")
+volume_db = -8.0
+unit_size = 8.0
+max_db = 0.0
+pitch_scale = 0.8

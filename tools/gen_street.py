@@ -325,9 +325,11 @@ bush_spots = [(-42, 6.3), (-36, 6.3), (-26, 6.3), (-60, 25.6), (-14, 25.6), (34,
 b.batch("Bushes", "Dressing", "bush",
       [((x, 0.0, z), (x * 1.3) % 6.28, (4.0, 3.6, 4.0)) for x, z in bush_spots], shadows=False)
 
-# Parked at the kerb: Quaternius cars, and Poly Haven's car under a tarp.
+# Parked at the kerb: Quaternius cars, and Poly Haven's car under a tarp. The
+# SportsCar2 that stood at (-12, 0, 11.4) is the driveable car of
+# tools/street_parts/car.py now.
 PARKED = [("car_normal2", (-24, 0, 11.3), math.pi / 2), ("car_sports", (40, 0, 20.7), -math.pi / 2),
-          ("car_sports2", (-12, 0, 11.4), math.pi / 2), ("car_suv", (34.2, 0, -20), 0.0)]
+          ("car_suv", (34.2, 0, -20), 0.0)]
 for i, (kind, pos, yaw) in enumerate(PARKED):
     b.model(f"ParkedCar{i}", "Dressing", kind, pos, yaw, CAR_SCALE)
 b.model("CoveredCar", "Dressing", "covered_car", (52, 0, 11.3), math.pi / 2)
