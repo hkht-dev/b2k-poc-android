@@ -1040,3 +1040,90 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — Rooftop running: the stair, the vault, the cables
+
+GDD §3a "Hold to sprint; time jumps at ledges and cables", §16a "Rooftop
+running" (momentum, ledges, cables, awnings, timing; falling drops the
+player to the pavement; nothing is lost), §6 (climbs are contextual; no
+jump button). Affects §3a (the Street's traversal layer), §6, §12 (one
+flag, `reached_rooftop`).
+
+### The leap is the run meeting the edge
+
+- No jump button. `scripts/player/player.gd` reads the ground half a metre
+  ahead of the feet; when it falls away by more than a metre while the body
+  is running, the body looks for a surface 3.5 m to 1.5 m ahead (farthest
+  first, within 0.6 m above or 1.2 m below, nothing at chest height in the
+  way) and, finding one, leaps for it: a 0.6 s arc, the run's momentum kept
+  on landing (`is_vaulting()`, `vault_started`, `vault_finished`). Finding
+  none, it runs off and gravity does the rest. A walk never vaults: a walk
+  off an edge is a drop.
+- A fall from more than 4 m ends in a stumble: the stick is ignored for
+  0.5 s and the run timer starts over (`is_stumbling()`, `stumbled`).
+  Nothing else: no flag, no line, no damage, no state. The GDD's "nothing is
+  lost" is literal; a test compares the whole journey before and after.
+- Cables are StaticBody3D nodes in the group `cable`, their local Z along
+  the run. On one, the stick's push is projected onto the cable and the body
+  eases back to its line (`is_on_cable()`): balance is contextual, as the
+  climb is, because a 0.3 m line cannot be held with a thumb over 14 m.
+  Balance holds for half a second after the feet leave the floor, so a hop
+  at a junction does not hand the body back to the raw stick in mid-air.
+  Each cable begins with a level block in the same group (a "step", 1.6 to
+  2 m wide): stepping onto it is already stepping onto the line, and the
+  body is centred before the cable narrows under it. Measured headless with
+  the stick twenty degrees off the line from four metres back: without the
+  steps the player missed the 0.3 m start and fell; with them, every run
+  reached the pole and the shelter.
+- Parapet lips are 0.3 m, under the player's 0.36 m step: a push into one
+  steps onto it, and only then off. The vault reads the lip as ground and
+  leaps from on top of it. A slide along the edge is caught.
+
+### The route (`tools/street_parts/rooftops.py`)
+
+- The flats' cap slabs (`Flat<i>Parapet`) were meshes 0.4 m above the
+  collider: a deck collider at the slab's top puts the feet on what the eye
+  sees, on Flat9 and Flat10 only.
+- An external stair up Flat9's west face from the alley: 28 treads as one
+  MultiMesh, a ramp collider through their mid-points (within 0.13 m; a
+  CharacterBody3D walks a 35° ramp, and a tread-by-tread collider would
+  only exercise the step-up 28 times), a rail, a landing over the slab's
+  south-west corner. Signed `sign.stairs` ("ROOF ACCESS") on the flat's
+  street corner, from the string table.
+- Flat9 to Flat10 is the two-metre gap the sketch asked for, lip to lip.
+- The sketch ran the first cable from Flat10's roof to the bus-stop shelter
+  roof: 4.7 m down over 4.5 m is steeper than a body can stand on (the
+  floor limit is 45°), and over the shelter's far corner the cable would
+  end mid-roof. So the pole comes first: cable A runs from a step on
+  Flat10's north edge down over the road to a 2 m platform on the
+  traffic-light pole (6.6°), beside the beam where the Glimpse sat (P5);
+  cable B runs from the platform down to the shelter roof (13°). The
+  route's end, and `reached_rooftop`, is the pole platform: "rooftop
+  running to where Krishna was glimpsed" (GDD §3a). The platform has a
+  rail on its north and east sides, the two no cable leaves by, and the
+  stair landing one on its south edge: a run arrives at 4.6 m/s and two
+  metres is less than half a second. An awning over
+  Flat10's ground-floor windows is the short way down: a step off the
+  north lip, 3.5 m, then 3.9 m to the pavement; a run off that lip
+  overshoots it and lands on the pavement with a stumble.
+- `scripts/quest/reach_point.gd` is generic: an Area3D with `flag_set`
+  (data on the node), fires once because the flag persists. Nothing shows,
+  nothing counts.
+
+### Budget
+
+Not measured in the web build this round (the parallel agents share four
+cores and may not export). Added when everything is in view: four
+MultiMeshes (lips, treads, posts), twelve solids (landing, its rail, sign
+board, two cable steps, platform, two platform rails, awning, stair rail
+and the two cables), one label — about seventeen draw calls on P6's max
+of 177, under the 200 limit; the integrator's web-build walk should
+confirm. Colliders (decks, lips, ramp, shelter roof) add no draw calls.
+
+### Placeholders
+
+Treads, landing, lips, cables, platform and awning are primitives in the
+street's materials; PLACEHOLDER for the painted rooftops and cables of GDD
+§10, Hollow Vale row. No peacock blue or magenta: concrete, rust, tyre
+grey and the olive canopy.
