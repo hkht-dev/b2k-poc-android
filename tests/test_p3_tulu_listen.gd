@@ -180,9 +180,13 @@ func test_the_pause_menu_says_a_boy_is_humming_until_he_is_heard() -> void:
 
 
 func test_there_is_still_no_marker_arrow_or_objective_on_the_hud() -> void:
-	var street := _street_with_player_at(Vector3(0, -1, 2))
+	var street := _street_with_player_at(Vector3(2.4, -0.4, 2))
 	var controls: Control = street.get_node("%TouchControls")
-	await wait_frames(2)
+	await wait_frames(8)
 	assert_eq(controls.subtitle_text(), "", "no text on the HUD until a sound")
-	assert_eq(controls.contextual_button().current_verb(), "verb.look", "in the basin the fountain offers Look (P4); nothing else")
+	assert_eq(
+		controls.contextual_button().current_verb(),
+		"verb.look",
+		"in the basin the fountain offers Look (P4); nothing else"
+	)
 	assert_false(controls.minimap().visible, "no map")
