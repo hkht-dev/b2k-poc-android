@@ -86,6 +86,23 @@ REQUIRED_STRING_IDS = [
     *[f"garden.{k}" for k in ("title", "close", "pull", "pulled", "hint", "empty", "creeper")],
     "journey.stray_cows",
     "quest.stray_cows.both",
+    *[f"journey.glimpse.{k}" for k in ("tower", "stairwell", "garden", "chai_stall")],
+    "speaker.counting_man",
+    *[f"count.{k}" for k in ("hint", "total", "stop", "done")],
+    "sub.counting_man_laugh",
+    "sub.counting_man_note",
+    "verb.try_on",
+    *[f"wardrobe.{k}" for k in ("title", "done", "prev", "next")],
+    "speaker.dhanpal",
+    "sign.hall",
+    "pause.set_lamp",
+    "lamp.title",
+    "lamp.cancel",
+    "pause.noticed",
+    "sign.chai",
+    "speaker.chai_seller",
+    "speaker.tulu",
+    "sub.tulu_points",
 ]
 SKINS = {"humanFemaleA", "humanMaleA", "criminalMaleA", "skaterFemaleA", "skaterMaleA", "survivorFemaleA", "survivorMaleB"}
 VIGNETTE_REQUIRED = ["id", "giver_name_id", "skin", "spot", "lines", "journey_line_id", "outcomes"]
@@ -141,6 +158,9 @@ def main() -> int:
     problems += check_daylight()
     problems += check_vignettes(strings)
     problems += check_garden(strings)
+    problems += check_outfits(strings)
+    problems += check_lamp_lines(strings)
+    problems += check_tells(strings)
     if problems:
         fail(f"{problems} problem(s)")
         return 1
@@ -519,6 +539,112 @@ def check_garden(strings: dict) -> int:
             problems += 1
     if not problems:
         print(f"ok  data/garden.json ({len(seeds)} seeds)")
+    return problems
+
+def check_outfits(strings: dict) -> int:
+    """data/outfits.json: what the showroom's wardrobe offers."""
+    path = DATA / "outfits.json"
+    if not path.exists():
+        return 0
+    data = load(path)
+    if data is None:
+        return 1
+    problems = 0
+    outfits = data.get("outfits")
+    if not isinstance(outfits, list) or not outfits:
+        fail("data/outfits.json: 'outfits' must be a non-empty list")
+        return 1
+    ids = []
+    for outfit in outfits:
+        if not isinstance(outfit, dict) or not all(k in outfit for k in ("id", "name_id", "skin")):
+            fail("data/outfits.json: every outfit needs id, name_id and skin")
+            problems += 1
+            continue
+        ids.append(outfit["id"])
+        if outfit["name_id"] not in strings:
+            fail(f"data/outfits.json: '{outfit['id']}' name '{outfit['name_id']}' not in strings")
+            problems += 1
+        skin = str(outfit["skin"])
+        if not skin.startswith("res://assets/thirdparty/kenney/") or not (ROOT / skin[len("res://"):]).exists():
+            fail(f"data/outfits.json: '{outfit['id']}' skin '{skin}' is not a Kenney skin in the repository")
+            problems += 1
+    if len(set(ids)) != len(ids):
+        fail("data/outfits.json: outfit ids repeat")
+        problems += 1
+    if data.get("default") not in ids:
+        fail("data/outfits.json: 'default' must be one of the outfit ids")
+        problems += 1
+    if not problems:
+        print(f"ok  data/outfits.json ({len(ids)} outfits)")
+    return problems
+
+
+def check_lamp_lines(strings: dict) -> int:
+    """data/lamp_lines.json: twelve preset lines, nothing free-text."""
+    path = DATA / "lamp_lines.json"
+    if not path.exists():
+        return 0
+    data = load(path)
+    if data is None:
+        return 1
+    problems = 0
+    lines = data.get("lines")
+    if not isinstance(lines, list) or len(lines) != 12:
+        fail("data/lamp_lines.json: exactly twelve 'lines' (GDD §16a)")
+        problems += 1
+        lines = lines if isinstance(lines, list) else []
+    for line_id in lines:
+        if line_id not in strings:
+            fail(f"data/lamp_lines.json: line '{line_id}' not in strings")
+            problems += 1
+    for key in ("days", "max_per_place", "seconds_per_day"):
+        if not isinstance(data.get(key), int) or data.get(key) <= 0:
+            fail(f"data/lamp_lines.json: '{key}' must be a positive integer")
+            problems += 1
+    if not problems:
+        print(f"ok  data/lamp_lines.json ({len(lines)} lines)")
+    return problems
+
+
+def check_tells(strings: dict) -> int:
+    """data/tells.json: small wrongnesses, each with its sentence and place."""
+    path = DATA / "tells.json"
+    if not path.exists():
+        return 0
+    data = load(path)
+    if data is None:
+        return 1
+    places = load(DATA / "places.json") or {}
+    problems = 0
+    tells = data.get("tells")
+    if not isinstance(tells, list) or not tells:
+        fail("data/tells.json: 'tells' must be a non-empty list")
+        return 1
+    ids = set()
+    for tell in tells:
+        if not isinstance(tell, dict) or not tell.get("id"):
+            fail("data/tells.json: every tell needs an id")
+            problems += 1
+            continue
+        if tell["id"] in ids:
+            fail(f"data/tells.json: id '{tell['id']}' repeats")
+            problems += 1
+        ids.add(tell["id"])
+        if tell.get("sentence_id") not in strings:
+            fail(f"data/tells.json: '{tell['id']}' sentence '{tell.get('sentence_id')}' not in strings")
+            problems += 1
+        if tell.get("place") not in places:
+            fail(f"data/tells.json: '{tell['id']}' place '{tell.get('place')}' is not in data/places.json")
+            problems += 1
+        if "requires_humming" in tell and not isinstance(tell["requires_humming"], bool):
+            fail(f"data/tells.json: '{tell['id']}' requires_humming must be true or false")
+            problems += 1
+    for key in strings:
+        if key.startswith("tell.") and key[len("tell."):] not in ids:
+            fail(f"data/tells.json: string '{key}' has no tell row")
+            problems += 1
+    if not problems:
+        print(f"ok  data/tells.json ({len(ids)} tells)")
     return problems
 
 
