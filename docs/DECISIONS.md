@@ -692,4 +692,14 @@ and swapping them in is a change to `Character.tscn`, not to code.
 Skinned meshes cannot be batched: eight humans are eight draw calls each
 frame (plus shadow). Numbers below.
 
-PERF_TABLE_PLACEHOLDER
+| Metric | Limit (amendment §C) | Visual pass | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 155, max 224 | median 108, max 176 |
+| Primitives per frame | < 150k | median 40.8k, max 48.7k | median 44.6k, max 53.3k |
+| Web `.pck` | — | 30 MB | 32 MB |
+
+Same walk as before. Fewer draw calls, not more: each primitive figure was
+fifteen boxes and spheres, each a draw call with its shadow; a skinned
+human is one mesh. The peak angle along the road is now inside the budget.
+Checked in the browser build: the body faces the way it walks, stands
+1.75 m, wears its skin, and pedestrians play the run clip on their loops.
