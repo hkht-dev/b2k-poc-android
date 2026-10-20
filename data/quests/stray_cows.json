@@ -1,0 +1,19 @@
+{
+  "id": "stray_cows",
+  "giver": "street",
+  "start_condition": "flag:heard_tulu",
+  "steps": [
+    {
+      "id": "both_at_fountain",
+      "objective_text_id": "quest.stray_cows.both",
+      "complete_when": "event:cow_reached_fountain_0 and event:cow_reached_fountain_1",
+      "flags_set": []
+    }
+  ],
+  "branches": [],
+  "end_condition": "event:cow_reached_fountain_0 and event:cow_reached_fountain_1",
+  "flags_set_on_end": [
+    "cows_home"
+  ],
+  "journey_line_id": "journey.stray_cows"
+}
