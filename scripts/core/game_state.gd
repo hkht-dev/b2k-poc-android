@@ -37,6 +37,11 @@ var hum_count: int = 0
 ## *Sit* opens after 90 s of play). Counted by the street, saved with the
 ## rest; not a timer the player sees.
 var play_seconds: float = 0.0
+## The garden (GDD §6 "The Garden"): seeds with the day they were planted,
+## what was pulled, the creeper's watered days, the count of play-days and
+## the last date played. Kept by scripts/core/garden.gd; shown only on its
+## own screen, never as a number.
+var garden: Dictionary = Garden.empty()
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -50,6 +55,8 @@ func _init() -> void:
 
 func _ready() -> void:
 	load_journey()
+	# The first play on a new calendar date is a play-day (GDD §16a).
+	Garden.advance_day(self)
 
 
 # -- flags --------------------------------------------------------------------
@@ -114,6 +121,7 @@ func set_beat(new_beat: String) -> void:
 ## stable across locales and rewrites.
 func record_choice(line_id: String, card_index: int, sets: PackedStringArray) -> void:
 	choice_history.append({"line": line_id, "card": card_index, "sets": Array(sets)})
+	Garden.reconcile(self)
 	_save_if_enabled()
 
 
@@ -142,6 +150,7 @@ func to_dict() -> Dictionary:
 		"settings": settings.duplicate(true),
 		"hum_count": hum_count,
 		"play_seconds": play_seconds,
+		"garden": garden.duplicate(true),
 	}
 
 
@@ -161,6 +170,7 @@ func from_dict(data: Dictionary) -> void:
 	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
 	hum_count = int(data.get("hum_count", 0))
 	play_seconds = float(data.get("play_seconds", 0.0))
+	garden = Garden.normalised(data.get("garden"))
 
 
 func save() -> bool:
@@ -198,6 +208,7 @@ func wipe() -> void:
 	settings = {}
 	hum_count = 0
 	play_seconds = 0.0
+	garden = Garden.empty()
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)
@@ -209,7 +220,15 @@ func set_autosave(enabled: bool) -> void:
 	_autosave = enabled
 
 
+## The garden changed outside a flag or a choice (a day began, a weed was
+## pulled, the creeper was watered): save, if saving is on.
+func garden_changed() -> void:
+	_save_if_enabled()
+
+
 func _on_flag_changed(flag: String, is_set: bool) -> void:
+	if is_set:
+		Garden.on_flag(self, flag)
 	flag_changed.emit(flag, is_set)
 	_save_if_enabled()
 

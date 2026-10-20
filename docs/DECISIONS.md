@@ -1040,3 +1040,73 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — The Garden as a data model and a drawn plot
+
+GDD §6 "The Garden: seeds, fruit and the creeper", §16a "Days and lives".
+Affects §6 (the garden exists; fruit vignettes do not yet), §11 (a screen
+reached from the pause menu for now), §12 (`garden` on the journey).
+
+### What
+
+- `data/garden.json` says which sources plant which seeds: a source is
+  `flag:<name>` or `choice:<line_id>:<card_index>`, a kind is `sweet`,
+  `bitter` or `weed`, and each carries the id of the sentence it came from
+  (`seed.*` in the string table). The same file names the creeper's flag
+  (`creeper_given`, set by another feature; a debug flag for now), the
+  watering flags (hearing, chanting, remembering, service: `heard_tulu`,
+  `hummed`, `glimpsed_traffic_light`, `gave_dry_fountain`, `saw_shrine`,
+  `nanda_listened`, `played_for_others`), how many steps shade (3) and how
+  many play-days a seed takes to sapling (1) and to fruit (2).
+- `scripts/core/garden.gd` (`Garden`, static) keeps the plot in
+  `GameState.garden`: `seeds[{id, kind, day_planted}]`, `pulled[ids]`,
+  `creeper{given, watered_days}`, `days`, `last_date`. `GameState` calls it
+  when a flag is set, when a choice is recorded and at launch; the plot can
+  also be rebuilt from flags and `choice_history` alone (`reconcile`), so a
+  journey saved before the garden existed grows one on its next play-day.
+- `scenes/ui/GardenScreen.tscn` draws the plot in `_draw`: rows of soil,
+  seeds as dots, saplings as stems, fruit as warm circles, weeds as grey
+  tufts, a pulled weed's scar as a fleck, the creeper as a vine up a plaster
+  wall on the right. Touching a plant shows its sentence; a weed offers
+  *Pull*. Opened from the pause menu (*The garden*).
+
+### Decisions
+
+- **A play-day is a calendar date, not a timer.** `advance_day` compares
+  `Time.get_date_string_from_system()` with the saved `last_date` at launch
+  and when the garden is opened; a flag set across midnight in one sitting
+  belongs to the day the sitting began (§16a: "a session is a day"). Nothing
+  grows, climbs or withers between plays: absence costs nothing.
+- **Each seed is its own plant; thickness is the habit's.** Every planting
+  keeps its own sentence and its own stage. "Repeating the same kind of
+  choice feeds the same sapling" is drawn as stem width: every stem of a kind
+  is as thick as that kind's living count. The count is never written.
+- **Seeds look alike, and so does fruit.** Sweet and bitter seeds are the
+  same dot and sweet and bitter fruit the same warm circle. The GDD's rule
+  against a correct-answer cue is about cards, but painting a kind onto a
+  plant would be the designer's verdict the garden exists to avoid; the
+  sentence says what was planted, and both kinds of fruit bind.
+- **Watering is a flag newly set on that day,** through the data list, and
+  `Garden.water(GameState)` is public so the hum, *Listen* or a tale can
+  water directly later without a new flag. A day is watered once.
+- **Pulled weeds stay in the record** as `pulled` ids: the scar is drawn,
+  the sentence still reads, and `reconcile` does not replant it (§6
+  "Regrowth" keeps the scar visible).
+- **Interim way in: the pause menu.** The GDD puts the plot in the Grove,
+  which another agent is building. The pause menu's *The garden* button
+  opens the screen as its own child overlay, so no place script changes;
+  when the Grove exists, the button goes and the Grove instances the same
+  scene.
+
+### Not built (GDD §6, deferred, data kept forward-compatible)
+
+Fruit vignettes and tasting (`Garden.ripe_fruit()` is the hook), weeds
+wrapping the creeper, roots and knots, regrowth from tasting, neglect
+pulling the creeper down, the next life. `GameState.garden` is a plain
+Dictionary so each can add a key.
+
+### Placeholders
+
+None: the plot is drawn with primitives and is its own final form until the
+Grove gives it a place.
