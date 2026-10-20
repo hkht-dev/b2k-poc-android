@@ -1040,3 +1040,111 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — Optional wisdom: the lotus and the cards
+
+GDD §6 "Optional wisdom", §9 "Wisdom encounters", §11 (HUD, accessibility),
+§10 (the lotus as the UI's one ornament; the forbidden colours), §15 (the
+rule on verse text). Affects §6, §9, §11.
+
+### What was built
+
+- `data/wisdom.json` is GDD §9's table, transcribed: seven cards, in its
+  order, each with its beat, a `trigger` in the condition grammar of
+  `scripts/lib/condition.gd`, four string ids (verse, meaning, Read more
+  note, source line), the verse reference and `review_status: draft`.
+  `scripts/core/wisdom.gd` is the static loader (like `places.gd`); a bad
+  row is reported by id and skipped.
+- The lotus (`scripts/ui/wisdom_prompt.gd`, `%Lotus` in
+  `TouchControls.tscn`) is a Control drawn with `_draw`: five petals in the
+  UI's parchment and ink with an ochre heart and a faint warm glow, no
+  image, nothing when hidden. It sits at the right screen edge, mid-height,
+  clear of the minimap and the contextual button, breathes at 0.5 Hz (GDD
+  §11's 3 Hz limit) for eight seconds, fades over 0.6 s and is gone. Its
+  countdown holds while the tree is paused (a dialogue, the pause menu, a
+  card), so an offer is never eaten by a menu.
+- `scenes/ui/WisdomCard.tscn` is §9's card format: the verse in the heading
+  font, the source line, the two-sentence meaning, *Read more* (the note
+  unfolds in a ScrollContainer in place; the button has done its work and
+  goes), *Close*. Focus lands on *Read more*, then on *Close*; Escape or
+  the pause action closes. The tree pauses while a card is open ("the game
+  pauses while one is open", §9) and the card processes always.
+- The Place base connects `GameState.flag_changed` to
+  `_on_wisdom_trigger`: when a flag is set, the cards whose trigger *reads
+  that flag* are evaluated, and the first unseen one whose trigger holds is
+  offered and recorded in `GameState.wisdom_seen` (a new persisted Array of
+  card ids; to_dict/from_dict/wipe). Only cards naming the changed flag are
+  considered, so a card appears at the moment of its own beat and never
+  later on an unrelated flag change (§9: "tied to a beat the player has just
+  lived through"). One card per flag change (§9: never more than one per
+  beat); a newer offer replaces an older lotus. Loading emits nothing per
+  flag, so a resumed journey re-offers nothing. `wisdom_seen` records that
+  the lotus was *offered*, not that the card was opened: ignoring it has no
+  effect, and nothing is counted (§6).
+- The contextual action (E, A) opens the offered card only when nothing
+  usable is near; near something, the thing's verb wins. The card is
+  optional; the world is not. A tap or click on the lotus always opens it.
+
+### This is the GDD's own prompt, not a notification
+
+The brief forbids notifications, timers, markers and badges. The lotus is
+none of these and the GDD asks for it by name (§6, §11: "the lotus icon
+pulses only when a card is available"). It is in-world and silent: no
+sound, no number, no badge, no push, no record of how many were missed. It
+is dismissible by doing nothing. Nothing in the game depends on it: no
+flag, quest, line or ending reads `wisdom_seen`, and the debug panel does
+not need it. Its eight seconds are a window, not a countdown the player
+sees; nothing is lost when it closes.
+
+### Verse text: plain renderings, labelled as such, until the panel approves
+
+GDD §9: "The verse text itself is not written here: the published
+translation must be chosen and licensed ... the exact wording goes in only
+after panel approval." GDD §15: "Scriptural text appears only as a licensed
+translation with edition named; the game never paraphrases a verse as if it
+were the verse." So every `wisdom.<id>.verse` is the game's own plain
+rendering of the verse's sense, and the card's source line says so in as
+many words ("told here in plain words, not the verse itself. The licensed
+translation, with its edition, goes here after the panel approves it").
+Quoting a public-domain translation from memory and naming its edition
+risked a misquotation under a real scholar's name, which §15 forbids more
+sharply than a labelled rendering. PLACEHOLDER: the licensed translation
+(BBT permission, §15) and edition replace the verse and source strings at
+the week-12 review; the string ids do not change. The meanings are §9's
+draft glosses, kept to two sentences; the *Read more* notes are 245–266
+words each, written for someone with no background, say which game ideas
+are fiction (the Grove, Hollow Vale, the Song, the Veena, the embrace), and
+carry the maha-mantra once, as text, in card 6 with a one-line explanation
+(§9 rules). A test holds that no card contains "you chose".
+
+### Triggers, as data
+
+| Card | GDD beat | Trigger in the data | In Slice 1 |
+|---|---|---|---|
+| whisper (Bg 2.13) | After the whisper (Act 1) | `flag:heard_whisper` | never: Act 1 is out of the slice; the Grove sets the flag |
+| arrival (Bg 15.7) | Arrival in Hollow Vale | `flag:heard_tulu` | the first *Listen*, the arrival beat's first act |
+| take (Bg 2.62–63) | After any take choice | `flag:took_dry_fountain` | yes |
+| give (Bg 3.9) | After any give choice | `flag:gave_dry_fountain` | yes |
+| shrine_water (Bg 9.26) | At the shrine, after carrying water | `flag:saw_shrine` | when the shrine lands; its carry flag may replace this one string |
+| melody (Bg 18.66) | After beat 12 (the melody) | `flag:played_for_others or flag:kept_veena` | never: the dawn choice is out of the slice |
+| embrace (Bg 9.22) | After the embrace (credits) | `flag:embraced` | never: Act 5 is out of the slice |
+
+Later quests extend a trigger with `or` (`flag:took_dry_fountain or
+flag:took_fence`); nothing in code changes. The out-of-slice cards are
+content transcribed from §9, not scaffolding: the data format is the same
+for all seven and a flag no scene sets is simply never set.
+
+### Not built
+
+- §9's *Learn more* link to a team page: the page is an open decision (§17)
+  and the slice makes no network call. The note is offline, as §6 asks.
+- Localised verse translations (§11: licensed per language) wait on the
+  English one.
+
+### Budget
+
+UI only, no web build exported for this change (the machine is shared).
+The lotus is one Control: hidden, it draws nothing; showing, it is six
+polygons and two circles for eight seconds. The card is a panel of labels
+that exists only while open.

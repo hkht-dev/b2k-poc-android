@@ -23,6 +23,8 @@ const HUM_REACH := 40.0
 const CONTROLS_HINT := preload("res://scenes/ui/ControlsHint.tscn")
 const CHOICE_CARDS := preload("res://scenes/ui/ChoiceCards.tscn")
 const SETTINGS_SCREEN := preload("res://scenes/ui/SettingsScreen.tscn")
+## Optional wisdom (GDD §6, §9): the card the lotus opens.
+const WISDOM_CARD := preload("res://scenes/ui/WisdomCard.tscn")
 const LARGE_TEXT_SCALE := 1.2
 ## §A4: touch sensitivity is half the desktop default.
 const TOUCH_SENSITIVITY := 0.5
@@ -36,6 +38,7 @@ const DOOR_FADE_SECONDS := 0.45
 var _pause_menu: Control = null
 var _controls_overlay: Control = null
 var _settings_overlay: Control = null
+var _wisdom_card: Control = null
 var _near: Interactable = null
 var _hum_player: AudioStreamPlayer = null
 var _cards: Control = null
@@ -66,6 +69,9 @@ func _ready() -> void:
 	_cards = CHOICE_CARDS.instantiate()
 	_ui.add_child(_cards)
 	_cards.bind(Content.dialogue)
+	# Optional wisdom (GDD §6, §9): a flag may offer a card; the lotus opens it.
+	GameState.flag_changed.connect(_on_wisdom_trigger)
+	_controls.lotus().opened.connect(_open_wisdom_card)
 	_fade = ColorRect.new()
 	_fade.color = Color(0, 0, 0, 0)
 	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -198,6 +204,11 @@ func fade_alpha() -> float:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("contextual"):
+		# Optional wisdom: with nothing usable near, the action opens the
+		# offered card; near something, the thing wins (the card is optional).
+		if _near == null and not is_paused() and not _input_locked and _controls.lotus().open():
+			get_viewport().set_input_as_handled()
+			return
 		_controls.contextual_button().button_down.emit()
 		if _near != null:
 			_controls.contextual_button().pressed.emit()
@@ -236,12 +247,14 @@ func tap_to_walk_enabled() -> bool:
 	return bool(GameState.settings.get("tap_to_walk", true))
 
 
+## The world stands still under the pause menu and under an open wisdom
+## card (GDD §9: "the game pauses while one is open").
 func is_paused() -> bool:
-	return _pause_menu != null
+	return _pause_menu != null or _wisdom_card != null
 
 
 func pause() -> void:
-	if _pause_menu != null:
+	if _pause_menu != null or _wisdom_card != null:
 		return
 	_pause_menu = PAUSE_MENU.instantiate()
 	_pause_menu.resumed.connect(resume)
@@ -293,6 +306,50 @@ func _show_settings() -> void:
 
 func settings_overlay() -> Control:
 	return _settings_overlay
+
+
+# -- optional wisdom (GDD §6 "Optional wisdom", §9) ---------------------------
+
+
+## A flag was set: if a card in data/wisdom.json waits on it and has not been
+## offered this journey, the lotus pulses. One card per beat; never on a
+## clear, never on load (loading emits nothing per flag), and nothing the
+## player must do about it. Which cards exist, and when, is data.
+func _on_wisdom_trigger(flag: String, is_set: bool) -> void:
+	if not is_set:
+		return
+	for card_id in Wisdom.cards_for_flag(flag):
+		if GameState.has_seen_wisdom(card_id):
+			continue
+		if not Wisdom.is_triggered(card_id, GameState.flags, GameState.events):
+			continue
+		GameState.mark_wisdom_seen(card_id)
+		_controls.lotus().show_card(card_id)
+		return
+
+
+## The lotus was tapped: the card opens and the world pauses under it.
+func _open_wisdom_card(card_id: String) -> void:
+	if _wisdom_card != null or _pause_menu != null or not Wisdom.has(card_id):
+		return
+	_wisdom_card = WISDOM_CARD.instantiate()
+	_ui.add_child(_wisdom_card)
+	_wisdom_card.show_card(card_id)
+	_wisdom_card.closed.connect(_close_wisdom_card)
+	get_tree().paused = true
+
+
+func _close_wisdom_card() -> void:
+	if _wisdom_card == null:
+		return
+	_ui.remove_child(_wisdom_card)
+	_wisdom_card.queue_free()
+	_wisdom_card = null
+	get_tree().paused = false
+
+
+func wisdom_card() -> Control:
+	return _wisdom_card
 
 
 func _on_camera_dragged(delta: Vector2) -> void:

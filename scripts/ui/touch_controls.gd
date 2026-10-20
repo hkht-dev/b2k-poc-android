@@ -42,6 +42,7 @@ var _subtitle_left := 0.0
 @onready var _minimap: Control = %Minimap
 @onready var _subtitle: Label = %Subtitle
 @onready var _compass: Control = %Compass
+@onready var _lotus: Control = %Lotus
 
 
 func _ready() -> void:
@@ -72,6 +73,11 @@ func minimap() -> Control:
 
 func compass() -> Control:
 	return _compass
+
+
+## The wisdom lotus (GDD §6 "Optional wisdom"): scripts/ui/wisdom_prompt.gd.
+func lotus() -> Control:
+	return _lotus
 
 
 ## Shows a subtitle by string id for a few seconds (GDD §11 accessibility).
@@ -183,5 +189,7 @@ func _on_drag(event: InputEventScreenDrag) -> void:
 
 func _over_button(position: Vector2) -> bool:
 	if _pause.get_global_rect().has_point(position):
+		return true
+	if _lotus.is_showing() and _lotus.get_global_rect().has_point(position):
 		return true
 	return _button.visible and _button.get_global_rect().has_point(position)

@@ -30,6 +30,10 @@ var flags := FlagStore.new()
 var events := FlagStore.new()
 var choice_history: Array[Dictionary] = []
 var journey_lines: Array[String] = []
+## Wisdom cards whose lotus has been offered this journey, by id (GDD §6
+## "Optional wisdom": once per card; ignoring it has no effect, so what is
+## kept is that it was offered, not whether it was opened).
+var wisdom_seen: Array[String] = []
 var settings: Dictionary = {}
 ## Times the player has hummed (CLAUDE_CODE_BRIEF.md §4.2 "Track hummed
 ## count"). The flag `hummed` is set at three (GDD §6 "Remembering Krishna").
@@ -142,6 +146,20 @@ func add_journey_line(line_id: String) -> bool:
 	return true
 
 
+## Records that a wisdom card's lotus was offered. Returns false if it had
+## been already: a card is offered once per journey (GDD §9).
+func mark_wisdom_seen(card_id: String) -> bool:
+	if card_id.is_empty() or wisdom_seen.has(card_id):
+		return false
+	wisdom_seen.append(card_id)
+	_save_if_enabled()
+	return true
+
+
+func has_seen_wisdom(card_id: String) -> bool:
+	return wisdom_seen.has(card_id)
+
+
 # -- persistence --------------------------------------------------------------
 
 
@@ -153,6 +171,7 @@ func to_dict() -> Dictionary:
 		"events": Array(events.all()),
 		"choice_history": choice_history.duplicate(true),
 		"journey_lines": journey_lines.duplicate(),
+		"wisdom_seen": wisdom_seen.duplicate(),
 		"settings": settings.duplicate(true),
 		"hum_count": hum_count,
 		"play_seconds": play_seconds,
@@ -174,6 +193,9 @@ func from_dict(data: Dictionary) -> void:
 	journey_lines.clear()
 	for line in _string_array(data.get("journey_lines", [])):
 		journey_lines.append(line)
+	wisdom_seen.clear()
+	for card_id in _string_array(data.get("wisdom_seen", [])):
+		wisdom_seen.append(card_id)
 	settings = data.get("settings", {}) if data.get("settings") is Dictionary else {}
 	hum_count = int(data.get("hum_count", 0))
 	play_seconds = float(data.get("play_seconds", 0.0))
@@ -215,6 +237,7 @@ func wipe() -> void:
 	events.clear_all()
 	choice_history.clear()
 	journey_lines.clear()
+	wisdom_seen.clear()
 	settings = {}
 	hum_count = 0
 	play_seconds = 0.0
