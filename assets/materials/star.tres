@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The stars over the riverbank (GDD §3 Act 5 "rises through stars"): unlit,
+; warm white, outside the fog so the far dome stays sharp.
+; PLACEHOLDER: the painted night of the Pool of Worlds, GDD §10.
+
+[resource]
+resource_name = "star"
+shading_mode = 0
+disable_fog = true
+albedo_color = Color(1, 0.96, 0.9, 1)

@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The river at Home, "reflecting pink" (GDD §10, Grove row): a rose-tinted
+; sheet the player wades into. Not the Street's grey-green water.
+; PLACEHOLDER: the painted water of GDD §10.
+
+[resource]
+resource_name = "home_water"
+transparency = 1
+albedo_color = Color(0.82, 0.6, 0.62, 0.78)
+metallic = 0.5
+roughness = 0.12

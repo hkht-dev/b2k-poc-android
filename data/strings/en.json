@@ -59,6 +59,9 @@
   "debug.wipe": "Wipe journey",
   "end.line": "The journey back begins again wherever you are.",
   "end.play_again": "Play again",
+  "journey.act4.alone": "You hummed alone on the fountain steps, and the sky turned a little pink.",
+  "journey.act4.street_listened": "You held the hum on the fountain steps, and the street stopped to listen.",
+  "journey.act5.home": "You waded to the bank and placed the garland around His neck.",
   "journey.dry_fountain.gave": "You carried a can to the fountain with Gopal Seth.",
   "journey.dry_fountain.took": "You took a can from Gopal Seth's shop.",
   "journey.glimpse.traffic_light": "You thought you saw someone on the traffic light.",
@@ -84,6 +87,7 @@
   "pause.resume": "Resume",
   "pause.settings": "Settings",
   "pause.title": "Paused",
+  "place.home": "Home",
   "place.showroom": "Vale Outfitters",
   "place.store": "Hollow Vale Stores",
   "place.street": "Hollow Vale",
@@ -116,6 +120,8 @@
   "title.begin": "Begin",
   "title.build_label": "Build %s",
   "verb.enter": "Go in",
+  "verb.garland": "Garland",
+  "verb.hum_here": "Hum here",
   "verb.idle": "…",
   "verb.leave": "Go out",
   "verb.listen": "Listen",
@@ -123,5 +129,6 @@
   "verb.pick_up": "Pick up",
   "verb.place": "Place",
   "verb.sit": "Sit",
+  "verb.step_in": "Step into the water",
   "verb.talk": "Talk"
 }

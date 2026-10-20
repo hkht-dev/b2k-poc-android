@@ -10,5 +10,9 @@
   "store": {
     "scene": "res://scenes/places/Store.tscn",
     "name_id": "place.store"
+  },
+  "home": {
+    "scene": "res://scenes/places/Home.tscn",
+    "name_id": "place.home"
   }
 }

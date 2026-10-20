@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The garland made in the Grove and given at Home (GDD §3 Act 1 beat 2, Act 5
+; "The embrace"): jasmine white with a little warmth of its own.
+; PLACEHOLDER: the threaded jasmine garland of GDD §10.
+
+[resource]
+resource_name = "garland"
+albedo_color = Color(0.97, 0.95, 0.86, 1)
+roughness = 0.8
+emission_enabled = true
+emission = Color(0.4, 0.34, 0.2, 1)
+emission_energy_multiplier = 0.35

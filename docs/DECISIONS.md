@@ -1040,3 +1040,90 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — Remembrance and Home (GDD §3 Act 4 and Act 5)
+
+GDD §3 "Act 4 — Remembrance" and "Act 5 — Home", §3a Act 4 and Act 5, §8
+Scene F "The embrace". Affects §6 ("Remembering Krishna": the tower's
+`played_for_others` and `kept_veena` decide the variant), §10 (the first pink
+in the Vale; Krishna's colours), §12 (flags `remembered`, `embraced`; place
+`home`). Built apart from the tower, the shrine, the Grove and the Veil, on
+flags alone: nothing here knows how a flag came to be set.
+
+### Act 4 on the street: the hum held on the fountain steps
+
+- `scenes/quest/Remembrance.tscn` (`scripts/quest/remembrance.gd`) stands on
+  the fountain's south-east corner step, placed by
+  `tools/street_parts/remembrance.py`. *Hum here* appears once a dawn flag is
+  set. Using it holds the Place's own `hum()` three times over six seconds,
+  so whatever answers a hum answers this one (Tulu's notes, the ripple, the
+  subtitle, the hum count), while the player's physics step is off and the
+  rig holds `Idle_Talking` (PLACEHOLDER for the humming idle). The Place is
+  not touched for this: no lock was added to it.
+- The world's answer is a table on the scene, `answers`: dawn flag → `crowd`,
+  `tint`, `journey`. `played_for_others`: the people stop and turn to the
+  steps, a bubble drifts over the fountain for 8 s, the sun eases to rose
+  over 10 s. `kept_veena`: no crowd, the bubble, a softer tint. The first flag
+  set wins; the script reads no flag name.
+- `path_mover.gd` gained a group (`path_mover`) and `pause_and_face(point,
+  seconds)`: the mover eases to a stop, turns to the point over 0.7 s and
+  turns back after. Only movers carrying a rigged body are asked (a person);
+  the cars drive on. Nothing else about the movers changed; they still notice
+  nothing on their own.
+- `street.gd` gained `tint_sun(colour, seconds)`, the sky's first pink (GDD
+  §10); a mood set later tints from there, so a flag cannot undo the dawn.
+- Sets `remembered` and `journey.act4.street_listened` or
+  `journey.act4.alone`, and nothing else. Madhuri's seed is the shrine's.
+
+### The way Home: a door at the basin's edge
+
+- `tools/street_parts/home_door.py`: a Door to `home`, spawn `bank`, verb
+  *Step into the water*, `requires` `remembered`. It stands on the same
+  corner step as the hum: before `remembered` only *Hum here* is offered
+  there, after it only the door, so the two never compete for the button.
+- Not on the basin floor: the lip is 0.6 m from the pavement and the climb
+  out is the only way over it ("The fountain", above), so a door inside the
+  basin could not be reached once the player has climbed out. The fountain
+  basin is the stand-in for the shrine's basin of GDD §3 Act 4; on the dry
+  paths the verb reads oddly until that basin exists.
+
+### Act 5: Home
+
+- `tools/gen_home.py` (`--check` in CI) writes `scenes/places/Home.tscn`;
+  `scripts/places/home.gd` extends Place. A disc of warm earth (the street's
+  ochre plaster), the river as a rose-tinted sheet to the north that the
+  player wades into, three Quaternius trees, rose-gold fog, a low sun from
+  behind Him, stars as one MultiMesh of unlit boxes on a far dome with
+  `disable_fog`. Place id `home` in `data/places.json`.
+- Krishna, PLACEHOLDER: primitives. GDD §10 says dark-blue skin; peacock blue
+  is forbidden only in the Street, and Home is the Grove's bank, so a deep
+  indigo (`home_indigo.tres`, 0.15 0.13 0.42) with yellow cloth, the
+  Glimpse's feather quad in the hair and a timber flute. For the panel's
+  review (GDD §15). The head is its own node so the script can bow it.
+- One verb, *Garland*, `requires` `garland_made` (data on the scene). The
+  garland is `scenes/quest/Garland.tscn`, carried through the rig's own
+  `carry()` so no change to the player's `carryables` was needed. One tap:
+  He bows (1 s), the garland leaves the hand for His neck, He looks up and
+  steps the last metre (1.4 s), the view goes to white over 3 s (§8 Scene F:
+  white, not the bus stop's black). Then `embraced`, `journey.act5.home`,
+  `slice_ended("home")`; Main shows P6's end screen, whose line is the GDD's
+  own.
+- `garland_made` is another chapter's flag. Until the Grove exists, Home sets
+  it on arrival (`stand_in_flags` on the scene); a test clears it to hold
+  that the verb needs it.
+- No magenta in Home though GDD §10 gives the Grove a magenta sky: the slice
+  keeps the rule it was given (rose-gold horizon, indigo-violet zenith); a
+  test looks at every material and the sky. The panel decides the Grove's
+  sky when the Grove is built.
+- Not built, out of Slice 1 (CLAUDE.md "The slice"): the friends, the calf,
+  the feast, the overhead shot, the ten-second hold, the Song returning
+  instrument by instrument, the coat unravelling, the credits, *Learn more*
+  and *Chapter 2* on the end screen.
+
+### Budget
+
+Not measured in the web build this change (agents may not export; four shared
+cores). Home is about twenty primitives, three trees, one MultiMesh of stars
+and two lights; the street gains one hidden sphere and two areas. Nothing
+here should move the P6 numbers.

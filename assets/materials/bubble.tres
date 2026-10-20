@@ -1,0 +1,17 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The bubble that drifts over the fountain at Remembrance (GDD §3 Act 4: "A
+; single bubble drifts past"). Translucent, warm white, a soap film's sheen;
+; no blue in it, since peacock blue is forbidden in the Street (GDD §10).
+; PLACEHOLDER: the painted bubble holding the Grove for a moment, GDD §10.
+
+[resource]
+resource_name = "bubble"
+transparency = 1
+cull_mode = 2
+albedo_color = Color(0.96, 0.93, 0.88, 0.3)
+metallic = 0.5
+roughness = 0.08
+rim_enabled = true
+rim = 0.9
+rim_tint = 0.4
