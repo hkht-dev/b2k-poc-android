@@ -102,6 +102,8 @@
   "controls.gamepad.walk_there": "Walking there by tap is a touch thing; the sticks do the rest.",
   "controls.got_it": "Got it",
   "controls.hint.walk": "drag here to walk",
+  "controls.key.desktop_use": "E",
+  "controls.key.gamepad_use": "A",
   "controls.title": "How to play",
   "controls.touch.drive": "Walk up to the car and tap the button to drive. The left thumb steers; tap the button again to get out.",
   "controls.touch.hum": "Hold that button with nothing near: you hum.",

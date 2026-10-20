@@ -8,6 +8,11 @@
 ## fountain is automatic on approach (GDD §6, "no jump button"), so nothing in
 ## the P1 street is usable yet and the button correctly never appears. Its first
 ## real verb is *Listen* in P3. See docs/DECISIONS.md.
+##
+## Off touch it wears a small key badge in its corner — "E", or the gamepad's
+## face button — so a player at a keyboard knows what presses it (GDD §11
+## "Controls"; owner request 2026-10-20). The badge is a word from the string
+## table, set by TouchControls with the scheme; on touch it is never shown.
 extends Button
 
 ## Emitted on a press, carrying the string id of the verb that was showing, so
@@ -22,12 +27,18 @@ const HUM_HOLD := 0.5
 ## With nothing near, the button stays as a faint mark so a hold has somewhere
 ## to land (GDD §6 "Call": "hold the interact button with nothing nearby").
 const IDLE_ALPHA := 0.35
+const BADGE_SIZE := 32.0
+const BADGE_INSET := 8.0
+const BADGE_FONT_SIZE := 16
+const BADGE_INK := Color(0.42, 0.31, 0.208, 1.0)
+const BADGE_PAPER := Color(0.957, 0.925, 0.847, 1.0)
 
 var _verb_id := ""
 var _shown := 0.0
 var _held := 0.0
 var _holding := false
 var _hum_fired := false
+var _badge: Label = null
 
 
 func _ready() -> void:
@@ -37,6 +48,8 @@ func _ready() -> void:
 	pressed.connect(_on_pressed)
 	button_down.connect(_on_down)
 	button_up.connect(_on_up)
+	_badge = _make_badge()
+	add_child(_badge)
 
 
 func _process(delta: float) -> void:
@@ -83,6 +96,41 @@ func clear_verb() -> void:
 
 func current_verb() -> String:
 	return _verb_id
+
+
+## The key that presses this button, already resolved from the string table
+## by the caller; empty hides the badge (touch has no key).
+func set_key_badge(key_text: String) -> void:
+	_badge.text = key_text
+	_badge.visible = not key_text.is_empty()
+
+
+func key_badge_text() -> String:
+	return _badge.text
+
+
+func key_badge_visible() -> bool:
+	return _badge.visible
+
+
+func _make_badge() -> Label:
+	var badge := Label.new()
+	badge.name = "KeyBadge"
+	badge.visible = false
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	badge.custom_minimum_size = Vector2(BADGE_SIZE, BADGE_SIZE)
+	badge.position = Vector2(BADGE_INSET, BADGE_INSET)
+	badge.size = Vector2(BADGE_SIZE, BADGE_SIZE)
+	badge.add_theme_font_size_override("font_size", BADGE_FONT_SIZE)
+	badge.add_theme_color_override("font_color", BADGE_PAPER)
+	var box := StyleBoxFlat.new()
+	box.bg_color = BADGE_INK
+	box.set_corner_radius_all(6)
+	box.set_content_margin_all(2.0)
+	badge.add_theme_stylebox_override("normal", box)
+	return badge
 
 
 func _on_pressed() -> void:

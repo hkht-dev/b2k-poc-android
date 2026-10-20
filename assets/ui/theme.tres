@@ -1,7 +1,15 @@
-[gd_resource type="Theme" load_steps=4 format=3]
+[gd_resource type="Theme" load_steps=20 format=3]
 
 ; Cream parchment panels, one serif for headings, one sans for body,
 ; 16 dp minimum body text (CLAUDE_CODE_BRIEF.md §6, GDD §11).
+;
+; Owner request 2026-10-20 ("intuitive, very easy for the users on all
+; devices"), GDD §11 "Controls" and "Accessibility": every Button is at least
+; 72 px tall through its font and margins (a thumb target without a custom
+; size on every scene), has hover and pressed states for a mouse, a thick
+; warm-ink focus ring for a keyboard or a gamepad, and rounded corners.
+; CheckButton and HSlider are sized for thumbs; the slider grabber is a 28 px
+; disc drawn as a gradient so no image ships for it.
 
 [ext_resource type="FontVariation" path="res://assets/ui/font_body.tres" id="1_body"]
 
@@ -12,53 +20,242 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+; The body font chain's line box (Noto Sans with Noto Serif Devanagari as
+; fallback) is 60 px at the 20 px button size, so 16 px above and below puts a
+; plain Button at 92 px: over the 72 px floor, and a thumb target anywhere.
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
 bg_color = Color(0.957, 0.925, 0.847, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.42, 0.31, 0.208, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
 content_margin_left = 28.0
 content_margin_top = 16.0
 content_margin_right = 28.0
 content_margin_bottom = 16.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
 bg_color = Color(0.898, 0.859, 0.765, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.42, 0.31, 0.208, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
 content_margin_left = 28.0
 content_margin_top = 16.0
 content_margin_right = 28.0
 content_margin_bottom = 16.0
+bg_color = Color(0.835, 0.784, 0.675, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.32, 0.23, 0.15, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_disabled"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+bg_color = Color(0.957, 0.925, 0.847, 0.6)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.42, 0.31, 0.208, 0.4)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+; The focus ring: drawn over the normal style when a keyboard or gamepad
+; has the control, so where the focus is can be seen on every screen.
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_focus"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+draw_center = false
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.24, 0.17, 0.11, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+expand_margin_left = 3.0
+expand_margin_top = 3.0
+expand_margin_right = 3.0
+expand_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 28.0
+content_margin_top = 20.0
+content_margin_right = 28.0
+content_margin_bottom = 20.0
+bg_color = Color(0.957, 0.925, 0.847, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.42, 0.31, 0.208, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+; A toggle is its icon on nothing; the margins make the whole of it a thumb
+; target (56 px and more) without a border that would read as a button.
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toggle"]
+content_margin_left = 12.0
+content_margin_top = 20.0
+content_margin_right = 12.0
+content_margin_bottom = 20.0
+draw_center = false
+border_width_left = 0
+border_width_top = 0
+border_width_right = 0
+border_width_bottom = 0
+
+; The same ring, with the toggle's margins, so a focused toggle keeps its size.
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toggle_focus"]
+content_margin_left = 12.0
+content_margin_top = 20.0
+content_margin_right = 12.0
+content_margin_bottom = 20.0
+draw_center = false
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.24, 0.17, 0.11, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+expand_margin_left = 3.0
+expand_margin_top = 3.0
+expand_margin_right = 3.0
+expand_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_track"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.42, 0.31, 0.208, 0.25)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_fill"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.42, 0.31, 0.208, 0.7)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_fill_hover"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.42, 0.31, 0.208, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+; The grabber: a 28 px parchment disc with an ink rim, radial so it needs no
+; image file. PLACEHOLDER for the lotus mark of GDD §10 "UI art".
+[sub_resource type="Gradient" id="Gradient_grabber"]
+offsets = PackedFloat32Array(0, 0.64, 0.72, 0.9, 1)
+colors = PackedColorArray(0.957, 0.925, 0.847, 1, 0.957, 0.925, 0.847, 1, 0.42, 0.31, 0.208, 1, 0.42, 0.31, 0.208, 1, 0.42, 0.31, 0.208, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_grabber"]
+gradient = SubResource("Gradient_grabber")
+width = 28
+height = 28
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_grabber_hover"]
+offsets = PackedFloat32Array(0, 0.64, 0.72, 0.9, 1)
+colors = PackedColorArray(0.898, 0.859, 0.765, 1, 0.898, 0.859, 0.765, 1, 0.24, 0.17, 0.11, 1, 0.24, 0.17, 0.11, 1, 0.24, 0.17, 0.11, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_grabber_hover"]
+gradient = SubResource("Gradient_grabber_hover")
+width = 28
+height = 28
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_grabber_disabled"]
+offsets = PackedFloat32Array(0, 0.64, 0.72, 0.9, 1)
+colors = PackedColorArray(0.957, 0.925, 0.847, 0.5, 0.957, 0.925, 0.847, 0.5, 0.42, 0.31, 0.208, 0.4, 0.42, 0.31, 0.208, 0.4, 0.42, 0.31, 0.208, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_grabber_disabled"]
+gradient = SubResource("Gradient_grabber_disabled")
+width = 28
+height = 28
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
 
 [resource]
 default_font = ExtResource("1_body")
 default_font_size = 16
 Button/colors/font_color = Color(0.42, 0.31, 0.208, 1)
 Button/colors/font_disabled_color = Color(0.42, 0.31, 0.208, 0.5)
-Button/colors/font_focus_color = Color(0.42, 0.31, 0.208, 1)
-Button/colors/font_hover_color = Color(0.42, 0.31, 0.208, 1)
-Button/colors/font_hover_pressed_color = Color(0.42, 0.31, 0.208, 1)
-Button/colors/font_pressed_color = Color(0.42, 0.31, 0.208, 1)
+Button/colors/font_focus_color = Color(0.24, 0.17, 0.11, 1)
+Button/colors/font_hover_color = Color(0.32, 0.23, 0.15, 1)
+Button/colors/font_hover_pressed_color = Color(0.24, 0.17, 0.11, 1)
+Button/colors/font_pressed_color = Color(0.24, 0.17, 0.11, 1)
 Button/font_sizes/font_size = 20
+Button/styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+Button/styles/focus = SubResource("StyleBoxFlat_focus")
 Button/styles/hover = SubResource("StyleBoxFlat_button_hover")
+Button/styles/hover_pressed = SubResource("StyleBoxFlat_button_pressed")
 Button/styles/normal = SubResource("StyleBoxFlat_button")
-Button/styles/pressed = SubResource("StyleBoxFlat_button_hover")
+Button/styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+CheckButton/styles/disabled = SubResource("StyleBoxFlat_toggle")
+CheckButton/styles/focus = SubResource("StyleBoxFlat_toggle_focus")
+CheckButton/styles/hover = SubResource("StyleBoxFlat_toggle")
+CheckButton/styles/hover_pressed = SubResource("StyleBoxFlat_toggle")
+CheckButton/styles/normal = SubResource("StyleBoxFlat_toggle")
+CheckButton/styles/pressed = SubResource("StyleBoxFlat_toggle")
 ChoiceCard/base_type = &"PanelContainer"
-ChoiceCard/styles/panel = SubResource("StyleBoxFlat_button")
+ChoiceCard/styles/panel = SubResource("StyleBoxFlat_card")
+HSlider/constants/center_grabber = 0
+HSlider/constants/grabber_offset = 0
+HSlider/icons/grabber = SubResource("GradientTexture2D_grabber")
+HSlider/icons/grabber_disabled = SubResource("GradientTexture2D_grabber_disabled")
+HSlider/icons/grabber_highlight = SubResource("GradientTexture2D_grabber_hover")
+HSlider/styles/grabber_area = SubResource("StyleBoxFlat_slider_fill")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_fill_hover")
+HSlider/styles/slider = SubResource("StyleBoxFlat_slider_track")
 Label/colors/font_color = Color(0.42, 0.31, 0.208, 1)
 Panel/styles/panel = SubResource("StyleBoxFlat_panel")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel")

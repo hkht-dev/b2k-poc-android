@@ -43,6 +43,10 @@ const TOUCH_SENSITIVITY := 0.5
 const DESKTOP_SENSITIVITY := 1.0
 ## Through a door the view goes black over this long, and comes back as long.
 const DOOR_FADE_SECONDS := 0.45
+## Arriving through a door, the place's name is the first subtitle, this long
+## (GDD §11 allows subtitles; owner request 2026-10-20 "where am I").
+const PLACE_NAME_SECONDS := 2.5
+
 ## Slower than this, horizontally, the player is standing (walking is 2.2).
 const ROUTE_MOVING_SPEED := 0.3
 
