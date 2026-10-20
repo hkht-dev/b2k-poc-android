@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3]
+
+; An old photograph in a timber frame on the shrine wall
+; (scripts/quest/photograph.gd): Look at it and it says what it shows. Its
+; front faces -Z; the shrine generator turns it to its wall and names its
+; lines. PLACEHOLDER: a pale pane in a frame, replaced by the three painted
+; photographs of GDD §5 Hollow Vale (the shrine room's "old photographs").
+
+[ext_resource type="Script" path="res://scripts/quest/photograph.gd" id="1_photo"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+[ext_resource type="Material" path="res://assets/materials/timber.tres" id="3_timber"]
+[ext_resource type="Material" path="res://assets/materials/cloth_pale.tres" id="4_print"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_unit"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_reach"]
+size = Vector3(1.1, 2.2, 1.6)
+
+[node name="Photograph" type="Node3D"]
+script = ExtResource("1_photo")
+
+[node name="Look" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.look"
+
+[node name="Shape" type="CollisionShape3D" parent="Look"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, -0.8)
+shape = SubResource("BoxShape3D_reach")
+
+[node name="Frame" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.74, 0, 0, 0, 0.94, 0, 0, 0, 0.06, 0, 0, 0)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("3_timber")
+
+[node name="Print" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.6, 0, 0, 0, 0.8, 0, 0, 0, 0.02, 0, 0, -0.035)
+mesh = SubResource("BoxMesh_unit")
+surface_material_override/0 = ExtResource("4_print")

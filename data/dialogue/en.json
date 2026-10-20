@@ -171,5 +171,221 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "madhuri_greet": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_greet",
+    "sets": [
+      "met_madhuri"
+    ],
+    "cards": [
+      {
+        "text_id": "card.madhuri_greet.tulu",
+        "sets": [],
+        "next": "madhuri_tulu"
+      },
+      {
+        "text_id": "card.madhuri_greet.humming",
+        "sets": [],
+        "next": "madhuri_tulu"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_tulu": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_tulu",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri_tulu.what",
+        "sets": [],
+        "next": "madhuri_song"
+      },
+      {
+        "text_id": "card.madhuri_tulu.room",
+        "sets": [],
+        "next": "madhuri_room"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_song": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_song",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri.and_the_lamp",
+        "sets": [],
+        "next": "madhuri_ask_water"
+      },
+      {
+        "text_id": "card.madhuri.thanks",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_room": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_room",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri.and_the_lamp",
+        "sets": [],
+        "next": "madhuri_ask_water"
+      },
+      {
+        "text_id": "card.madhuri_room.look",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_ask_water": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_ask_water",
+    "sets": [],
+    "cards": [],
+    "requires": [
+      "met_madhuri"
+    ],
+    "review_status": "draft"
+  },
+  "madhuri_after_water": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_after_water",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri_after_water.played",
+        "sets": [],
+        "next": "madhuri_valley"
+      },
+      {
+        "text_id": "card.madhuri_after_water.only_water",
+        "sets": [],
+        "next": "madhuri_only_water"
+      }
+    ],
+    "requires": [
+      "lamp_watered"
+    ],
+    "review_status": "draft"
+  },
+  "madhuri_valley": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_valley",
+    "sets": [],
+    "cards": [
+      {
+        "text_id": "card.madhuri_valley.tower",
+        "sets": [],
+        "next": "madhuri_tower"
+      },
+      {
+        "text_id": "card.madhuri.thanks",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_tower": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_tower",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "madhuri_only_water": {
+    "speaker": "madhuri",
+    "text_id": "line.madhuri_only_water",
+    "sets": [],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "photo_fountain": {
+    "speaker": "photo",
+    "text_id": "line.photo_fountain",
+    "sets": [
+      "saw_photo_fountain"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "photo_fountain_last": {
+    "speaker": "photo",
+    "text_id": "line.photo_fountain",
+    "sets": [
+      "saw_photo_fountain",
+      "saw_shrine"
+    ],
+    "cards": [],
+    "requires": [
+      "saw_photo_tower",
+      "saw_photo_lamp"
+    ],
+    "review_status": "draft"
+  },
+  "photo_tower": {
+    "speaker": "photo",
+    "text_id": "line.photo_tower",
+    "sets": [
+      "saw_photo_tower"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "photo_tower_last": {
+    "speaker": "photo",
+    "text_id": "line.photo_tower",
+    "sets": [
+      "saw_photo_tower",
+      "saw_shrine"
+    ],
+    "cards": [],
+    "requires": [
+      "saw_photo_fountain",
+      "saw_photo_lamp"
+    ],
+    "review_status": "draft"
+  },
+  "photo_lamp": {
+    "speaker": "photo",
+    "text_id": "line.photo_lamp",
+    "sets": [
+      "saw_photo_lamp"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "photo_lamp_last": {
+    "speaker": "photo",
+    "text_id": "line.photo_lamp",
+    "sets": [
+      "saw_photo_lamp",
+      "saw_shrine"
+    ],
+    "cards": [],
+    "requires": [
+      "saw_photo_fountain",
+      "saw_photo_tower"
+    ],
+    "review_status": "draft"
   }
 }

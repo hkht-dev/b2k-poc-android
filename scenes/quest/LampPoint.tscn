@@ -1,0 +1,48 @@
+[gd_scene load_steps=5 format=3]
+
+; The shrine's lamp as a place the player can use (scripts/quest/lamp_point.gd):
+; Place a can of water for it. Sits at the foot of the lamp stand; the one
+; light in the room is here, dim until watered (GDD §8 Scene D: "one lamp
+; nearly out"). The flags and the event are data on the node.
+
+[ext_resource type="Script" path="res://scripts/quest/lamp_point.gd" id="1_point"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+[ext_resource type="PackedScene" path="res://scenes/quest/WaterCan.tscn" id="3_can"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_reach"]
+radius = 1.2
+height = 2.4
+
+[node name="LampPoint" type="Node3D"]
+script = ExtResource("1_point")
+event_id = "can_placed_at_shrine"
+sets = PackedStringArray("lamp_watered")
+item = "can"
+lit_energy = 1.6
+
+; Offered only while carrying a can (requires: the carry flag, data).
+[node name="Place" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.place"
+requires = PackedStringArray("carrying_can")
+
+[node name="Shape" type="CollisionShape3D" parent="Place"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+shape = SubResource("CylinderShape3D_reach")
+
+; The one lamp: warm, low, no shadow. Palette: GDD §10, Hollow Vale row.
+[node name="Lamp" type="OmniLight3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 0)
+light_color = Color(1, 0.82, 0.58, 1)
+light_energy = 0.8
+omni_range = 7.0
+omni_attenuation = 1.4
+shadow_enabled = false
+
+; The can, set down by the stand once the lamp has its water.
+[node name="PlacedCan" parent="." instance=ExtResource("3_can")]
+unique_name_in_owner = true
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.48, -0.1)
