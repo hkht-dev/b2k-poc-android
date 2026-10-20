@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3]
+
+; *Climb down* at a ladder's head (scripts/street/ladder_down.gd). Walking
+; into the rungs climbs up; this is the way back. Placed on a landing by
+; tools/street_parts/tower_climb.py, with the landing below as its marker.
+; The origin sits at deck level where the rungs are; the reach covers the
+; deck, so a player standing anywhere on the landing is offered the verb.
+
+[ext_resource type="Script" path="res://scripts/street/ladder_down.gd" id="1_down"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_deck"]
+size = Vector3(2.0, 2.2, 2.2)
+
+[node name="LadderDown" type="Node3D"]
+script = ExtResource("1_down")
+
+[node name="Use" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.climb_down"
+
+[node name="Shape" type="CollisionShape3D" parent="Use"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("BoxShape3D_deck")

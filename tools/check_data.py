@@ -140,7 +140,7 @@ REQUIRED_STRING_IDS = [
     "journey.dawn.played",
     "journey.dawn.kept",
     "place.grove",
-    *[f"verb.{k}" for k in ("dive", "descend", "pet", "push")],
+    *[f"verb.{k}" for k in ("dive", "descend", "pet", "push", "climb_down")],
     "sub.lalita_laughs",
     "speaker.lalita",
     "speaker.kuvera",

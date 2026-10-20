@@ -33,6 +33,7 @@ EXT = (
     '[ext_resource type="Script" path="res://scripts/street/ladder.gd" id="tower_ladder"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/quest/TowerTop.tscn" id="tower_top"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/quest/Carving.tscn" id="tower_carving"]\n'
+    '[ext_resource type="PackedScene" path="res://scenes/street/LadderDown.tscn" id="tower_ladder_down"]\n'
 )
 
 PARENT = "Tower"
@@ -176,6 +177,19 @@ def build(b) -> None:
                 f'exit_marker_path = NodePath("../../Landing{n + 1}/Exit")\n\n'
                 f'[node name="Shape" type="CollisionShape3D" parent="{PARENT}/Landing{n}/Ladder"]\n'
                 f'shape = SubResource("{b.shape_id((DECK_D, 2.0, DECK_W))}")\n\n'
+            )
+        # The way back: every landing above the first, and the roof, offers
+        # *Climb down* to the landing below. Walking into the rungs climbs
+        # up; the rails mean a landing has no other way off. It stands at
+        # the rungs, on the wall half of the deck; the second landing's
+        # carving is read from the rail half, so the one button never has
+        # to choose between them.
+        if n > 0:
+            b.nodes.append(
+                f'[node name="Down" parent="{PARENT}/Landing{n}" '
+                'instance=ExtResource("tower_ladder_down")]\n'
+                f"transform = {xf((-DECK_W / 2 + 0.25, 0, 0))}\n"
+                f'exit_marker_path = NodePath("../../Landing{n - 1}/Exit")\n\n'
             )
 
     # --- Nanda's brother's name, on the wall at the second landing (§7) ----
