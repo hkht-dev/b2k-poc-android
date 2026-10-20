@@ -171,5 +171,118 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "lalita_greet": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_greet",
+    "sets": [
+      "lalita_asked_water"
+    ],
+    "cards": [
+      {
+        "text_id": "card.lalita_greet.bring",
+        "sets": [],
+        "next": ""
+      },
+      {
+        "text_id": "card.lalita_greet.calf",
+        "sets": [],
+        "next": ""
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "lalita_carrying": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_carrying",
+    "cards": [],
+    "requires": [
+      "carrying_pot"
+    ],
+    "review_status": "draft"
+  },
+  "lalita_thanks": {
+    "speaker": "lalita",
+    "text_id": "line.lalita_thanks",
+    "cards": [],
+    "requires": [
+      "grove_pot_placed"
+    ],
+    "review_status": "draft"
+  },
+  "kuvera_whisper": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_whisper",
+    "cards": [
+      {
+        "text_id": "card.kuvera_whisper.matter",
+        "sets": [
+          "whispered_kuvera"
+        ],
+        "next": "kuvera_place"
+      },
+      {
+        "text_id": "card.kuvera_whisper.no_one",
+        "sets": [
+          "whispered_kuvera"
+        ],
+        "next": "kuvera_place"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "kuvera_whisper_water": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_whisper_water",
+    "cards": [
+      {
+        "text_id": "card.kuvera_whisper.matter",
+        "sets": [
+          "whispered_kuvera"
+        ],
+        "next": "kuvera_place"
+      },
+      {
+        "text_id": "card.kuvera_whisper.no_one",
+        "sets": [
+          "whispered_kuvera"
+        ],
+        "next": "kuvera_place"
+      }
+    ],
+    "requires": [
+      "grove_pot_placed"
+    ],
+    "review_status": "draft"
+  },
+  "kuvera_place": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_place",
+    "cards": [],
+    "requires": [
+      "whispered_kuvera"
+    ],
+    "review_status": "draft"
+  },
+  "kuvera_after": {
+    "speaker": "kuvera",
+    "text_id": "line.kuvera_after",
+    "cards": [],
+    "requires": [
+      "whispered_kuvera"
+    ],
+    "review_status": "draft"
+  },
+  "bubble_look": {
+    "speaker": "bubble",
+    "text_id": "line.bubble_look",
+    "sets": [
+      "looked_bubble"
+    ],
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
   }
 }

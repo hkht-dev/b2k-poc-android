@@ -16,6 +16,9 @@ const GROUP := "door"
 ## The SpawnPoint in that place the player arrives on.
 @export var spawn_id := ""
 @export var verb_id := "verb.enter"
+## Flags that must all be set before the verb is offered: passed through to
+## the Interactable's own `requires` (GDD §12: flags are the only gate).
+@export var requires: PackedStringArray = PackedStringArray()
 ## The box in front of the door, in metres, in which the verb is offered.
 @export var reach := Vector3(2.4, 2.2, 1.6)
 
@@ -26,6 +29,7 @@ const GROUP := "door"
 func _ready() -> void:
 	add_to_group(GROUP)
 	_use.verb_id = verb_id
+	_use.requires = requires
 	var box := BoxShape3D.new()
 	box.size = reach
 	_shape.shape = box

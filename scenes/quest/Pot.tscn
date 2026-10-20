@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3]
+
+; A water pot in a hand (GDD §3 Act 1 "The gathering": carry a pot of water
+; to Lalita). PLACEHOLDER: an ochre sphere with a neck, as the shop's cans are
+; cylinders; replaced by the clay pot of GDD §10 "Props".
+
+[ext_resource type="Material" path="res://assets/materials/plaster_ochre.tres" id="1_ochre"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_pot"]
+radius = 0.17
+height = 0.3
+radial_segments = 14
+rings = 7
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_neck"]
+top_radius = 0.1
+bottom_radius = 0.07
+height = 0.08
+radial_segments = 12
+rings = 0
+
+[node name="Pot" type="Node3D"]
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.28, 0.04)
+mesh = SubResource("SphereMesh_pot")
+surface_material_override/0 = ExtResource("1_ochre")
+
+[node name="Neck" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0.04)
+mesh = SubResource("CylinderMesh_neck")
+surface_material_override/0 = ExtResource("1_ochre")

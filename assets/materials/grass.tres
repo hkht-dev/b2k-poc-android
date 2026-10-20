@@ -1,0 +1,18 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+; The Grove's meadow (GDD §5 "The Grove riverbank", §10 Grove row).
+; PLACEHOLDER: the street's cream plaster texture tinted grass-green through
+; albedo_color, triplanar like the rest; replaced by the painted grass and
+; GPU-instanced grass billboards of GDD §5 "Environment art targets".
+
+[ext_resource type="Texture2D" path="res://assets/textures/plaster_cream.png" id="1_tex"]
+
+[resource]
+resource_name = "grass"
+albedo_color = Color(0.46, 0.6, 0.3, 1)
+albedo_texture = ExtResource("1_tex")
+roughness = 1.0
+specular_mode = 1
+uv1_triplanar = true
+uv1_scale = Vector3(0.18, 0.18, 0.18)
+uv1_triplanar_sharpness = 4.0

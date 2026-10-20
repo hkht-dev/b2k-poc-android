@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The stars in the Grove's dusk sky (GDD §5 "a sky with visible stars"):
+; tiny unlit quads on a dome, brightness per instance. Unshaded is the
+; emissive here: the dusk light never touches them. Warm white, never blue.
+; PLACEHOLDER: replaced by the painted sky of GDD §10.
+
+[resource]
+resource_name = "star"
+shading_mode = 0
+cull_mode = 2
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 1)

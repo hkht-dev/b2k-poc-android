@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; A drifting bubble of the Grove (GDD §3 Act 1 "Waking"): translucent, a
+; faint rose sheen from the dusk. PLACEHOLDER: a plain translucent sphere;
+; replaced by the painted bubble with a world inside of GDD §10.
+
+[resource]
+resource_name = "bubble"
+transparency = 1
+cull_mode = 2
+albedo_color = Color(0.96, 0.88, 0.88, 0.28)
+metallic = 0.7
+roughness = 0.05

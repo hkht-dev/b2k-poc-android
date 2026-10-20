@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The Pool of Worlds at the Grove's edge (GDD §5): "still water that reflects
+; a galaxy instead of the sky". PLACEHOLDER: a dark, near-mirror disc that
+; reflects the dusk sky dimly; replaced by the galaxy reflection of GDD §5.
+; Dark and warm, not peacock blue and not hard black (GDD §10).
+
+[resource]
+resource_name = "pool"
+albedo_color = Color(0.06, 0.055, 0.075, 1)
+metallic = 0.9
+roughness = 0.05

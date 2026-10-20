@@ -10,5 +10,9 @@
   "store": {
     "scene": "res://scenes/places/Store.tscn",
     "name_id": "place.store"
+  },
+  "grove": {
+    "scene": "res://scenes/places/Grove.tscn",
+    "name_id": "place.grove"
   }
 }
