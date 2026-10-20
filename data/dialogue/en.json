@@ -171,5 +171,121 @@
     "cards": [],
     "requires": [],
     "review_status": "draft"
+  },
+  "dhanpal_greet": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_greet",
+    "sets": [
+      "met_dhanpal"
+    ],
+    "cards": [
+      {
+        "text_id": "card.dhanpal_greet.accept",
+        "sets": [
+          "accepted_contest"
+        ],
+        "next": "dhanpal_accepted"
+      },
+      {
+        "text_id": "card.dhanpal_greet.who_else",
+        "sets": [],
+        "next": "dhanpal_who_else"
+      },
+      {
+        "text_id": "card.dhanpal_greet.not_today",
+        "sets": [],
+        "next": "dhanpal_not_today"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_who_else": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_who_else",
+    "cards": [
+      {
+        "text_id": "card.dhanpal_who_else.why_name",
+        "sets": [],
+        "next": "dhanpal_why_name"
+      },
+      {
+        "text_id": "card.dhanpal_who_else.accept",
+        "sets": [
+          "accepted_contest"
+        ],
+        "next": "dhanpal_accepted"
+      },
+      {
+        "text_id": "card.dhanpal_who_else.not_today",
+        "sets": [],
+        "next": "dhanpal_not_today"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_why_name": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_why_name",
+    "cards": [
+      {
+        "text_id": "card.dhanpal_why_name.accept",
+        "sets": [
+          "accepted_contest"
+        ],
+        "next": "dhanpal_accepted"
+      },
+      {
+        "text_id": "card.dhanpal_why_name.not_today",
+        "sets": [],
+        "next": "dhanpal_not_today"
+      }
+    ],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_accepted": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_accepted",
+    "cards": [],
+    "requires": [
+      "accepted_contest"
+    ],
+    "review_status": "draft"
+  },
+  "dhanpal_not_today": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_not_today",
+    "cards": [],
+    "requires": [],
+    "review_status": "draft"
+  },
+  "dhanpal_later": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_later",
+    "cards": [],
+    "requires": [
+      "accepted_contest"
+    ],
+    "review_status": "draft"
+  },
+  "dhanpal_after_played": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_after_played",
+    "cards": [],
+    "requires": [
+      "played_for_others"
+    ],
+    "review_status": "draft"
+  },
+  "dhanpal_after_kept": {
+    "speaker": "dhanpal",
+    "text_id": "line.dhanpal_after_kept",
+    "cards": [],
+    "requires": [
+      "kept_veena"
+    ],
+    "review_status": "draft"
   }
 }
