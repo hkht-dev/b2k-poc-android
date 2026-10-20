@@ -125,9 +125,9 @@ func test_play_again_wipes_the_journey() -> void:
 func test_settings_persist_and_the_street_applies_them() -> void:
 	var street := _street()
 	await wait_frames(2)
+	# No awaits while paused: the tree is paused and GUT's frame waiter with it.
 	street.pause()
 	street._pause_menu.get_node("%SettingsButton").pressed.emit()
-	await wait_frames(1)
 	var settings: Control = street.settings_overlay()
 	assert_not_null(settings, "the settings screen opened from the pause menu")
 	(settings.control_for("subtitle_box") as CheckButton).button_pressed = true
@@ -149,9 +149,9 @@ func test_settings_persist_and_the_street_applies_them() -> void:
 		if control is CheckButton or control is HSlider:
 			assert_false(control.tooltip_text.is_empty(), "every control carries its label")
 	settings.get_node("%CloseButton").pressed.emit()
-	await wait_frames(1)
 	assert_null(street.settings_overlay())
 	street.resume()
+	await wait_frames(1)
 
 
 func test_sound_cues_ripple_at_tulu_and_on_a_hum_only_when_on() -> void:
