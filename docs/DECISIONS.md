@@ -1027,4 +1027,16 @@ end), §11 (accessibility), §12 (`settings` on the journey).
 
 ### Budget, as measured in the web build
 
-PERF_TABLE_P6
+| Metric | Limit (amendment §C) | P5 | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 112, max 178 | median 112, max 177 |
+| Primitives per frame | < 150k | median 56.1k, max 68.2k | median 56.0k, max 71.4k |
+| Web `.pck` | — | 36 MB | 36 MB |
+
+Same walk as P5, sound cues off (the default): the two ripple nodes are
+hidden and cost nothing, the bus stop point is an area and a hidden verb,
+and the fade rectangle is transparent until the end. The primitive peak
+moved by 3k at the south-facing angle, within the run-to-run noise seen
+across P4 and P5. Frames per second remain unmeasured here (software
+renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
+device run.
