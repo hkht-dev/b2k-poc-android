@@ -217,6 +217,7 @@ def main() -> int:
     problems += check_tells(strings)
     problems += check_wisdom(strings)
     problems += check_tales(strings)
+    problems += check_links()
     if problems:
         fail(f"{problems} problem(s)")
         return 1
@@ -791,6 +792,205 @@ def check_tales(strings: dict) -> int:
                     problems += 1
     if not problems:
         print(f"ok  data/tales.json ({len(tales)} tales)")
+    return problems
+
+
+# Flags a script builds from a prefix: scripts/player/player.gd CARRY_PREFIX.
+FLAG_PREFIX_SETTERS = ("carrying_",)
+SCENES = ROOT / "scenes"
+SCRIPTS = ROOT / "scripts"
+TOKEN = re.compile(r"\b(flag|event):([A-Za-z0-9_]+)")
+
+
+def _bare_flags(entries) -> set:
+    """`requires` entries as flag names: 'not x' and 'flag:x' both name x."""
+    out = set()
+    for entry in entries or []:
+        word = str(entry).strip()
+        if word.startswith("not "):
+            word = word[4:].strip()
+        if word.startswith("flag:"):
+            word = word[5:]
+        if word and not word.startswith("event:"):
+            out.add(word)
+    return out
+
+
+def _walk_strings(value, found: set) -> None:
+    """Every flag:/event: token in every string of a data file."""
+    if isinstance(value, dict):
+        for child in value.values():
+            _walk_strings(child, found)
+    elif isinstance(value, list):
+        for child in value:
+            _walk_strings(child, found)
+    elif isinstance(value, str):
+        for kind, name in TOKEN.findall(value):
+            found.add((kind, name))
+
+
+def check_links() -> int:
+    """What the data waits on exists: every flag or event a condition,
+    `requires`, trigger, seed or gate reads is set by some card, quest step,
+    scene export or script default; every door names a place in
+    data/places.json and a spawn point in that place's scene; every tale in
+    data/tales.json has a seat somewhere. The drift this catches is the kind
+    parallel work leaves: a reader and a setter that never agreed on a name."""
+    problems = 0
+    set_flags, set_events, read_flags, read_events = set(), set(), set(), set()
+
+    # Lines tables: cards set, lines and cards require.
+    for path in sorted((DATA / "dialogue").glob("*.json")) + sorted((DATA / "vignettes").glob("*.json")):
+        data = load(path)
+        if data is None:
+            continue
+        table = data["lines"] if isinstance(data.get("lines"), dict) else data
+        for line in table.values():
+            if not isinstance(line, dict):
+                continue
+            set_flags.update(str(f) for f in line.get("sets", []) or [])
+            read_flags.update(_bare_flags(line.get("requires", [])))
+            for card in line.get("cards", []) or []:
+                if isinstance(card, dict):
+                    set_flags.update(str(f) for f in card.get("sets", []) or [])
+                    read_flags.update(_bare_flags(card.get("requires", [])))
+        if table is not data and data.get("id"):
+            set_flags.add(f"vignette_{data['id']}_done")
+            set_flags.update(str(f) for f in data.get("outcomes", []) or [])
+    # Quests set flags on steps, branches and the end.
+    for path in sorted((DATA / "quests").glob("*.json")):
+        quest = load(path)
+        if quest is None:
+            continue
+        set_flags.update(str(f) for f in quest.get("flags_set_on_end", []) or [])
+        for entry in list(quest.get("steps", []) or []) + list(quest.get("branches", []) or []):
+            if isinstance(entry, dict):
+                set_flags.update(str(f) for f in entry.get("flags_set", []) or [])
+    # Tales: heard_tale_<id>_<n> per sitting and heard_tale_<id> for the whole.
+    tales = (load(DATA / "tales.json") or {}).get("tales", []) if (DATA / "tales.json").exists() else []
+    for tale in tales:
+        if isinstance(tale, dict) and tale.get("id"):
+            set_flags.add(f"heard_tale_{tale['id']}")
+            for n in range(1, len(tale.get("sittings", []) or []) + 1):
+                set_flags.add(f"heard_tale_{tale['id']}_{n}")
+    # The Song's bars, taught.
+    if (DATA / "song.json").exists():
+        for bar in ((load(DATA / "song.json") or {}).get("bars", {}) or {}).values():
+            if isinstance(bar, dict) and bar.get("taught_flag"):
+                set_flags.add(str(bar["taught_flag"]))
+    # The Garden reads seeds, waters and the creeper's gift.
+    garden = load(DATA / "garden.json") if (DATA / "garden.json").exists() else None
+    if garden:
+        for seed in garden.get("seeds", []) or []:
+            source = str(seed.get("source", "")) if isinstance(seed, dict) else ""
+            if source.startswith("flag:"):
+                read_flags.add(source[5:])
+        read_flags.update(str(f) for f in (garden.get("waters", {}) or {}).get("flags", []) or [])
+        if (garden.get("creeper", {}) or {}).get("given_flag"):
+            read_flags.add(str(garden["creeper"]["given_flag"]))
+    # Every condition in every data file (quests, daylight, wisdom, ...).
+    tokens = set()
+    for path in sorted(DATA.rglob("*.json")):
+        if "strings" in path.parts:
+            continue
+        data = load(path)
+        if data is not None:
+            _walk_strings(data, tokens)
+    for kind, name in tokens:
+        (read_flags if kind == "flag" else read_events).add(name)
+
+    # Scenes: exports named *flag*/*event* set; requires, trigger_flag and
+    # skip_when read; doors and spawn points are checked below.
+    doors, spawns, seats, passages = [], {}, set(), {}
+    for path in sorted(SCENES.rglob("*.tscn")):
+        text = path.read_text()
+        rel = path.relative_to(ROOT).as_posix()
+        for key, value in re.findall(r'^(\w+) = "([A-Za-z0-9_]*)"$', text, re.M):
+            if not value:
+                continue
+            if key == "trigger_flag":
+                read_flags.add(value)
+            elif key == "flag_set" or "flag" in key:
+                set_flags.add(value)
+            elif "event" in key:
+                set_events.add(value)
+            elif key == "spawn_id":
+                spawns.setdefault(rel, set())
+            elif key == "tale_id" and path.name != "TaleSeat.tscn":
+                seats.add(value)
+        for packed in re.findall(r'^requires = PackedStringArray\(([^)]*)\)$', text, re.M):
+            read_flags.update(_bare_flags(re.findall(r'"([^"]+)"', packed)))
+        # `sets`, `stand_in_flags` and the like: lists of flags a node sets.
+        for key, packed in re.findall(r'^(\w+) = PackedStringArray\(([^)]*)\)$', text, re.M):
+            if key != "requires" and ("set" in key or "flag" in key):
+                set_flags.update(re.findall(r'"([^"]+)"', packed))
+        for block in re.findall(r'skip_when = \{(.*?)\}', text, re.S):
+            read_flags.update(re.findall(r'"\w+": "(\w+)"', block))
+        for block in re.split(r"\n(?=\[node )", text):
+            place = re.search(r'^place_id = "(\w+)"$', block, re.M)
+            spawn = re.search(r'^spawn_id = "(\w+)"$', block, re.M)
+            if place and spawn:
+                doors.append((rel, place.group(1), spawn.group(1)))
+            elif spawn:
+                spawns.setdefault(rel, set()).add(spawn.group(1))
+        # A passage (scripts/places/veil.gd) has no spawn point of its own: it
+        # hands the spawn it was given on to `next_place`.
+        passage = re.search(r'^next_place = "(\w+)"$', text, re.M)
+        if passage:
+            passages[rel] = passage.group(1)
+    # Scripts: exported defaults and constants named for a flag or an event.
+    for path in sorted(SCRIPTS.rglob("*.gd")):
+        text = path.read_text()
+        for name, value in re.findall(r'@export var (\w+)\s*:?=\s*"(\w*)"', text):
+            if value and "flag" in name:
+                set_flags.add(value)
+            elif value and "event" in name:
+                set_events.add(value)
+        for name, value in re.findall(r'const (\w+)\s*:?=\s*"(\w+)"', text):
+            if "FLAG" in name:
+                set_flags.add(value)
+            elif "EVENT" in name:
+                set_events.add(value)
+
+    for flag in sorted(read_flags):
+        if flag not in set_flags and not flag.startswith(FLAG_PREFIX_SETTERS):
+            fail(f"flag '{flag}' is waited on but nothing sets it (no card, quest step, scene export or script default)")
+            problems += 1
+    for event in sorted(read_events):
+        if event not in set_events:
+            fail(f"event '{event}' is waited on but nothing fires it")
+            problems += 1
+
+    # Doors: a place in data/places.json, a spawn point in its scene.
+    places = load(DATA / "places.json") or {}
+    for rel, place_id, spawn_id in doors:
+        entry = places.get(place_id)
+        if not isinstance(entry, dict) or not entry.get("scene"):
+            fail(f"{rel}: a door leads to '{place_id}', which data/places.json does not know")
+            problems += 1
+            continue
+        target = str(entry["scene"]).replace("res://", "")
+        while target in passages:
+            onward = places.get(passages[target])
+            if not isinstance(onward, dict) or not onward.get("scene"):
+                fail(f"{target}: a passage leads on to '{passages[target]}', which data/places.json does not know")
+                problems += 1
+                break
+            target = str(onward["scene"]).replace("res://", "")
+        else:
+            pass
+        if target in passages:
+            continue
+        if spawn_id not in spawns.get(target, set()):
+            fail(f"{rel}: a door to '{place_id}' arrives at spawn '{spawn_id}', which {target} has no SpawnPoint for")
+            problems += 1
+    # Tales: every tale has a seat.
+    for tale in tales:
+        if isinstance(tale, dict) and tale.get("id") and tale["id"] not in seats:
+            fail(f"data/tales.json: tale '{tale['id']}' has no TaleSeat in any scene (tale_id = \"{tale['id']}\")")
+            problems += 1
+    if not problems:
+        print(f"ok  links ({len(read_flags)} flags and {len(read_events)} events waited on, {len(doors)} doors, {len(seats)} seats)")
     return problems
 
 

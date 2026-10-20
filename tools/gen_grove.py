@@ -42,10 +42,9 @@ from scenegen import (  # noqa: E402
 )
 
 # The Grove's own materials, beside the street's (assets/materials/*.tres).
-GROVE_MATS = {
-    "grass": "mat_grass", "pool": "mat_pool", "petal": "mat_petal", "star": "mat_star",
-    "water": "mat_water",
-}
+# Grass is the street's since the world assets landed (scenegen MATERIALS);
+# naming it here too wrote its ext_resource twice.
+GROVE_MATS = {"pool": "mat_pool", "petal": "mat_petal", "star": "mat_star", "water": "mat_water"}
 MAT_ID.update(GROVE_MATS)
 
 NORTH = 0.0
@@ -206,7 +205,7 @@ b.solid("Bed", "River", (0, -1.1, RIVER_Z), (HALF_W * 2 + 10, 1, RIVER_W), "plas
 # PLACEHOLDER water: the fountain's grey-green plane (assets/materials/
 # water.tres) under a rose sky; replaced by the "river reflecting pink" of
 # GDD §10 when the painted water arrives.
-b.solid("Water", "River", (0, WATER_Y, RIVER_Z), (HALF_W * 2 + 10, 0.02, RIVER_W), "water", collide=False)
+b.detail("Water", "River", (0, WATER_Y, RIVER_Z), (HALF_W * 2 + 10, 0.02, RIVER_W), "water")
 b.collider("RiverWall", "River", (HALF_W * 2 + 1, 4, 0.5), [((0, 2, RIVER_NEAR - 0.25), 0.0)])
 # A few stones along the near bank, where the pot is filled.
 b.multimesh(
@@ -264,13 +263,13 @@ tree_batch("FarTrees_birch_4", "FarBank", "birch_4", far_spots[1::2], 1.1, colli
 # --- the feast clearing -------------------------------------------------------
 b.group("Feast")
 fx, _, fz = FEAST
-b.solid("Cloth", "Feast", (fx, 0.02, fz), (8, 0.04, 6), "cloth_pale", collide=False)
-b.solid("Cloth2", "Feast", (fx - 1.2, 0.03, fz + 0.8), (4.5, 0.04, 3.5), "coat", yaw=0.2, collide=False)
+b.detail("Cloth", "Feast", (fx, 0.02, fz), (8, 0.04, 6), "cloth_pale")
+b.detail("Cloth2", "Feast", (fx - 1.2, 0.03, fz + 0.8), (4.5, 0.04, 3.5), "coat", yaw=0.2)
 for i, (dx, dz, r, h) in enumerate(((-3.2, -1.4, 0.32, 0.56), (-3.6, 0.4, 0.28, 0.48), (3.4, 1.6, 0.3, 0.52), (3.7, -0.6, 0.26, 0.44))):
-    b.cyl(f"Pot{i}", "Feast", (fx + dx, h / 2, fz + dz), r, h, "plaster_ochre")
+    b.detail_cyl(f"Pot{i}", "Feast", (fx + dx, h / 2, fz + dz), r, h, "plaster_ochre")
 for i, (dx, dz) in enumerate(((-1.8, -1.0), (-0.6, 1.2), (0.9, -1.6), (2.0, 0.8), (0.2, 0.1), (-2.4, 1.8))):
-    b.cyl(f"Bowl{i}", "Feast", (fx + dx, 0.09, fz + dz), 0.26, 0.1, "plaster_white")
-b.cyl("Basket", "Feast", (fx + 2.6, 0.22, fz - 2.2), 0.42, 0.44, "timber")
+    b.detail_cyl(f"Bowl{i}", "Feast", (fx + dx, 0.09, fz + dz), 0.26, 0.1, "plaster_white")
+b.detail_cyl("Basket", "Feast", (fx + 2.6, 0.22, fz - 2.2), 0.42, 0.44, "timber")
 b.collider("PotBodies", "Feast", (0.7, 0.6, 0.7), [((fx - 3.4, 0.3, fz - 0.5), 0.0), ((fx + 3.5, 0.3, fz + 0.5), 0.0)])
 # Lalita (GDD §4: bright, bossy, laughing; the water-carrying task) faces
 # the cloth; the pot goes beside her (scripts/grove/pot_place.gd).
@@ -352,8 +351,8 @@ b.nodes.append(
     f"transform = {xf((0, BRANCH_Y, 0))}\n\n"
 )
 for side, dx in (("L", -0.45), ("R", 0.45)):
-    b.cyl(f"Rope{side}", "Kadamba/Swing/Pivot", (dx, -1.65, 0), 0.025, 3.3, "timber")
-b.solid("Seat", "Kadamba/Swing/Pivot", (0, -3.32, 0), (1.1, 0.06, 0.4), "timber", collide=False)
+    b.detail_cyl(f"Rope{side}", "Kadamba/Swing/Pivot", (dx, -1.65, 0), 0.025, 3.3, "timber")
+b.detail("Seat", "Kadamba/Swing/Pivot", (0, -3.32, 0), (1.1, 0.06, 0.4), "timber")
 b.nodes.append(
     '[node name="Push" type="Area3D" parent="Kadamba/Swing"]\n'
     'script = ExtResource("2_interact")\n'
@@ -366,7 +365,7 @@ b.nodes.append(
 # --- the Pool at the Grove's edge --------------------------------------------
 b.group("Pool")
 px, _, pz = POOL
-b.cyl("Disc", "Pool", (px, -0.08, pz), POOL_R, 0.1, "pool")
+b.detail_cyl("Disc", "Pool", (px, -0.08, pz), POOL_R, 0.1, "pool")
 b.nodes.append(
     '[node name="Rim" type="MeshInstance3D" parent="Pool"]\n'
     f"transform = {xf((px, -0.04, pz), 0.0, (1, 0.4, 1))}\n"
@@ -539,6 +538,7 @@ unique_name_in_owner = true
 
 
 def render() -> str:
+    b.flush_details()
     return finish(header + b.shape_defs() + "".join(b.multimeshes) + root + "".join(b.nodes) + footer)
 
 

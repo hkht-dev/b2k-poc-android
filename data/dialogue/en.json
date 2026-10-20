@@ -577,7 +577,9 @@
   "madhuri_after_water": {
     "speaker": "madhuri",
     "text_id": "line.madhuri_after_water",
-    "sets": [],
+    "sets": [
+      "creeper_given"
+    ],
     "cards": [
       {
         "text_id": "card.madhuri_after_water.played",

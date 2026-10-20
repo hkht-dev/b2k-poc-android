@@ -78,17 +78,17 @@ def _room(b: Builder) -> None:
     """Floor, walls, a low timber ceiling, the doorway north, the door back."""
     b.group("Room")
     b.solid("Floor", "Room", (0, -0.1, 0), (W, 0.2, D), "concrete_dust")
-    b.solid("Ceiling", "Room", (0, HEIGHT + 0.1, 0), (W + 0.6, 0.2, D + 0.6), "timber", collide=False)
+    b.detail("Ceiling", "Room", (0, HEIGHT + 0.1, 0), (W + 0.6, 0.2, D + 0.6), "timber")
     b.solid("WallNorth", "Room", (0, HEIGHT / 2, -D / 2 - WALL / 2), (W + WALL * 2, HEIGHT, WALL), "ph_plaster")
     b.solid("WallSouth", "Room", (0, HEIGHT / 2, D / 2 + WALL / 2), (W + WALL * 2, HEIGHT, WALL), "ph_plaster")
     b.solid("WallWest", "Room", (-W / 2 - WALL / 2, HEIGHT / 2, 0), (WALL, HEIGHT, D), "ph_plaster")
     b.solid("WallEast", "Room", (W / 2 + WALL / 2, HEIGHT / 2, 0), (WALL, HEIGHT, D), "ph_plaster")
     # The stall's back door, seen from inside: a dark recess in a timber frame.
     face = -D / 2 + 0.01
-    b.solid("Doorway", "Room", (0, 1.1, face - 0.08), (1.3, 2.2, 0.16), "tyre", collide=False)
-    b.solid("FrameL", "Room", (-0.75, 1.15, face), (0.14, 2.3, 0.2), "timber", collide=False)
-    b.solid("FrameR", "Room", (0.75, 1.15, face), (0.14, 2.3, 0.2), "timber", collide=False)
-    b.solid("Lintel", "Room", (0, 2.32, face), (1.7, 0.14, 0.2), "timber", collide=False)
+    b.detail("Doorway", "Room", (0, 1.1, face - 0.08), (1.3, 2.2, 0.16), "tyre")
+    b.detail("FrameL", "Room", (-0.75, 1.15, face), (0.14, 2.3, 0.2), "timber")
+    b.detail("FrameR", "Room", (0.75, 1.15, face), (0.14, 2.3, 0.2), "timber")
+    b.detail("Lintel", "Room", (0, 2.32, face), (1.7, 0.14, 0.2), "timber")
     # "Carvings on the walls" (Scene D): a row of timber panels, west wall.
     b.multimesh(
         "Carvings", "Room", "BoxMesh_unit", "timber",
@@ -105,9 +105,9 @@ def _shrine(b: Builder) -> None:
     x, _, z = LAMP
     # A brass lamp on a plaster stand: plinth, body, stem, cup, flame.
     b.solid("Plinth", "Shrine", (x, 0.45, z), (0.5, 0.9, 0.5), "plaster_white")
-    b.cyl("LampBody", "Shrine", (x, 1.05, z), 0.15, 0.3, "rust_metal")
-    b.cyl("LampStem", "Shrine", (x, 1.3, z), 0.035, 0.2, "rust_metal")
-    b.cyl("LampCup", "Shrine", (x, 1.44, z), 0.11, 0.08, "rust_metal")
+    b.detail_cyl("LampBody", "Shrine", (x, 1.05, z), 0.15, 0.3, "rust_metal")
+    b.detail_cyl("LampStem", "Shrine", (x, 1.3, z), 0.035, 0.2, "rust_metal")
+    b.detail_cyl("LampCup", "Shrine", (x, 1.44, z), 0.11, 0.08, "rust_metal")
     b.nodes.append(
         '[node name="Flame" type="MeshInstance3D" parent="Shrine"]\n'
         f"transform = {xf((x, 1.53, z), 0.0, (0.1, 0.14, 0.1))}\n"
@@ -123,11 +123,11 @@ def _shrine(b: Builder) -> None:
     )
     # The stone basin, dry (Scene D: "The well is dry").
     bx, _, bz = BASIN
-    b.cyl("Basin", "Shrine", (bx, 0.2, bz), 0.45, 0.4, "ph_concrete")
-    b.cyl("BasinBottom", "Shrine", (bx, 0.405, bz), 0.36, 0.01, "tyre")
+    b.detail_cyl("Basin", "Shrine", (bx, 0.2, bz), 0.45, 0.4, "ph_concrete")
+    b.detail_cyl("BasinBottom", "Shrine", (bx, 0.405, bz), 0.36, 0.01, "tyre")
     b.collider("BasinBody", "Shrine", (0.9, 0.5, 0.9), [((bx, 0.25, bz), 0.0)])
     # A cushion before the lamp, where the player stands to water it.
-    b.solid("Cushion", "Shrine", (x, 0.06, z - 1.05), (0.62, 0.12, 0.62), "coat", yaw=0.25, collide=False)
+    b.detail("Cushion", "Shrine", (x, 0.06, z - 1.05), (0.62, 0.12, 0.62), "coat", yaw=0.25)
     # Madhuri by the lamp, facing it (Scene D: she does not turn round), her
     # empty jar at her feet.
     b.nodes.append(
@@ -135,7 +135,7 @@ def _shrine(b: Builder) -> None:
         "unique_name_in_owner = true\n"
         f"transform = {xf(MADHURI, FACE_EAST)}\n\n"
     )
-    b.cyl("Jar", "Shrine", (MADHURI[0] + 0.45, 0.13, MADHURI[2] + 0.35), 0.1, 0.26, "plaster_cream")
+    b.detail_cyl("Jar", "Shrine", (MADHURI[0] + 0.45, 0.13, MADHURI[2] + 0.35), 0.1, 0.26, "plaster_cream")
 
 
 def _photographs(b: Builder) -> None:

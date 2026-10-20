@@ -29,7 +29,7 @@ def build(b) -> None:
     b.group("TaleSeatSpot")
     # PLACEHOLDER: a flat cylinder in the street's own cloth stands for
     # Madhuri's mat in the shrine room (GDD §4 Madhuri, §9a).
-    b.cyl("Cushion", "TaleSeatSpot", (x, y + 0.06, z), 0.45, 0.12, "coat")
+    b.detail_cyl("Cushion", "TaleSeatSpot", (x, y + 0.06, z), 0.45, 0.12, "coat")
     b.nodes.append(
         '[node name="TaleSeat" parent="TaleSeatSpot" instance=ExtResource("tale_seat")]\n'
         "unique_name_in_owner = true\n"

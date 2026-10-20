@@ -39,15 +39,27 @@
     "shade_steps": 3
   },
   "waters": {
-    "_comment": "Flags of hearing, chanting, remembering and service. A play-day on which one of these is newly set waters the creeper once.",
+    "_comment": "Flags of hearing, chanting, remembering and service (GDD §6 'The creeper': hearing a tale, humming or playing the Song, a Glimpse, a service). A play-day on which one of these is newly set waters the creeper once.",
     "flags": [
       "heard_tulu",
       "hummed",
+      "remembered",
       "glimpsed_traffic_light",
+      "glimpsed_tower",
+      "glimpsed_stairwell",
+      "glimpsed_garden",
+      "glimpsed_chai_stall",
       "gave_dry_fountain",
       "saw_shrine",
       "nanda_listened",
-      "played_for_others"
+      "played_for_others",
+      "heard_tale_puranjana_1",
+      "heard_tale_puranjana_2",
+      "heard_tale_puranjana_3",
+      "heard_tale_prahlada_1",
+      "heard_tale_dhruva_1",
+      "sarang_taught_bar",
+      "sarang_taught_bar_two"
     ]
   },
   "growth": {

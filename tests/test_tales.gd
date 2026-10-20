@@ -7,10 +7,15 @@ extends GutTest
 
 const STREET := preload("res://scenes/street/Street.tscn")
 const SCROLL := preload("res://scenes/ui/ScrollScreen.tscn")
+const NANDA_FLAT := preload("res://scenes/places/NandaFlat.tscn")
 const SCRATCH := "user://test_tales_journey.json"
 ## Where the player stands to be offered the street's seat: the pavement
 ## corner beside the cushion on the fountain's south-east step.
 const BESIDE_SEAT := Vector3(-6.3, 0.0, 6.3)
+## The mat at Sarang's right hand (tools/street_parts/sarang.py TALE_MAT) and
+## the mat under Nanda's photograph (tools/interiors/nanda_flat.py TALE_SEAT).
+const PRAHLADA_MAT := Vector3(18.57, 0.0, -11.21)
+const DHRUVA_MAT := Vector3(-0.9, 0.0, 1.0)
 const MAX_PANEL_WORDS := 40
 
 var _real_path := ""
@@ -300,3 +305,71 @@ func test_the_scroll_shows_a_one_sitting_tale_without_a_sitting_name_or_counter(
 	)
 	assert_eq(scroll.get_node("%BackButton").text, Strings.t("scroll.back"))
 	assert_eq(scroll.get_node("%CloseButton").text, Strings.t("scroll.close"))
+
+
+func _seats_in(place: Node3D) -> Dictionary:
+	var out := {}
+	for node: Node in place.find_children("*", "Node3D", true, false):
+		if node is TaleSeat:
+			out[node.tale_id] = node
+	return out
+
+
+func test_every_tale_in_the_data_has_a_seat_in_some_place() -> void:
+	var street := _street()
+	var flat: Node3D = add_child_autofree(NANDA_FLAT.instantiate())
+	var seats := _seats_in(street)
+	seats.merge(_seats_in(flat))
+	for tale_id: String in Tales.ids():
+		assert_true(seats.has(tale_id), "a seat somewhere for '%s'" % tale_id)
+	assert_true(
+		seats.has("prahlada") and seats["prahlada"].get_parent().name == "SarangCorner",
+		"the teacher tells Prahlada"
+	)
+	assert_true(
+		seats.has("dhruva") and flat.is_ancestor_of(seats["dhruva"]), "Nanda's flat has Dhruva"
+	)
+
+
+func test_the_mat_beside_sarang_offers_sit_not_talk() -> void:
+	var street := _street()
+	street.get_node("%Player").global_position = PRAHLADA_MAT
+	await wait_frames(8)
+	assert_eq(_button(street).current_verb(), "verb.sit", "on the mat, the seat wins over Sarang")
+	var sarang: Node3D = street.get_node("%Sarang")
+	assert_lt(PRAHLADA_MAT.distance_to(sarang.global_position), 3.5, "and it is at his side")
+
+
+func test_the_mat_in_nandas_flat_offers_sit_and_opens_dhruva() -> void:
+	var flat: Node3D = add_child_autofree(NANDA_FLAT.instantiate())
+	flat.get_node("%TouchControls").apply_scheme("touch")
+	flat.get_node("%Player").global_position = DHRUVA_MAT
+	await wait_frames(8)
+	var button: Button = flat.get_node("%TouchControls").contextual_button()
+	assert_eq(button.current_verb(), "verb.sit")
+	button.pressed.emit()
+	await wait_frames(2)
+	var scroll: Control = flat.get_node("%TaleSeat").scroll()
+	assert_not_null(scroll, "the scroll opened")
+	if scroll != null:
+		assert_eq(scroll.tale_id(), "dhruva")
+		scroll.close()
+
+
+func test_sitting_holds_the_body_still_and_silences_the_feet() -> void:
+	var street := _street()
+	var player: CharacterBody3D = street.get_node("%Player")
+	player.global_position = BESIDE_SEAT
+	await wait_frames(8)
+	player.set_move_input(Vector2(0.0, -1.0), 1.0)
+	await wait_frames(6)
+	assert_true(player.is_footsteps_playing(), "walking up to it")
+	_button(street).pressed.emit()
+	await wait_frames(2)
+	assert_not_null(_seat(street).scroll(), "sat")
+	assert_true(player.is_held_still(), "held on the seat")
+	assert_false(player.is_footsteps_playing(), "the feet fall silent")
+	assert_eq(player.velocity, Vector3.ZERO)
+	_seat(street).scroll().close()
+	await wait_frames(1)
+	assert_false(player.is_held_still(), "and let go on standing up")

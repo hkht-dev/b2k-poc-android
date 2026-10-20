@@ -2169,7 +2169,7 @@ carry the maha-mantra once, as text, in card 6 with a one-line explanation
 
 | Card | GDD beat | Trigger in the data | In Slice 1 |
 |---|---|---|---|
-| whisper (Bg 2.13) | After the whisper (Act 1) | `flag:heard_whisper` | never: Act 1 is out of the slice; the Grove sets the flag |
+| whisper (Bg 2.13) | After the whisper (Act 1) | `flag:whispered_kuvera` | never: Act 1 is out of the slice; the Grove sets the flag |
 | arrival (Bg 15.7) | Arrival in Hollow Vale | `flag:heard_tulu` | the first *Listen*, the arrival beat's first act |
 | take (Bg 2.62–63) | After any take choice | `flag:took_dry_fountain` | yes |
 | give (Bg 3.9) | After any give choice | `flag:gave_dry_fountain` | yes |
@@ -3298,11 +3298,118 @@ entry records how the branches were joined and what the joining changed.
   inside signs facing the wall. Both are recorded here for the next pass;
   neither changes play.
 - The daylight stage made the street's ambient light real
-  (`ambient_light_source` had been disabled); the base street is a little
-  brighter than before. If the owner prefers the old contrast, the one-line
-  revert is in the daylight section above.
+  (`ambient_light_source` had been disabled). Its first setting took the
+  ambient from the sky, and the overcast panorama is HDR: the street came
+  out blown white in the web profile at any energy. The ambient is now the
+  flat colour (`ambient_light_source = 2`) at the stage's energy, which the
+  data still moves; the arrival energy is 0.45, not 1.0, so the first
+  screenshots match P6's contrast with a little fill in the shadows.
 - Not built, by the rules: anything with a backend (companions, Circles,
   lamps seen by others), analytics, IAP. Not measured here: the web-build
   budget for the whole expansion, which the next profile run records below
   the next phase's table; the three-device run (GDD §13's gate) is the
   owner's from the release APK.
+
+
+## 2026-10-20 — After the join: what review found, and the budget
+
+An adversarial review of the integrated branch (three readers for merge
+damage, data drift and the rules; each finding refuted or confirmed by
+independent verifiers) and the first whole-expansion web profile. What was
+done about each, in the order it was found. Affects GDD §5, §6, §9, §9a.
+
+### Seams the block-wise merge left open
+
+- `tint_sun()` (the Remembrance's rose) was written against the P4 mood
+  system and merged on top of the daylight rewrite that removed the state it
+  drove, so the next mood tweened the sun back from the stage's colour and
+  undid the dawn. The tint lives in `Daylight` now (`set_sun_tint`): a stage
+  or mood that comes later multiplies it, as the function promised.
+- The footsteps loop stopped only after `move_and_slide()`; the wardrobe's
+  `hold_still()`, a vault and the Remembrance's hold returned before it, so
+  the feet sounded under a body standing still. Each silences them now, and
+  the Remembrance holds the body through `hold_still()` like the dais does.
+- With a car boarded nothing is "near", so the desktop and gamepad
+  contextual key opened an offered wisdom card instead of leaving the car.
+  At the wheel the key is the car's; the lotus waits.
+
+### Paths the readers walked
+
+- A door, or Play again, swapped the place while a line was still on the
+  cards; `Content.dialogue` is one runner for every place, so the next place
+  began with a conversation nobody could see and its people waiting on it.
+  The door and the screen swap end the line first.
+- A lamp's record kept only x and z, so one set on a tower landing or the
+  rooftop route came back at street level, inside the building. The record
+  keeps its height and the lamp settles about it.
+- The tale seat froze the body with `set_physics_process(false)`, leaving
+  the footsteps loop and the path card's route sampling running on a stale
+  velocity. It holds the body through `hold_still()`, like the dais and the
+  Remembrance.
+- A lesson opened from a card chosen under the pause menu (the cards took
+  number keys while paused) ended by un-pausing the world under the menu.
+  The lesson gives the pause back as it found it, and the cards take no key
+  while something else has paused the world.
+
+### Names two features never agreed on (data drift)
+
+- The Garden's creeper waited for `creeper_given`, which nothing set:
+  Madhuri's line after the lamp water (`madhuri_after_water`) sets it now,
+  as GDD §6 says (beat 14, "Madhuri gives it with the lamp water").
+- The wisdom card for Act 1 waited on `heard_whisper`; the Grove's whisper
+  sets `whispered_kuvera`. The card's trigger is the Grove's name.
+- The Garden's waters named seven flags; the tales (`heard_tale_<id>_<n>`),
+  the four new Glimpses (`glimpsed_<point>`), Sarang's two bars and the Act 4
+  hum (`remembered`) are what GDD §6 calls hearing, remembering and
+  chanting, so they water too.
+- Two of the three tales had no seat. Dhruva's is a mat in Nanda's flat
+  under his brother's photograph (GDD §9a: "Nanda, on the stairs, about his
+  brother"); Prahlada's, the boy pressed by his teachers, is a mat at the
+  right hand of the one teacher on the Street, Sarang. Both are
+  `TaleSeat.tscn` with the tale id as data; the street's cushion stays.
+- `tools/check_data.py` gained `check_links`: every flag or event that a
+  condition, `requires`, trigger, seed or gate waits on must be set by some
+  card, quest step, scene export, list export or script default; every door
+  must name a place in `data/places.json` and a spawn point in its scene (a
+  passage such as the Veil hands its spawn on); every tale must have a seat.
+  It found the three names above in one run and now runs in CI.
+- The photograph stand-ins in the office and Nanda's flat carry their
+  `PLACEHOLDER` lines naming the prints of GDD §7 and §4.
+- The Grove named grass as its own material after the world assets had made
+  it the street's, so `Grove.tscn` declared `mat_grass` twice. Once now.
+
+### Budget after the expansion
+
+The first profile of the whole expansion (the P7 walk: the basin and the
+street outside, six headings each, the web build in headless Chromium) came
+out at a median of 171 draw calls and a worst angle of 251 against the 200
+cap, after the detail-shadow rule had already taken the worst angle down from
+270. The expansion's props were the cost: 250 `MeshInstance3D`s in the
+street, 165 of them collision-less boxes and cylinders, each a draw call and
+most of them a second one in the shadow pass.
+
+`scenegen.Builder` now batches details: `detail()` and `detail_cyl()`
+(and `detail_mesh()` for a part's own material) put a collision-less
+primitive into one MultiMesh per (parent, mesh, material, shadows), written
+by `flush_details()` when the scene is assembled, so a bucket costs one draw
+call however many boxes it holds. Every part's `solid(..., collide=False)`
+and upright `cyl()` went through it, except the things a script or a test
+finds by name (the padlock, the coins, the mended string, the cables, the
+landings, the cans, the fruit, the dais, the lip, the stairs). The Tells'
+own helpers batch the same way. A detail is an instance, not a node, so
+`get_node()` no longer finds it; the name a part gives one is for the
+reader. Two side effects, both improvements: a yawed box with unequal sides
+was written through `xf()`, which scales after it rotates (a slight skew);
+an instance rotates then scales. And the street scene is 117 mesh nodes and
+85 MultiMeshes instead of 250 and 25.
+
+| Metric | Limit (amendment §C) | P6 | Expansion, first profile | This change |
+|---|---|---|---|---|
+| Draw calls per frame | < 200 | median 112, max 177 | median 171, max 251 | BATCH_DRAW |
+| Primitives per frame | < 150k | median 56.0k, max 71.4k | median 65.3k, max 80.6k | BATCH_PRIM |
+| Web `.pck` | — | 36 MB | 50 MB | BATCH_PCK |
+
+The `.pck` grew by the world's textures and sounds (owner override: the
+install budget no longer binds). The three-device run (GDD §13) stays the
+owner's, from the release APK.
+

@@ -85,7 +85,7 @@ b.batch("Manholes", "Ground", "manhole",
 b.group("Fountain")
 BASIN_R, LIP_R, FLOOR_Y, STEP_Y = 5.6, 7.0, -0.5, -0.15
 b.solid("Floor", "Fountain", (0, -1.25, 0), (14, 0.3, 14), "concrete_dust")
-b.cyl("Basin", "Fountain", (0, (FLOOR_Y - 1.25) / 2, 0), LIP_R, FLOOR_Y + 1.25, "ph_concrete")
+b.detail_cyl("Basin", "Fountain", (0, (FLOOR_Y - 1.25) / 2, 0), LIP_R, FLOOR_Y + 1.25, "ph_concrete")
 b.nodes.append(
     '[node name="BasinBody" type="StaticBody3D" parent="Fountain"]\n'
     "collision_layer = 1\ncollision_mask = 0\n\n"
@@ -119,8 +119,8 @@ for name, pos, size in (
 ):
     b.solid(name, "Fountain", pos, size, "ph_concrete")
 # The column: pedestal, shaft, two dry bowls, a spout that gives nothing.
-b.cyl("Pedestal", "Fountain", (0, FLOOR_Y + 0.15, 0), 1.3, 0.3, "ph_concrete")
-b.cyl("Shaft", "Fountain", (0, 1.0, 0), 0.32, 2.4, "plaster_white")
+b.detail_cyl("Pedestal", "Fountain", (0, FLOOR_Y + 0.15, 0), 1.3, 0.3, "ph_concrete")
+b.detail_cyl("Shaft", "Fountain", (0, 1.0, 0), 0.32, 2.4, "plaster_white")
 for name, y, radius, height in (("LowerBowlUnder", 1.3, 1.9, 0.5), ("UpperBowlUnder", 2.35, 1.1, 0.3)):
     b.nodes.append(
         f'[node name="{name}" type="MeshInstance3D" parent="Fountain"]\n'
@@ -128,11 +128,11 @@ for name, y, radius, height in (("LowerBowlUnder", 1.3, 1.9, 0.5), ("UpperBowlUn
         'mesh = SubResource("ConeMesh_unit")\n'
         f'surface_material_override/0 = ExtResource("{MAT_ID["plaster_white"]}")\n\n'
     )
-b.cyl("LowerBowl", "Fountain", (0, 1.64, 0), 1.9, 0.18, "plaster_white")
-b.cyl("LowerBowlFloor", "Fountain", (0, 1.75, 0), 1.72, 0.04, "concrete_dust")
-b.cyl("UpperBowl", "Fountain", (0, 2.57, 0), 1.1, 0.14, "plaster_white")
-b.cyl("UpperBowlFloor", "Fountain", (0, 2.66, 0), 0.95, 0.04, "concrete_dust")
-b.cyl("Spout", "Fountain", (0, 2.9, 0), 0.08, 0.5, "rust_metal")
+b.detail_cyl("LowerBowl", "Fountain", (0, 1.64, 0), 1.9, 0.18, "plaster_white")
+b.detail_cyl("LowerBowlFloor", "Fountain", (0, 1.75, 0), 1.72, 0.04, "concrete_dust")
+b.detail_cyl("UpperBowl", "Fountain", (0, 2.57, 0), 1.1, 0.14, "plaster_white")
+b.detail_cyl("UpperBowlFloor", "Fountain", (0, 2.66, 0), 0.95, 0.04, "concrete_dust")
+b.detail_cyl("Spout", "Fountain", (0, 2.9, 0), 0.08, 0.5, "rust_metal")
 b.nodes.append(
     '[node name="Finial" type="MeshInstance3D" parent="Fountain"]\n'
     f"transform = {xf((0, 3.3, 0), 0.0, (0.5, 0.5, 0.5))}\n"
@@ -159,8 +159,8 @@ b.solid("Right", "Shop", (-9.2, 2.0, -1.0), (0.4, 4, 6.8), "plaster_ochre")
 b.solid("Roof", "Shop", (-14, 4.1, -1.0), (10.4, 0.3, 7.2), "ph_corrugated")
 b.solid("Counter", "Shop", (-14, 0.5, 1.9), (8.4, 1.0, 0.6), "timber")
 b.solid("Awning", "Shop", (-14, 3.55, 2.9), (10.6, 0.08, 2.4), "rust_metal", collide=False)
-b.solid("SignBoard", "Shop", (-14, 4.6, 2.3), (7.0, 0.9, 0.12), "sign", collide=False)
-b.solid("SignFrame", "Shop", (-14, 4.6, 2.22), (7.3, 1.1, 0.06), "timber", collide=False)
+b.detail("SignBoard", "Shop", (-14, 4.6, 2.3), (7.0, 0.9, 0.12), "sign")
+b.detail("SignFrame", "Shop", (-14, 4.6, 2.22), (7.3, 1.1, 0.06), "timber")
 # Water cans, stacked where the street can see them (§4.4): a row on the
 # pavement in front of the counter that the player can *Pick up* from
 # (scripts/quest/can_stack.gd hides one per pick-up), and more behind it.
@@ -198,18 +198,18 @@ b.collider("CrateBody", "Shop", (1.3, 1.2, 0.9), [((-18.3, 0.6, 3.2), 0.0), ((-9
 b.group("ChaiStall")
 b.solid("Body", "ChaiStall", (13, 1.4, -9), (5, 2.8, 4), "plaster_cream")
 b.solid("Roof", "ChaiStall", (13, 2.95, -9), (5.8, 0.3, 4.8), "ph_corrugated")
-b.solid("StallSign", "ChaiStall", (13, 3.5, -6.9), (3.4, 0.6, 0.1), "sign", collide=False)
-b.solid("Hatch", "ChaiStall", (13, 1.6, -6.95), (3.2, 1.4, 0.1), "timber", collide=False)
-b.solid("Shelf", "ChaiStall", (13, 0.9, -6.8), (3.6, 0.1, 0.5), "timber", collide=False)
-b.solid("BackDoor", "ChaiStall", (13, 1.05, -11.05), (1.3, 2.1, 0.12), "rust_metal", collide=False)
+b.detail("StallSign", "ChaiStall", (13, 3.5, -6.9), (3.4, 0.6, 0.1), "sign")
+b.detail("Hatch", "ChaiStall", (13, 1.6, -6.95), (3.2, 1.4, 0.1), "timber")
+b.detail("Shelf", "ChaiStall", (13, 0.9, -6.8), (3.6, 0.1, 0.5), "timber")
+b.detail("BackDoor", "ChaiStall", (13, 1.05, -11.05), (1.3, 2.1, 0.12), "rust_metal")
 
 # --- the traffic light -------------------------------------------------------
 b.group("TrafficLight")
 b.solid("Pole", "TrafficLight", (25.5, 3.0, 14), (0.35, 6, 0.35), "rust_metal")
-b.solid("Beam", "TrafficLight", (29.5, 5.7, 14), (8.4, 0.3, 0.3), "rust_metal", collide=False)
-b.solid("Housing", "TrafficLight", (32.6, 5.1, 14), (0.5, 1.2, 0.45), "tyre", collide=False)
+b.detail("Beam", "TrafficLight", (29.5, 5.7, 14), (8.4, 0.3, 0.3), "rust_metal")
+b.detail("Housing", "TrafficLight", (32.6, 5.1, 14), (0.5, 1.2, 0.45), "tyre")
 for i, y in enumerate((5.45, 5.1, 4.75)):
-    b.cyl(f"Lamp{i}", "TrafficLight", (32.6, y, 14.2), 0.13, 0.2, "road_paint")
+    b.detail_cyl(f"Lamp{i}", "TrafficLight", (32.6, y, 14.2), 0.13, 0.2, "road_paint")
 # The Glimpse point (§4.5): the silhouette sits on the beam facing the
 # fountain (xf's yaw turns the other way: -pi/2 faces -X); its feather falls
 # on the road below the pole. The one point Tulu looks up at (GDD §6); the
@@ -224,13 +224,13 @@ b.nodes.append(
 # --- the billboard tower -----------------------------------------------------
 b.group("Tower")
 b.solid("Block", "Tower", (-31, 7.0, -26), (15, 14, 15), "ph_brick")
-b.solid("Parapet", "Tower", (-31, 14.2, -26), (15.6, 0.5, 15.6), "concrete_dust", collide=False)
+b.detail("Parapet", "Tower", (-31, 14.2, -26), (15.6, 0.5, 15.6), "concrete_dust")
 for i, (dx, dz) in enumerate(((-5, -5), (5, -5), (-5, 5), (5, 5))):
     b.solid(f"Leg{i}", "Tower", (-31 + dx, 17.5, -26 + dz), (0.5, 7, 0.5), "rust_metal")
 for i, (dx, dz) in enumerate(((0, -5), (0, 5), (-5, 0), (5, 0))):
-    b.solid(f"Brace{i}", "Tower", (-31 + dx, 17.5, -26 + dz), (10 if dz else 0.3, 0.3, 0.3 if dz else 10), "rust_metal", collide=False)
-b.solid("Billboard", "Tower", (-31, 22.5, -26), (13, 6, 0.4), "plaster_white", collide=False)
-b.solid("BillboardFrame", "Tower", (-31, 22.5, -26.3), (13.6, 6.6, 0.2), "rust_metal", collide=False)
+    b.detail(f"Brace{i}", "Tower", (-31 + dx, 17.5, -26 + dz), (10 if dz else 0.3, 0.3, 0.3 if dz else 10), "rust_metal")
+b.detail("Billboard", "Tower", (-31, 22.5, -26), (13, 6, 0.4), "plaster_white")
+b.detail("BillboardFrame", "Tower", (-31, 22.5, -26.3), (13.6, 6.6, 0.2), "rust_metal")
 
 # --- flats along the block ---------------------------------------------------
 b.group("Flats")
@@ -290,7 +290,7 @@ b.collider("BenchBody", "BusStop", (4.4, 0.9, 0.8), [((x - 0.2 * math.cos(yaw), 
 b.solid("Shelter", "BusStop", (9, 2.6, 20.8), (5.2, 0.16, 2.6), "corrugated", collide=False)
 b.solid("ShelterPostL", "BusStop", (6.7, 1.3, 21.9), (0.16, 2.6, 0.16), "rust_metal")
 b.solid("ShelterPostR", "BusStop", (11.3, 1.3, 21.9), (0.16, 2.6, 0.16), "rust_metal")
-b.solid("StopSign", "BusStop", (11.9, 2.0, 21.9), (0.7, 0.9, 0.06), "road_paint", collide=False)
+b.detail("StopSign", "BusStop", (11.9, 2.0, 21.9), (0.7, 0.9, 0.06), "road_paint")
 # Where the slice ends (§4.6): arriving with a can placed or taken, or *Sit*.
 b.nodes.append(
     '[node name="BusStopPoint" parent="BusStop" instance=ExtResource("15_bus_stop")]\n'
@@ -471,7 +471,7 @@ radiance_size = 2
 [sub_resource type="Environment" id="Environment_vale"]
 background_mode = 2
 sky = SubResource("Sky_flat")
-ambient_light_source = 3
+ambient_light_source = 2
 ambient_light_color = Color(0.64, 0.66, 0.7, 1)
 ambient_light_sky_contribution = 0.2
 ambient_light_energy = 0.45
@@ -561,6 +561,7 @@ unique_name_in_owner = true
 
 
 def render() -> str:
+    b.flush_details()
     body = header + b.shape_defs() + "".join(b.multimeshes) + root + "".join(b.nodes) + footer
     body = body.replace("SHADOW_STANDIN", "true" if REALTIME_SHADOW_STANDIN else "false")
     return finish(body)

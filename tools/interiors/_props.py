@@ -31,7 +31,11 @@ def look(b: Builder, name: str, parent: str, line_id: str, pos, size=(1.6, 2.2, 
 
 def framed_print(b: Builder, name: str, parent: str, pos, w: float, h: float, on_x_wall: bool) -> float:
     """A framed photograph flat against a wall: a timber frame and a pale
-    print. `pos` is the frame's centre on the wall face; `on_x_wall` says the
+    print. PLACEHOLDER: the print is blank; the picture the callers draw on
+    it in dark boxes stands for the photographs of GDD §7 "Investigate" step
+    2 (the tower being built, finished, and him on it) and GDD §4 Old Nanda
+    (the two brothers on the beam), which the painted-asset pass supplies.
+    `pos` is the frame's centre on the wall face; `on_x_wall` says the
     wall runs north-south (the picture is thin in X) rather than east-west.
     Returns the X or Z at which a mark drawn on the print sits just proud of
     it, towards the room (the room is on the origin's side of the wall)."""
@@ -39,8 +43,8 @@ def framed_print(b: Builder, name: str, parent: str, pos, w: float, h: float, on
     into = -1.0 if (x if on_x_wall else z) > 0 else 1.0
     if on_x_wall:
         b.solid(name, parent, (x + into * 0.04, y, z), (0.08, h + 0.12, w + 0.12), "timber", collide=False)
-        b.solid(f"{name}Print", parent, (x + into * 0.085, y, z), (0.03, h, w), "plaster_cream", collide=False)
+        b.detail(f"{name}Print", parent, (x + into * 0.085, y, z), (0.03, h, w), "plaster_cream")
         return x + into * 0.11
     b.solid(name, parent, (x, y, z + into * 0.04), (w + 0.12, h + 0.12, 0.08), "timber", collide=False)
-    b.solid(f"{name}Print", parent, (x, y, z + into * 0.085), (w, h, 0.03), "plaster_cream", collide=False)
+    b.detail(f"{name}Print", parent, (x, y, z + into * 0.085), (w, h, 0.03), "plaster_cream")
     return z + into * 0.11

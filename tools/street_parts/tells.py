@@ -76,8 +76,9 @@ def face_xf(pos, radius, thickness) -> str:
 
 
 def _box(b, name, pos, size, mat, yaw=0.0, shadow=True) -> None:
-    t = yaw_xf(pos, yaw, size) if yaw else xf(pos, 0.0, size)
-    _mesh(b, name, GROUP, t, "BoxMesh_unit", mat, shadow)
+    """A box, batched (scenegen Builder.detail_mesh); `yaw` is rotation.y."""
+    del name  # documentary: a detail is an instance in its bucket, not a node
+    b.detail_mesh(GROUP, "BoxMesh_unit", mat, pos, yaw, size, shadow)
 
 
 def _decal(b, name, pos, size, mat, yaw=0.0) -> None:
@@ -86,7 +87,8 @@ def _decal(b, name, pos, size, mat, yaw=0.0) -> None:
 
 
 def _ball(b, name, pos, diameter, mat) -> None:
-    _mesh(b, name, GROUP, xf(pos, 0.0, (diameter,) * 3), "SphereMesh_unit", mat)
+    del name
+    b.detail_mesh(GROUP, "SphereMesh_unit", mat, pos, 0.0, (diameter,) * 3, True)
 
 
 def _tell(b, tell_id, pos) -> None:

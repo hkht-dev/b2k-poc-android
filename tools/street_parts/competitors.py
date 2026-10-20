@@ -93,8 +93,8 @@ def nanda_door(b: Builder) -> None:
     micro-interactions: no giver, no reward). Not a Door: it leads nowhere
     in this slice."""
     face = TOWER_FACE_Z
-    b.solid("NandaDoorFrame", GROUP, (DOOR_X, 1.15, face + 0.04), (1.4, 2.3, 0.08), "rust_metal", collide=False)
-    b.solid("NandaDoor", GROUP, (DOOR_X, 1.1, face + 0.07), (1.1, 2.2, 0.14), "timber", collide=False)
+    b.detail("NandaDoorFrame", GROUP, (DOOR_X, 1.15, face + 0.04), (1.4, 2.3, 0.08), "rust_metal")
+    b.detail("NandaDoor", GROUP, (DOOR_X, 1.1, face + 0.07), (1.1, 2.2, 0.14), "timber")
     b.solid("NandaStep", GROUP, (DOOR_X, 0.08, face + 0.4), (1.6, 0.16, 0.7), "ph_concrete")
     b.label("NandaSign", GROUP, "sign.nanda", (DOOR_X, 2.6, face + 0.12), 0.0, size=40)
     b.nodes.append(

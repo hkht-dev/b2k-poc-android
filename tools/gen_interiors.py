@@ -39,7 +39,7 @@ def room(b: Builder, w: float, d: float, floor_mat: str, wall_mat: str, spawn_id
     back to the street and the spawn point just inside it."""
     b.group("Room")
     b.solid("Floor", "Room", (0, -0.1, 0), (w, 0.2, d), floor_mat)
-    b.solid("Ceiling", "Room", (0, HEIGHT + 0.1, 0), (w + 0.6, 0.2, d + 0.6), "plaster_white", collide=False)
+    b.detail("Ceiling", "Room", (0, HEIGHT + 0.1, 0), (w + 0.6, 0.2, d + 0.6), "plaster_white")
     b.solid("WallNorth", "Room", (0, HEIGHT / 2, -d / 2 - WALL / 2), (w + WALL * 2, HEIGHT, WALL), wall_mat)
     b.solid("WallSouth", "Room", (0, HEIGHT / 2, d / 2 + WALL / 2), (w + WALL * 2, HEIGHT, WALL), wall_mat)
     b.solid("WallWest", "Room", (-w / 2 - WALL / 2, HEIGHT / 2, 0), (WALL, HEIGHT, d), wall_mat)
@@ -47,13 +47,13 @@ def room(b: Builder, w: float, d: float, floor_mat: str, wall_mat: str, spawn_id
     # The street's doorway, seen from inside: a dark recess, a timber frame,
     # a window either side of it so the room is not a box.
     face = -d / 2 + 0.01
-    b.solid("Doorway", "Room", (0, 1.2, face - 0.08), (1.5, 2.4, 0.16), "tyre", collide=False)
-    b.solid("FrameL", "Room", (-0.85, 1.25, face), (0.14, 2.5, 0.2), "timber", collide=False)
-    b.solid("FrameR", "Room", (0.85, 1.25, face), (0.14, 2.5, 0.2), "timber", collide=False)
-    b.solid("Lintel", "Room", (0, 2.52, face), (1.9, 0.14, 0.2), "timber", collide=False)
+    b.detail("Doorway", "Room", (0, 1.2, face - 0.08), (1.5, 2.4, 0.16), "tyre")
+    b.detail("FrameL", "Room", (-0.85, 1.25, face), (0.14, 2.5, 0.2), "timber")
+    b.detail("FrameR", "Room", (0.85, 1.25, face), (0.14, 2.5, 0.2), "timber")
+    b.detail("Lintel", "Room", (0, 2.52, face), (1.9, 0.14, 0.2), "timber")
     for side, x in (("W", -w / 4 - 0.4), ("E", w / 4 + 0.4)):
-        b.solid(f"Window{side}", "Room", (x, 1.6, face - 0.06), (3.0, 1.8, 0.12), "tyre", collide=False)
-        b.solid(f"Sill{side}", "Room", (x, 0.66, face + 0.1), (3.3, 0.1, 0.4), "timber", collide=False)
+        b.detail(f"Window{side}", "Room", (x, 1.6, face - 0.06), (3.0, 1.8, 0.12), "tyre")
+        b.detail(f"Sill{side}", "Room", (x, 0.66, face + 0.1), (3.3, 0.1, 0.4), "timber")
     b.door("DoorOut", "Room", "street", spawn_id, "verb.leave", (0, 0, -d / 2 + 0.9), size=(2.6, 2.2, 1.7))
     b.spawn("SpawnIn", "Room", spawn_id, (0, 0, -d / 2 + 1.9), SOUTH)
 
@@ -68,7 +68,7 @@ def lights(b: Builder, spots: list[tuple[float, float]], colour=(1.0, 0.93, 0.8)
             f"light_color = Color({r:g}, {g:g}, {bl:g}, 1)\nlight_energy = 1.6\n"
             f"omni_range = 9.0\nomni_attenuation = 1.2\nshadow_enabled = false\n\n"
         )
-        b.cyl(f"Shade{i}", "Lights", (x, HEIGHT - 0.22, z), 0.28, 0.16, "rust_metal")
+        b.detail_cyl(f"Shade{i}", "Lights", (x, HEIGHT - 0.22, z), 0.28, 0.16, "rust_metal")
 
 
 def keeper(b: Builder, name: str, skin: str, line: str, pos, yaw: float) -> None:
@@ -93,7 +93,7 @@ def showroom() -> str:
     # The counter along the south wall, west of centre so the mirror's corner
     # stays clear; the tailor behind it.
     b.solid("Counter", "Fittings", (1.0, 0.5, 3.4), (4.0, 1.0, 0.7), "timber")
-    b.solid("CounterTop", "Fittings", (1.0, 1.02, 3.4), (4.2, 0.06, 0.9), "plaster_white", collide=False)
+    b.detail("CounterTop", "Fittings", (1.0, 1.02, 3.4), (4.2, 0.06, 0.9), "plaster_white")
     b.label("SignInside", "Fittings", "sign.showroom_inside", (1.0, 2.5, D / 2 - 0.05), NORTH, size=56)
     keeper(b, "Tailor", "survivorMaleB", "tailor_greet", (1.0, 0, 4.0), NORTH)
     # Two rails of clothes along the west wall, in the street's own cloth.
@@ -103,21 +103,21 @@ def showroom() -> str:
         for i in range(7):
             x = -6.15 + i * 0.42
             garments.append(((x, 1.25, z), 0.0, (0.34, 0.95, 0.07)))
-        b.solid(f"RailPostL{row}", "Fittings", (-6.2, 0.9, z), (0.06, 1.8, 0.06), "rust_metal", collide=False)
-        b.solid(f"RailPostR{row}", "Fittings", (-3.6, 0.9, z), (0.06, 1.8, 0.06), "rust_metal", collide=False)
+        b.detail(f"RailPostL{row}", "Fittings", (-6.2, 0.9, z), (0.06, 1.8, 0.06), "rust_metal")
+        b.detail(f"RailPostR{row}", "Fittings", (-3.6, 0.9, z), (0.06, 1.8, 0.06), "rust_metal")
     b.multimesh("GarmentsCoat", "Fittings", "BoxMesh_unit", "coat", garments[0::2], shadows=False)
     b.multimesh("GarmentsPale", "Fittings", "BoxMesh_unit", "cloth_pale", garments[1::2], shadows=False)
     b.collider("RailBody", "Fittings", (2.9, 1.8, 0.5), [((-4.9, 0.9, -2.6), 0.0), ((-4.9, 0.9, 0.4), 0.0)])
     # Three mannequins on round plinths by the east wall, dressed differently.
     mannequins = (("skaterFemaleA", -3.2), ("criminalMaleA", -1.3), ("survivorFemaleA", 0.6))
     for i, (skin, z) in enumerate(mannequins):
-        b.cyl(f"Plinth{i}", "Fittings", (4.8, 0.1, z), 0.55, 0.2, "plaster_white")
+        b.detail_cyl(f"Plinth{i}", "Fittings", (4.8, 0.1, z), 0.55, 0.2, "plaster_white")
         b.figure(f"Mannequin{i}", "Fittings", skin, (4.8, 0.2, z), yaw=-math.pi / 2)
     b.collider("PlinthBody", "Fittings", (1.1, 1.0, 1.1), [((4.8, 0.5, z), 0.0) for _, z in mannequins])
     # The long mirror on the east wall; a dark pane with a timber frame.
     mirror_z = 3.2
-    b.solid("MirrorFrame", "Fittings", (W / 2 - 0.06, 1.3, mirror_z), (0.1, 2.4, 1.8), "timber", collide=False)
-    b.solid("Mirror", "Fittings", (W / 2 - 0.1, 1.3, mirror_z), (0.04, 2.2, 1.6), "tyre", collide=False)
+    b.detail("MirrorFrame", "Fittings", (W / 2 - 0.06, 1.3, mirror_z), (0.1, 2.4, 1.8), "timber")
+    b.detail("Mirror", "Fittings", (W / 2 - 0.1, 1.3, mirror_z), (0.04, 2.2, 1.6), "tyre")
     # Before the mirror, the fitting dais: a round plinth low enough to step
     # onto (0.2 m, under the player's step height), carrying the Try-on stand
     # (scenes/quest/TryOnStand.tscn) whose verb opens the wardrobe. Owner
@@ -134,7 +134,7 @@ def showroom() -> str:
     b.solid("Table", "Fittings", (0, 0.4, 0.8), (2.0, 0.08, 1.0), "timber")
     b.solid("TableLegs", "Fittings", (0, 0.2, 0.8), (1.8, 0.4, 0.8), "timber")
     for i, (dx, dz, mat) in enumerate(((-0.5, -0.2, "cloth_pale"), (0.4, 0.1, "coat"), (0.0, 0.3, "canopy"))):
-        b.solid(f"Folded{i}", "Fittings", (dx, 0.5, 0.8 + dz), (0.5, 0.12, 0.4), mat, collide=False)
+        b.detail(f"Folded{i}", "Fittings", (dx, 0.5, 0.8 + dz), (0.5, 0.12, 0.4), mat)
     try_on_ext = '[ext_resource type="PackedScene" path="res://scenes/quest/TryOnStand.tscn" id="try_on"]\n'
     return assemble(b, "Showroom", "showroom", (0.42, 0.36, 0.3), extra_ext=try_on_ext)
 
@@ -148,7 +148,7 @@ def store() -> str:
     lights(b, [(-2.5, -1.5), (2.5, -1.5), (0, 2.6)], colour=(0.95, 0.97, 1.0))
     b.group("Fittings")
     b.solid("Counter", "Fittings", (-2.5, 0.5, 3.4), (4.0, 1.0, 0.7), "timber")
-    b.solid("CounterTop", "Fittings", (-2.5, 1.02, 3.4), (4.2, 0.06, 0.9), "plaster_white", collide=False)
+    b.detail("CounterTop", "Fittings", (-2.5, 1.02, 3.4), (4.2, 0.06, 0.9), "plaster_white")
     b.label("SignInside", "Fittings", "sign.store_inside", (-2.5, 2.5, D / 2 - 0.05), NORTH, size=56)
     keeper(b, "Storekeeper", "survivorFemaleA", "storekeeper_greet", (-2.5, 0, 4.0), NORTH)
     # Shelf units down both long walls, stocked with crates and cans.
@@ -174,7 +174,7 @@ def store() -> str:
     b.collider("FloorCrateBody", "Fittings", (2.0, 1.0, 1.6), [((0, 0.5, -0.2), 0.0)])
     # Sacks by the counter's end: cloth boxes.
     for i, (dx, dz) in enumerate(((0.6, 3.3), (1.2, 3.5), (0.9, 2.8))):
-        b.solid(f"Sack{i}", "Fittings", (dx, 0.3, dz), (0.6, 0.6, 0.5), "cloth_pale", yaw=0.4 * i, collide=False)
+        b.detail(f"Sack{i}", "Fittings", (dx, 0.3, dz), (0.6, 0.6, 0.5), "cloth_pale", yaw=0.4 * i)
     b.collider("SackBody", "Fittings", (1.4, 0.8, 1.2), [((0.9, 0.4, 3.2), 0.0)])
     return assemble(b, "Store", "store", (0.36, 0.38, 0.42))
 
@@ -225,6 +225,7 @@ target_path = NodePath("../Player")
 [node name="TouchControls" parent="UI" instance=ExtResource("6_controls")]
 unique_name_in_owner = true
 """
+    b.flush_details()
     return finish(header + b.shape_defs() + "".join(b.multimeshes) + root + "".join(b.nodes) + footer)
 
 

@@ -4,7 +4,7 @@
     {
       "id": "whisper",
       "beat": "After the whisper (Act 1)",
-      "trigger": "flag:heard_whisper",
+      "trigger": "flag:whispered_kuvera",
       "verse_id": "wisdom.whisper.verse",
       "meaning_id": "wisdom.whisper.meaning",
       "more_id": "wisdom.whisper.more",

@@ -227,7 +227,7 @@ def build(b) -> None:
         (LANDING[1][0], 0.9, 0.06), "rust_metal",
     )
     # The start, marked: a plate on the flat's street corner beside the stair.
-    b.solid("SignBoard", GROUP, (-3.2, 2.5, 26.68), (1.5, 0.45, 0.05), "sign", collide=False)
+    b.detail("SignBoard", GROUP, (-3.2, 2.5, 26.68), (1.5, 0.45, 0.05), "sign")
     b.label("StairsSign", GROUP, "sign.stairs", (-3.2, 2.5, 26.63), math.pi, size=26)
 
     # --- the cable run: Flat10 -> the pole -> the shelter --------------------

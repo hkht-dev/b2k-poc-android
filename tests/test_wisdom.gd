@@ -270,3 +270,16 @@ func test_the_lotus_is_drawn_not_loaded_and_in_no_forbidden_colour() -> void:
 		var saturated := colour.s > 0.25
 		assert_false(saturated and colour.h > 0.5 and colour.h < 0.72, "no peacock blue (GDD §10)")
 		assert_false(saturated and colour.h > 0.78 and colour.h < 0.97, "no magenta (GDD §10)")
+
+
+func test_the_whisper_card_waits_on_the_flag_the_grove_sets() -> void:
+	assert_true(
+		Wisdom.cards_for_flag("whispered_kuvera").has("whisper"),
+		"the Act 1 card is triggered by Kuvera's whisper as the Grove names it"
+	)
+	var lines: Variant = Strings.read_json_file("res://data/dialogue/en.json")
+	var sets_it := false
+	for card: Dictionary in lines["kuvera_whisper"].get("cards", []):
+		if Array(card.get("sets", [])).has("whispered_kuvera"):
+			sets_it = true
+	assert_true(sets_it, "and the whisper's cards set it")

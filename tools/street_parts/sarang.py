@@ -38,6 +38,10 @@ LESSONS = {"sarang_lesson": "bar_one", "sarang_lesson_two": "bar_two"}
 CRATE = 1.5
 # The sign's words wrap on two lines; this pixel size keeps them on the board.
 SIGN_PIXEL = 0.0035
+# A mat at his right hand for Prahlada's tale (data/tales.json "prahlada",
+# the boy pressed by his teachers; GDD §9a): the one teacher on the Street
+# tells it. Its seat scene is tale_seat.py's ext_resource ("tale_seat").
+TALE_MAT = (0.4, 2.6)  # (forward, right) in his frame
 
 
 def _place(forward: float, right: float, up: float = 0.0, origin=AT, yaw: float = YAW):
@@ -60,16 +64,16 @@ def build(b: Builder) -> None:
     # bridge, three strings and the gap where the fourth was.
     inst_yaw = YAW + 0.35
     body = _place(0.75, 0.55, 0.05)
-    b.solid("InstrumentBody", "SarangCorner", body, (0.95, 0.1, 0.24), "timber", inst_yaw, collide=False)
-    b.solid("InstrumentHead", "SarangCorner", _place(0.0, -0.53, 0.02, body, inst_yaw),
-            (0.14, 0.09, 0.26), "timber", inst_yaw, collide=False)
-    b.solid("Bridge", "SarangCorner", _place(0.0, 0.3, 0.07, body, inst_yaw),
-            (0.02, 0.04, 0.2), "rust_metal", inst_yaw, collide=False)
+    b.detail("InstrumentBody", "SarangCorner", body, (0.95, 0.1, 0.24), "timber", inst_yaw)
+    b.detail("InstrumentHead", "SarangCorner", _place(0.0, -0.53, 0.02, body, inst_yaw),
+            (0.14, 0.09, 0.26), "timber", inst_yaw)
+    b.detail("Bridge", "SarangCorner", _place(0.0, 0.3, 0.07, body, inst_yaw),
+            (0.02, 0.04, 0.2), "rust_metal", inst_yaw)
     for slot, across in enumerate((-0.075, -0.025, 0.025, 0.075)):
         if slot == 2:
             continue  # the missing string (GDD §7 Mediate step 3)
-        b.solid(f"String{slot}", "SarangCorner", _place(across, -0.07, 0.06, body, inst_yaw),
-                (0.86, 0.006, 0.006), "rust_metal", inst_yaw, collide=False)
+        b.detail(f"String{slot}", "SarangCorner", _place(across, -0.07, 0.06, body, inst_yaw),
+                (0.86, 0.006, 0.006), "rust_metal", inst_yaw)
     # The fourth string, hidden until the player brings it from Nanda's flat:
     # Sarang shows it when `sarang_string_given` is set.
     b.nodes.append(
@@ -84,8 +88,8 @@ def build(b: Builder) -> None:
     post = _place(-0.6, 0.95)
     b.solid("SignPost", "SarangCorner", (post[0], 0.75, post[2]), (0.08, 1.5, 0.08), "timber")
     board = (post[0], 1.38, post[2])
-    b.solid("SignBoard", "SarangCorner", board, (1.5, 0.6, 0.05), "sign", YAW, collide=False)
-    b.solid("SignFrame", "SarangCorner", board, (1.56, 0.66, 0.03), "timber", YAW, collide=False)
+    b.detail("SignBoard", "SarangCorner", board, (1.5, 0.6, 0.05), "sign", YAW)
+    b.detail("SignFrame", "SarangCorner", board, (1.56, 0.66, 0.03), "timber", YAW)
     # Like Builder.label, with a smaller pixel size so two short lines fit the
     # board; Label3D's face is +Z, which at YAW - pi is the way he faces.
     front = _place(0.035, 0.0, 0.0, board)
@@ -97,6 +101,17 @@ def build(b: Builder) -> None:
         f"pixel_size = {SIGN_PIXEL:g}\nfont_size = 44\noutline_size = 8\n"
         "modulate = Color(0.16, 0.12, 0.08, 1)\n"
         "shaded = false\ndouble_sided = false\nno_depth_test = false\n\n"
+    )
+
+    # The mat for Prahlada's tale beside him, *Sit* on it.
+    mat = _place(*TALE_MAT)
+    # PLACEHOLDER: a flat cylinder in the street's cloth stands for a mat
+    # (GDD §9a); the seat is scenes/quest/TaleSeat.tscn, the tale is data.
+    b.detail_cyl("TaleMat", "SarangCorner", (mat[0], 0.03, mat[2]), 0.5, 0.06, "cloth_pale")
+    b.nodes.append(
+        '[node name="PrahladaSeat" parent="SarangCorner" instance=ExtResource("tale_seat")]\n'
+        f"transform = {xf((mat[0], 0.0, mat[2]))}\n"
+        'tale_id = "prahlada"\n\n'
     )
 
     # Sarang, with his lines, his lessons and the string as data on the node.

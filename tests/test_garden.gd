@@ -199,6 +199,28 @@ func test_the_creeper_climbs_only_on_watered_days_after_its_seed_is_given() -> v
 	assert_eq(Garden.creeper_steps(state), 2)
 
 
+func test_hearing_a_tale_a_glimpse_and_a_lesson_each_water_the_creeper() -> void:
+	var state := _fresh()
+	state.set_flag("creeper_given")
+	state.set_flag(Tales.sitting_flag("puranjana", 1))
+	assert_eq(Garden.creeper_steps(state), 1, "a sitting heard waters (GDD §6: hearing)")
+	Garden.advance_day(state, DAY_TWO)
+	state.set_flag("glimpsed_tower")
+	assert_eq(Garden.creeper_steps(state), 2, "a Glimpse waters (remembering)")
+	Garden.advance_day(state, DAY_THREE)
+	state.set_flag("sarang_taught_bar")
+	assert_eq(Garden.creeper_steps(state), 3, "a bar of the Song waters (chanting)")
+
+
+func test_madhuri_gives_the_creeper_its_seed_with_the_lamp_water() -> void:
+	var lines: Variant = Strings.read_json_file("res://data/dialogue/en.json")
+	var line: Dictionary = lines.get("madhuri_after_water", {})
+	assert_true(
+		Array(line.get("sets", [])).has(Garden.creeper_data()["given_flag"]),
+		"her line after the water sets the creeper's given_flag (GDD §6, beat 14)"
+	)
+
+
 func test_shade_stops_fruiting() -> void:
 	var state := _fresh()
 	state.set_flag("gave_dry_fountain")

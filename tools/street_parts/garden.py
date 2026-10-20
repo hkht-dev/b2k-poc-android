@@ -82,8 +82,8 @@ def _beds(b) -> None:
     b.batch("Plants", "Garden", "bush", plants, shadows=False)
     b.collider("BedBody", "Garden", (w, 0.3, d), [((x, 0.15, z), 0.0) for x, z in BEDS])
     # The path from the gate up between the beds, and a drum of water.
-    b.solid("Path", "Garden", (-31.65, 0.015, 3.6), (1.6, 0.03, 7.0), "concrete_dust", collide=False)
-    b.cyl("WaterDrum", "Garden", (-43.0, 0.45, 0.6), 0.32, 0.9, "rust_metal")
+    b.detail("Path", "Garden", (-31.65, 0.015, 3.6), (1.6, 0.03, 7.0), "concrete_dust")
+    b.detail_cyl("WaterDrum", "Garden", (-43.0, 0.45, 0.6), 0.32, 0.9, "rust_metal")
     b.collider("DrumBody", "Garden", (0.7, 0.9, 0.7), [((-43.0, 0.45, 0.6), 0.0)])
 
 
@@ -120,8 +120,8 @@ def _sign(b) -> None:
     # from the pavement (a Label3D faces +Z). Words from the string table.
     x = -35.45
     for i, dx in enumerate((-0.85, 0.85)):
-        b.solid(f"SignPost{i}", "Garden", (x + dx, 1.225, FENCE_Z + 0.06), (0.08, 1.25, 0.08), "timber", collide=False)
-    b.solid("SignBoard", "Garden", (x, 1.5, FENCE_Z + 0.09), (2.0, 0.62, 0.06), "plaster_white", collide=False)
+        b.detail(f"SignPost{i}", "Garden", (x + dx, 1.225, FENCE_Z + 0.06), (0.08, 1.25, 0.08), "timber")
+    b.detail("SignBoard", "Garden", (x, 1.5, FENCE_Z + 0.09), (2.0, 0.62, 0.06), "plaster_white")
     ink = (0.18, 0.13, 0.08, 1)
     b.label("GardenSign", "Garden", "sign.garden", (x, 1.62, FENCE_Z + 0.125), size=18, colour=ink)
     b.label("GardenRule", "Garden", "sign.garden_rule", (x, 1.37, FENCE_Z + 0.125), size=12, colour=ink)
@@ -147,8 +147,8 @@ def _gate(b) -> None:
     for name, y in (("RailLow", 0.45), ("RailHigh", 1.05)):
         b.solid(name, leaf, (mid, y, 0), (GATE_WIDTH - 0.16, 0.08, 0.06), "rust_metal", collide=False)
     for i, bx in enumerate((0.16, mid, GATE_WIDTH - 0.12)):
-        b.solid(f"Bar{i}", leaf, (bx, 0.62, 0), (0.06, 1.24, 0.06), "rust_metal", collide=False)
-    b.solid("Hasp", leaf, (GATE_WIDTH - 0.08, 0.95, 0), (0.08, 0.2, 0.1), "rust_metal", collide=False)
+        b.detail(f"Bar{i}", leaf, (bx, 0.62, 0), (0.06, 1.24, 0.06), "rust_metal")
+    b.detail("Hasp", leaf, (GATE_WIDTH - 0.08, 0.95, 0), (0.08, 0.2, 0.1), "rust_metal")
     # *Mend* (scripts/lib/interactable.gd): offered once Vasanti has been
     # talked to (`requires`, data) and, by the script, only with free hands.
     b.nodes.append(

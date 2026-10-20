@@ -12,6 +12,7 @@ Layout convention, as in the street: X east, Z south, Y up.
 from __future__ import annotations
 
 import math
+import re
 
 MATS = [
     "plaster_ochre", "plaster_white", "plaster_cream", "brick", "concrete_dust",
@@ -157,6 +158,7 @@ class Builder:
         self.nodes: list[str] = []
         self.shapes: dict[tuple, str] = {}
         self.multimeshes: list[str] = []
+        self.details = {}
 
     def shape_id(self, size) -> str:
         key = tuple(round(v, 4) for v in size)
@@ -230,9 +232,11 @@ class Builder:
     def group(self, name, parent=".") -> None:
         self.nodes.append(f'[node name="{name}" type="Node3D" parent="{parent}"]\n\n')
 
-    def multimesh(self, name, parent, mesh_id, mat, instances, shadows=True) -> None:
-        """One draw call for every instance. Each instance is (pos, yaw, scale)."""
-        mm_id = f"MultiMesh_{name}"
+    def multimesh(self, name, parent, mesh_id, mat, instances, shadows=True, mm_id="") -> None:
+        """One draw call for every instance. Each instance is (pos, yaw, scale);
+        the yaw is Godot's rotation.y. `mat` is a street material's name or an
+        ext_resource id of the part's own."""
+        mm_id = mm_id or f"MultiMesh_{name}"
         self.multimeshes.append(
             f'[sub_resource type="MultiMesh" id="{mm_id}"]\n'
             f"transform_format = 1\n"
@@ -244,8 +248,53 @@ class Builder:
         self.nodes.append(
             f'[node name="{name}" type="MultiMeshInstance3D" parent="{parent}"]\n'
             f'multimesh = SubResource("{mm_id}")\n'
-            f'material_override = ExtResource("{MAT_ID[mat]}")\n{cast}\n'
+            f'material_override = ExtResource("{MAT_ID.get(mat, mat)}")\n{cast}\n'
         )
+
+    # -- details, batched -------------------------------------------------
+    # A collision-less box or cylinder is a detail. Each one was a node and a
+    # draw call (two with its shadow); the expansion's props took the street's
+    # worst angle to 251 against the 200 cap (docs/DECISIONS.md "Budget after
+    # the expansion"). Details now go into one MultiMesh per (parent,
+    # mesh, material, shadows) and cost one draw call a bucket. The name a
+    # part gives a detail is for the reader: a detail is not a node, so a
+    # thing a script or a test must find by name stays a solid() or a cyl().
+
+    def detail_mesh(self, parent, mesh_id, mat, pos, rotation_y, scale, shadows) -> None:
+        """One instance in the bucket for (parent, mesh, material, shadows).
+        `rotation_y` is Godot's rotation.y."""
+        key = (parent, mesh_id, mat, bool(shadows))
+        self.details.setdefault(key, []).append((pos, rotation_y, scale))
+
+    def detail(self, name, parent, pos, size, mat, yaw=0.0, shadows=None) -> None:
+        """solid(..., collide=False), batched. `yaw` is read as solid() reads
+        it (xf's sense: rotation.y = -yaw). `name` is documentary."""
+        del name
+        if shadows is None:
+            shadows = max(size) >= self.DETAIL_SIZE
+        self.detail_mesh(parent, "BoxMesh_unit", mat, pos, -yaw, size, shadows)
+
+    def detail_cyl(self, name, parent, pos, radius, height, mat, yaw=0.0, shadows=None) -> None:
+        """An upright cyl(), batched. `name` is documentary."""
+        del name
+        if shadows is None:
+            shadows = max(radius * 2, height) >= self.DETAIL_SIZE
+        self.detail_mesh(parent, "CylinderMesh_unit", mat, pos, -yaw, (radius * 2, height, radius * 2), shadows)
+
+    def flush_details(self) -> None:
+        """Writes every bucket as one MultiMeshInstance3D under its parent.
+        Call once, after every part has built and before the nodes are joined."""
+        names = {}
+        for (parent, mesh_id, mat, shadows), instances in self.details.items():
+            kind = {"BoxMesh_unit": "Boxes", "CylinderMesh_unit": "Cylinders", "SphereMesh_unit": "Spheres"}
+            stem = "".join(word.capitalize() for word in re.split(r"[^A-Za-z0-9]+", mat) if word)
+            stem += kind.get(mesh_id, mesh_id) + ("" if shadows else "Flat")
+            n = names.get((parent, stem), 0)
+            names[(parent, stem)] = n + 1
+            name = stem if n == 0 else f"{stem}{n + 1}"
+            mm_id = "MultiMesh_" + re.sub(r"[^A-Za-z0-9]+", "_", f"{parent}_{name}")
+            self.multimesh(name, parent, mesh_id, mat, instances, shadows=shadows, mm_id=mm_id)
+        self.details = {}
 
     def batch(self, name, parent, model, instances, shadows=True) -> None:
         """Many copies of a CC0 model, drawn by ModelBatch: one draw call per

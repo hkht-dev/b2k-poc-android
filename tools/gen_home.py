@@ -99,7 +99,7 @@ def bank(b: Builder) -> None:
     b.group("Bank")
     # A disc of warm earth; an unseen floor far past it so the fog's edge is
     # never a cliff.
-    b.cyl("Disc", "Bank", (0, -0.25, 0), 24.0, 0.5, "plaster_ochre")
+    b.detail_cyl("Disc", "Bank", (0, -0.25, 0), 24.0, 0.5, "plaster_ochre")
     b.collider("Floor", "Bank", (160, 1.0, 160), [((0, -0.5, 0), 0.0)])
     # The river, north: a thin sheet the player wades into (no collision).
     mesh(b, "Water", "Bank", "BoxMesh_unit", (0, 0.04, -24), (90, 0.12, 36), "mat_water", shadows=False)
@@ -263,6 +263,7 @@ target_path = NodePath("../Player")
 [node name="TouchControls" parent="UI" instance=ExtResource("6_controls")]
 unique_name_in_owner = true
 """
+    b.flush_details()
     return finish(header + b.shape_defs() + "".join(b.multimeshes) + root + "".join(b.nodes) + footer)
 
 
