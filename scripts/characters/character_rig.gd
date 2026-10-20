@@ -138,15 +138,17 @@ func skeleton() -> Skeleton3D:
 	return _skeleton
 
 
-## Puts `carried_scene` in the right hand, or takes it away. The hand bone
-## sits under the scaled body, so the item is scaled back to world size.
-func carry(on: bool) -> void:
+## Puts `scene` (or `carried_scene`) in the right hand, or takes it away. The
+## hand bone sits under the scaled body, so the item is scaled back to world
+## size.
+func carry(on: bool, scene: PackedScene = null) -> void:
 	if not on:
 		if _carried != null:
 			_carried.get_parent().queue_free()
 			_carried = null
 		return
-	if _carried != null or _skeleton == null or carried_scene == null:
+	var item := scene if scene != null else carried_scene
+	if _carried != null or _skeleton == null or item == null:
 		return
 	var bone := _skeleton.find_bone(HAND_BONE)
 	if bone < 0:
@@ -156,13 +158,24 @@ func carry(on: bool) -> void:
 	attachment.name = CARRIED_NAME
 	attachment.bone_name = HAND_BONE
 	_skeleton.add_child(attachment)
-	_carried = carried_scene.instantiate()
+	_carried = item.instantiate()
 	_carried.scale = Vector3.ONE * (body_height / height)
 	attachment.add_child(_carried)
 
 
 func is_carrying() -> bool:
 	return _carried != null
+
+
+## Paints every surface of the body with one material (the Glimpse's
+## silhouette; GDD §6). The skin, if any, is dropped.
+func paint_all(material: Material) -> void:
+	var body_node := get_node_or_null(BODY_NAME)
+	if body_node == null:
+		return
+	for mesh_instance: MeshInstance3D in _meshes(body_node):
+		for surface: int in mesh_instance.mesh.get_surface_count():
+			mesh_instance.set_surface_override_material(surface, material)
 
 
 func _play(wanted: String) -> void:

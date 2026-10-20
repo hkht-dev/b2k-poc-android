@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3]
+
+; The traffic-light Glimpse (scripts/quest/glimpse.gd). The figure is the
+; shared rigged body painted as a silhouette, sitting (the library's
+; Sitting_Idle), a flute in hand, a warm rim light behind it that nothing
+; else in the scene has. The feather pick-up is placed on the pavement
+; below by tools/gen_street.py.
+; PLACEHOLDER: the extruded silhouette with feather and cloth outline of
+; GDD §10 replaces the body.
+
+[ext_resource type="Script" path="res://scripts/quest/glimpse.gd" id="1_glimpse"]
+[ext_resource type="PackedScene" path="res://scenes/characters/Character.tscn" id="2_character"]
+[ext_resource type="PackedScene" path="res://scenes/quest/FeatherPickup.tscn" id="3_feather"]
+[ext_resource type="PackedScene" path="res://scenes/quest/Feather.tscn" id="4_crest"]
+
+[node name="Glimpse" type="Node3D"]
+script = ExtResource("1_glimpse")
+
+[node name="Figure" parent="." instance=ExtResource("2_character")]
+unique_name_in_owner = true
+height = 1.7
+idle_animation = "Sitting_Idle"
+walk_animation = "Sitting_Idle"
+run_animation = "Sitting_Idle"
+
+; The feather in the hair: peacock blue, the Street's one exception.
+[node name="Crest" parent="Figure" instance=ExtResource("4_crest")]
+transform = Transform3D(0.6, 0, 0, 0, 0.2, 0.57, 0, -0.57, 0.2, 0.06, 1.62, -0.02)
+
+[node name="RimLight" type="OmniLight3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 1.4, -1.2)
+light_color = Color(1, 0.72, 0.42, 1)
+light_energy = 3.5
+omni_range = 5.0
+shadow_enabled = false
+
+[node name="FeatherPickup" parent="." instance=ExtResource("3_feather")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5.54, -4.2)

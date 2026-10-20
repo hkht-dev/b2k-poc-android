@@ -1,8 +1,9 @@
 ## Pause: resume, or see the controls again.
 ##
 ## GDD §11 lists the pause menu's contents (Your journey, settings, quit);
-## those arrive in P6. docs/BRIEF_AMENDMENT_1.md §A5 asks for *Controls* to be
-## reachable here always, so the menu exists now with that and *Resume*.
+## *Your journey* is here since P5, the rest arrive in P6.
+## docs/BRIEF_AMENDMENT_1.md §A5 asks for *Controls* to be reachable here
+## always, so the menu exists now with that and *Resume*.
 extends Control
 
 signal resumed
@@ -16,6 +17,8 @@ const MINIMAP := preload("res://scripts/ui/minimap.gd")
 @onready var _controls: Button = %ControlsButton
 @onready var _map: Button = %MapButton
 @onready var _now: Label = %Now
+@onready var _journey_title: Label = %JourneyTitle
+@onready var _journey: VBoxContainer = %Journey
 
 
 func _ready() -> void:
@@ -28,7 +31,33 @@ func _ready() -> void:
 	_refresh_map_label()
 	_map.pressed.connect(_on_map)
 	_now.text = now_line()
+	_fill_journey()
 	_resume.grab_focus()
+
+
+## *Your journey* (GDD §6 "Choice", CLAUDE_CODE_BRIEF.md §4.5): the lines the
+## journey has recorded, in order, each from the string table. Hidden until
+## there is one.
+func _fill_journey() -> void:
+	for child in _journey.get_children():
+		child.queue_free()
+	_journey_title.text = Strings.t("pause.journey")
+	var lines: PackedStringArray = GameState.journey_lines
+	_journey_title.visible = not lines.is_empty()
+	_journey.visible = not lines.is_empty()
+	for line_id in lines:
+		var label := Label.new()
+		label.text = Strings.t(line_id)
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.add_theme_font_size_override("font_size", 18)
+		_journey.add_child(label)
+
+
+func journey_texts() -> PackedStringArray:
+	var out := PackedStringArray()
+	for child in _journey.get_children():
+		out.append((child as Label).text)
+	return out
 
 
 ## The single line at the top of the pause menu saying what the player is

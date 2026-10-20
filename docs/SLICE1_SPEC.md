@@ -12,7 +12,7 @@ Status key: **built** · *in progress* · planned.
 | P2 | `FlagStore`, `GameState`, JSON loaders, choice cards, debug panel | **built** |
 | P3 | Tulu, the hum, the `Listen` verb | **built** (blindfold test pending) |
 | P4 | The Dry Fountain, all three outcomes | **built** |
-| P5 | The Glimpse and the feather | planned |
+| P5 | The Glimpse and the feather | **built** |
 | P6 | End screen, audio bed, lighting, accessibility | planned |
 
 ---

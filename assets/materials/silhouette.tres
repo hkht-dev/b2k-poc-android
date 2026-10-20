@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+; The Glimpse's silhouette (GDD §6 "Glimpses", CLAUDE_CODE_BRIEF.md §4.5):
+; unlit, near-black, fading through alpha when it ends. The warm rim light
+; beside it is what makes it read as backlit.
+
+[resource]
+resource_name = "silhouette"
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.05, 0.04, 0.06, 1)
