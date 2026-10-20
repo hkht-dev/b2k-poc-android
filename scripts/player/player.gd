@@ -5,6 +5,10 @@
 ## at 85% deflection after 0.5 s; tap-to-walk steers to a point until the
 ## stick takes over. The movement vector arrives already camera-relative from
 ## the street; this script never reads the camera.
+##
+## The body wears the journey's outfit (GameState.outfit, data/outfits.json;
+## owner request 2026-10-20, the showroom's wardrobe) and repaints when it
+## changes, so a choice shows at once and a loaded journey comes back dressed.
 extends CharacterBody3D
 
 signal climb_started
@@ -49,6 +53,10 @@ var _is_climbing := false
 var _walk_target := Vector3.ZERO
 var _has_walk_target := false
 var _has_moved := false
+## Standing on the fitting dais with the wardrobe open: input is ignored.
+var _still := false
+## The skin the scene gave the body, worn when the journey names no outfit.
+var _scene_skin: Texture2D = null
 
 @onready var _rig: CharacterRig = %Mesh
 
@@ -58,13 +66,42 @@ func _ready() -> void:
 		if GameState.has_flag(CARRY_PREFIX + str(item)):
 			_rig.carry(true, carryables[item])
 			break
+	_scene_skin = _rig.skin
+	apply_outfit()
+	GameState.outfit_changed.connect(_on_outfit_changed)
 
 
 func _physics_process(delta: float) -> void:
 	if _is_climbing:
 		_advance_climb(delta)
 		return
+	if _still:
+		return
 	_advance_ground(delta)
+
+
+## Dresses the body in the journey's outfit. An empty id, or one the data
+## no longer knows, is the scene's own skin.
+func apply_outfit() -> void:
+	var texture: Texture2D = Outfits.skin_of(GameState.outfit)
+	_rig.set_skin(texture if texture != null else _scene_skin)
+
+
+## Holds the body where it stands (trying clothes on): the stick, the keys
+## and a tap still arrive and do nothing until released.
+func hold_still(on: bool) -> void:
+	_still = on
+	if on:
+		velocity = Vector3.ZERO
+		_has_walk_target = false
+
+
+func is_held_still() -> bool:
+	return _still
+
+
+func _on_outfit_changed(_outfit_id: String) -> void:
+	apply_outfit()
 
 
 ## Picks up an item: its flag is set and the body shows it in hand. One

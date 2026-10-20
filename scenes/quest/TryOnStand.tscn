@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+; The fitting dais in the showroom (scripts/quest/try_on_stand.gd): standing
+; here offers *Try on*, which opens the wardrobe over the view. Placed by
+; tools/gen_interiors.py on a round plinth in front of the mirror.
+
+[ext_resource type="Script" path="res://scripts/quest/try_on_stand.gd" id="1_stand"]
+[ext_resource type="Script" path="res://scripts/lib/interactable.gd" id="2_interact"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_reach"]
+size = Vector3(1.9, 2.2, 1.9)
+
+[node name="TryOnStand" type="Node3D"]
+script = ExtResource("1_stand")
+
+[node name="Use" type="Area3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_interact")
+verb_id = "verb.try_on"
+
+[node name="Shape" type="CollisionShape3D" parent="Use"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("BoxShape3D_reach")

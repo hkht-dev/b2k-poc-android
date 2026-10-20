@@ -13,6 +13,7 @@ signal flag_changed(flag: String, is_set: bool)
 signal event_fired(event: String)
 signal beat_changed(beat: String)
 signal journey_line_added(line_id: String)
+signal outfit_changed(outfit_id: String)
 signal wiped
 
 const SAVE_PATH := "user://journey.json"
@@ -53,6 +54,10 @@ var vignette_days: Array[String] = []
 ## the last date played. Kept by scripts/core/garden.gd; shown only on its
 ## own screen, never as a number.
 var garden: Dictionary = Garden.empty()
+## What the player wears: an outfit id from data/outfits.json, or "" for
+## the skin the player scene carries. Owner request 2026-10-20 (the
+## showroom's wardrobe); cosmetic, Street-only, and the body listens.
+var outfit: String = ""
 ## Where the one slot lives. Tests point this at a scratch file.
 var save_path: String = SAVE_PATH
 
@@ -127,6 +132,16 @@ func set_place(place_id: String, spawn_id: String) -> void:
 	_save_if_enabled()
 
 
+## The player put something else on (the showroom's wardrobe). The body
+## listens for the signal; the journey file keeps the id.
+func set_outfit(outfit_id: String) -> void:
+	if outfit_id == outfit:
+		return
+	outfit = outfit_id
+	outfit_changed.emit(outfit)
+	_save_if_enabled()
+
+
 func set_beat(new_beat: String) -> void:
 	if new_beat == beat:
 		return
@@ -182,6 +197,7 @@ func to_dict() -> Dictionary:
 		"spawn": spawn,
 		"vignette_days": vignette_days.duplicate(),
 		"garden": garden.duplicate(true),
+		"outfit": outfit,
 	}
 
 
@@ -209,6 +225,7 @@ func from_dict(data: Dictionary) -> void:
 	for date in _string_array(data.get("vignette_days", [])):
 		vignette_days.append(date)
 	garden = Garden.normalised(data.get("garden"))
+	outfit = str(data.get("outfit", ""))
 
 
 func save() -> bool:
@@ -250,6 +267,7 @@ func wipe() -> void:
 	spawn = ""
 	vignette_days.clear()
 	garden = Garden.empty()
+	outfit = ""
 	_autosave = true
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(save_path)

@@ -103,6 +103,13 @@
   "line.tailor_who_made": "My mother did. I only keep the thread from tangling.",
   "now.boy_humming": "Somewhere a boy is humming.",
   "now.boy_led": "The boy went behind the chai stall.",
+  "outfit.criminal_male_a": "White suit",
+  "outfit.human_female_a": "Grey dress",
+  "outfit.human_male_a": "Pale shirt",
+  "outfit.skater_female_a": "Red skater top",
+  "outfit.skater_male_a": "Skater jacket",
+  "outfit.survivor_female_a": "Maroon jacket",
+  "outfit.survivor_male_b": "Brown coat",
   "pause.controls": "Controls",
   "pause.garden": "The garden",
   "pause.journey": "Your journey",
@@ -172,6 +179,7 @@
   "verb.place": "Place",
   "verb.sit": "Sit",
   "verb.talk": "Talk",
+  "verb.try_on": "Try on",
   "vignette.dog.card.name.call": "Motu. Come here, Motu.",
   "vignette.dog.card.name.secret": "Your secret's safe.",
   "vignette.dog.card.once.here": "Then feed it here. I'll bring the bowl.",
@@ -301,5 +309,9 @@
   "vignette.the_time.line.end_set": "Set it. What time did you say? About midday? There. Midday.",
   "vignette.the_time.line.end_told": "Midday. Thank you. His train was at midday, too.",
   "vignette.the_time.line.open": "Excuse me. Do you have the time?",
-  "vignette.the_time.line.stopped": "It stopped on the day. I wind it. I don't set it."
+  "vignette.the_time.line.stopped": "It stopped on the day. I wind it. I don't set it.",
+  "wardrobe.done": "Done",
+  "wardrobe.next": ">",
+  "wardrobe.prev": "<",
+  "wardrobe.title": "Try on"
 }

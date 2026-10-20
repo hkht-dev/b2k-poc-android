@@ -1569,3 +1569,59 @@ skipped"). Affects §7 (the side quest's data), §11 (the one overlay screen).
 Not re-measured (the brief for this change forbids export builds): one more
 skinned mesh at the bus stop, one MultiMesh (one draw call) that hides when
 he leaves, and an overlay of plain Controls shown only while counting.
+
+
+## 2026-10-20 — Trying clothes on in the showroom
+
+Owner request: "go to showroom and try on different clothes". Affects GDD
+§6 "Interaction" (one contextual button, the thing's verb on it), §11
+(screens: this is not the shop the MVP rules out), §12 (`outfit` on the
+journey). Built on `feat/e1-places` (the Showroom is a Place).
+
+### What
+
+- A fitting dais in front of the showroom's mirror (`tools/gen_interiors.py`
+  `showroom()`): a round plinth 0.2 m high, under the player's step height,
+  so the body walks up onto it. Standing there the button reads *Try on*
+  (`scenes/quest/TryOnStand.tscn`, `scripts/quest/try_on_stand.gd`). The
+  counter moved west and the mannequins north to clear the mirror's corner.
+- *Try on* opens `scenes/ui/WardrobeScreen.tscn` over the view: a panel
+  along the bottom with one 96 px button per outfit and *Done*; the body
+  stays on the dais (`Player.hold_still`), the camera comes round to its
+  front (`CameraRig.drift_toward` aimed at a point behind the body), and
+  the view above the panel stays live, so a choice is seen on the body at
+  once. Touch and mouse press the buttons; keyboard and gamepad move focus
+  along the row and *Prev*/*Next* step it (and scroll the row for a thumb);
+  B or Esc closes it. The panel hides while the tree is paused.
+- Outfits are data: `data/outfits.json` lists every Kenney skin
+  (`tools/scenegen.py` `SKIN_PATH`) with an id, a name string id and the
+  texture path; `scripts/core/outfits.gd` (`Outfits`) reads it once, like
+  `Places`. `GameState.outfit` holds the id, `""` meaning the skin the
+  player scene carries (humanMaleA, the data's `default`); it is saved with
+  the journey, loaded back, and wiped by *Play again*. The player's body
+  applies it at `_ready` and on `GameState.outfit_changed`, so the street
+  and every interior dress the traveler the same (`CharacterRig.set_skin`
+  repaints a built body).
+
+### Why this shape
+
+- No price, no badge, no "owned" state, no "worn" mark: everything is free
+  and every button is drawn the same (the GDD §6 rule for cards, applied to
+  clothes). Focus lands on the worn outfit when the wardrobe opens, which
+  a gamepad needs anyway; nothing else distinguishes it.
+- The screen touches only `GameState`; the body listens. The stand owns the
+  overlay (its own `CanvasLayer`, above the HUD) rather than `Place`, so
+  the Place seam stays as it is and a stand instanced alone still works.
+- The outfit is cosmetic and Street-only. The GDD's coat (§3, Act 5: "the
+  coat falling away") is story, not this; nothing reads `outfit` but the
+  body.
+- Outfit names are plain words for what the cloth looks like ("Brown coat",
+  "Pale shirt"), never the pack's labels.
+
+### Placeholders
+
+- The skins are Kenney's CC0 character textures (docs/RIGHTS_REGISTER.md),
+  stand-ins for the hand-painted cloth of GDD §10 "Characters"; the data
+  file says so, and a final art pass replaces the `skin` paths and names.
+- The dais and the mirror are primitives in the street's materials, as the
+  rest of the interiors are, for the painted set dressing of GDD §10.
