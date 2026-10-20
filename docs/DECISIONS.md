@@ -839,4 +839,15 @@ Kenney's were toy-scaled 1.6×. Affects amendment §B3; GDD §4 (traffic).
 - Trees are 2 surfaces each in 3 kinds (6 draw calls plus shadows) against
   2 kinds before; cars unchanged at one. Numbers below.
 
-PERF_TABLE_PLACEHOLDER_D
+### Performance in the web build (this change)
+
+| Metric | Limit (amendment §C) | Before (Kenney kits) | This change |
+|---|---|---|---|
+| Draw calls per frame | < 200 | median 108, max 169 | median 112, max 177 |
+| Primitives per frame | < 150k | median 44.6k, max 56.6k | median 55.6k, max 68.3k |
+| Web `.pck` | — | 32 MB | 36 MB |
+
+Same walk as before. The textured trees cost ten thousand triangles and four
+draw calls more than the blocks; still well inside. Checked in the browser:
+the birches and broadleaf trees read as trees at street distance, the cars
+sit at the kerb at real size.
