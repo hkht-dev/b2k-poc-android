@@ -90,7 +90,7 @@ func _ready() -> void:
 		[STATE_WALK, walk_scene, walk_animation],
 		[STATE_RUN, run_scene, run_animation],
 	]:
-		var clip := _clip(entry[1], entry[2], skeleton_path)
+		var clip := _clip(entry[1], entry[2], _skeleton, skeleton_path)
 		if clip != null:
 			library.add_animation(entry[0], clip)
 	_player.add_animation_library(LIBRARY, library)
@@ -145,13 +145,19 @@ func _play(wanted: String) -> void:
 ## The named animation out of a clip scene, looped, its bone rotation tracks
 ## pointed at `skeleton_path` (the body's skeleton, relative to the body's
 ## root), shared through the cache. Everything else is dropped: a clip's own
-## root node means nothing on another body, and a position track carries the
+## root node means nothing on another body; a position track carries the
 ## source rig's bone offsets (the library's hips height lifted Kenney's body
-## 1.5 m off the ground). Rotations alone carry a walk; the bob goes.
-func _clip(scene: PackedScene, animation_name: String, skeleton_path: NodePath) -> Animation:
+## 1.5 m off the ground); a bone the body lacks (the library's ring and
+## little fingers on Kenney's two-finger hand) has nothing to drive.
+## Rotations alone carry a walk; the bob goes.
+func _clip(
+	scene: PackedScene, animation_name: String, target: Skeleton3D, skeleton_path: NodePath
+) -> Animation:
 	if scene == null or animation_name.is_empty():
 		return null
-	var cache_key := "%s#%s@%s" % [scene.resource_path, animation_name, skeleton_path]
+	var cache_key := (
+		"%s#%s@%s/%s" % [scene.resource_path, animation_name, body.resource_path, skeleton_path]
+	)
 	if _clip_cache.has(cache_key):
 		return _clip_cache[cache_key]
 	var instance: Node = scene.instantiate()
@@ -162,13 +168,15 @@ func _clip(scene: PackedScene, animation_name: String, skeleton_path: NodePath) 
 		clip.loop_mode = Animation.LOOP_LINEAR
 		for track: int in range(clip.get_track_count() - 1, -1, -1):
 			var path := clip.track_get_path(track)
-			if (
-				path.get_subname_count() == 0
-				or clip.track_get_type(track) != Animation.TYPE_ROTATION_3D
-			):
-				clip.remove_track(track)
-			else:
+			var usable := (
+				path.get_subname_count() == 1
+				and clip.track_get_type(track) == Animation.TYPE_ROTATION_3D
+				and target.find_bone(path.get_subname(0)) >= 0
+			)
+			if usable:
 				clip.track_set_path(track, NodePath("%s:%s" % [skeleton_path, path.get_subname(0)]))
+			else:
+				clip.remove_track(track)
 	else:
 		push_warning(
 			"CharacterRig: %s has no animation '%s'" % [scene.resource_path, animation_name]
