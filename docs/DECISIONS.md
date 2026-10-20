@@ -1040,3 +1040,93 @@ moved by 3k at the south-facing angle, within the run-to-run noise seen
 across P4 and P5. Frames per second remain unmeasured here (software
 renderer only); the gate's 30 fps on a 2020 mid-range phone is the owner's
 device run.
+
+
+## 2026-10-20 — Daylight: the Street's light moves with the story
+
+GDD §5 (Hollow Vale row: "Arrival: overcast midday, flat, no pink anywhere,
+sodium-orange street lamps. Shifts toward dusk as quests complete. Dawn
+climb: cold blue to warm. Act 4: dusk, lamplit, the first rose tint allowed
+into the sky"), §10 (palette), §12 (flags only). Affects §5 lighting and the
+P4 light steps (`MOODS`).
+
+### Stages as data, chosen by flags
+
+- `data/daylight.json` holds ordered stages: `arrival` (`true`),
+  `after_fountain` (either Dry Fountain flag), `evening`, `dawn`
+  (`on_the_tower`), `remembrance` (`played_for_others or kept_veena`). Each
+  carries the sun's colour, energy, elevation and azimuth, the ambient
+  energy, the fog colour and density, a sky tint and `lamps_on`. The latest
+  stage whose condition holds is the light. Conditions use the quest grammar
+  (`scripts/lib/condition.gd`), so the debug panel's flags move the hour.
+- "Two or more of" `garden_open`, `counting_man_freed`,
+  `bhima_medicine_given`, `rukma_heard` is written as the six pairs joined
+  by `or`: the grammar has no counting, and GDD §12 allows nothing but flags
+  to decide. `dawn` and `remembrance` reference flags no slice-1 quest sets;
+  they are rows of data, not scaffolding, and cost nothing until set.
+- `scripts/street/daylight.gd` (`Daylight`, a Node the street adds at
+  ready) eases the `DirectionalLight3D` (colour, energy, orientation by
+  quaternion slerp), the `Environment` (ambient energy, fog colour and
+  density), the sky tint and the lamps over `transition_seconds` (6) when
+  the stage changes; a journey loaded mid-story is set at once, no easing
+  from midday. There is no clock: no `_process`, no `Timer`; only
+  `GameState.flag_changed` moves it, and a test holds that half a second of
+  waiting changes nothing.
+- The P4 `MOODS` stay in `street.gd` as data and are now a multiplier on the
+  stage: sun colour × mood colour, ambient × mood factor. A taken can still
+  steps the hour darker and a given one warmer. Because the fountain flags
+  set both the stage and the mood, that transition runs over `MOOD_SECONDS`
+  (4 s); every other stage change takes the data's 6 s.
+- `arrival` reproduces the generator's hand-placed sun exactly (elevation
+  44.4°, azimuth 150°, the same colour and energy, the same fog), so P1–P6
+  look as they did at the start of a journey; a test checks the light's
+  travel vector against the old transform.
+
+### The sky and the ambient
+
+- `PanoramaSkyMaterial` has no tint in Godot 4.3, so the sky is now
+  `assets/shaders/sky_tint.gdshader`: the same three-line shader the
+  material generates plus a `tint` uniform. Sky reflections (`reflected_light
+  _source` = sky) pick the tint up as well. While the tint eases (6 s) the
+  sky's radiance map re-renders; outside a transition it is static as
+  before.
+- `ambient_light_source` was `1`, which is `AMBIENT_SOURCE_DISABLED`: the
+  ambient colour, energy and sky contribution in the scene, and P4's ambient
+  factor, did nothing. It is now `3` (sky, blended 45 % with the grey) with
+  the arrival energy at 1.0 rather than 1.3. **This brightens the base look;
+  check it in the web build** and, if the owner prefers the old contrast,
+  the one-line revert is `ambient_light_source = 1` in `tools/gen_street.py`
+  (the stages then move the sun, fog, sky tint and lamps only).
+
+### The lamps
+
+- `tools/street_parts/lamp_lights.py` puts an `OmniLight3D` (sodium orange
+  `(1, 0.62, 0.22)`, range 9 m, energy 1.5, no shadow) on the six lamp posts
+  nearest the fountain, group `street_lamp`, hidden until a stage says
+  `lamps_on`; `Daylight` fades them in and hides them again when dark, so an
+  unlit lamp costs nothing. The posts' positions come from the generator as
+  `b.lamp_posts`, so the lights follow the posts if the rows move.
+- The six nearest by distance are `(0, 8.2)`, `(±14, 8.2)`, `(±7, 23.8)` and
+  `(22.2, -10)` by the chai stall. The brief's `|x| <= 20` rule picks five;
+  the sixth is the north pavement's nearest post, so the stall is lit too.
+- Six omni lights, hidden by default, is the mobile budget (amendment §C,
+  one real-time directional light). Not measured in the web build here (no
+  export on the shared machine); the integrator's run should show the same
+  draw calls at arrival and at most six more light passes once lit.
+
+### Colour
+
+- No pink before `remembrance`: `evening` is amber (blue below green), `dawn`
+  a desaturated grey-blue `(0.78, 0.84, 0.92)` far from peacock blue, and
+  `remembrance`'s sky tint `(1.0, 0.86, 0.84)` is the first rose Act 4
+  allows (GDD §10: "the first time any pink appears in Hollow Vale is at
+  beat 12"). A test guards both rules over every colour in the data.
+- "Dawn climb: cold blue to warm" cannot happen inside one stage without a
+  clock; `dawn` is the cold start and `remembrance` the warmth, by flags.
+
+### Placeholders
+
+- `assets/shaders/sky_tint.gdshader`: the HDR panorama stands in for the
+  painted sky of GDD §10; the tint stays.
+- The lamp lights are bare points; the painted lamp head adds an emissive
+  glass when the posts are modelled.

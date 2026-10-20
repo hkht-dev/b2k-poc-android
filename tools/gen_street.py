@@ -345,6 +345,8 @@ lamp_positions += [((22.2, 2.75, z), 0.0, (0.16, 5.5, 0.16)) for z in range(-38,
 LAMP_SCALE = 1.35
 b.batch("LampPosts", "Lamps", "lamp", [((p[0], 0.16, p[2]), 0.0, (LAMP_SCALE,) * 3) for p, _, _ in lamp_positions])
 b.collider("LampBody", "Lamps", (0.4, 5.2, 0.4), [((p[0], 2.6, p[2]), 0.0) for p, _, _ in lamp_positions])
+# The posts' (x, z), for tools/street_parts/lamp_lights.py to light the nearest.
+b.lamp_posts = [(p[0], p[2]) for p, _, _ in lamp_positions]
 
 # --- parts: one file per feature under tools/street_parts/ -------------------
 for part in PARTS:
@@ -414,6 +416,7 @@ header = (
     + COMMON_EXT + ext_skins()
     + "".join(getattr(part, "EXT", "") for part in PARTS)
     + '[ext_resource type="Texture2D" path="res://assets/thirdparty/polyhaven/overcast_soil_puresky.hdr" id="8_sky"]\n'
+    '[ext_resource type="Shader" path="res://assets/shaders/sky_tint.gdshader" id="8_sky_shader"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Tulu.tscn" id="9_tulu"]\n'
     '[ext_resource type="Script" path="res://scripts/quest/can_stack.gd" id="11_can_stack"]\n'
     '[ext_resource type="PackedScene" path="res://scenes/npc/Gopal.tscn" id="12_gopal"]\n'
@@ -441,22 +444,29 @@ size = Vector3(7, 1.8, 2.4)
 radius = 0.3
 height = 1.8
 
-[sub_resource type="PanoramaSkyMaterial" id="Sky_overcast"]
-panorama = ExtResource("8_sky")
-filter = true
-energy_multiplier = 1.0
+; The panorama through assets/shaders/sky_tint.gdshader, PanoramaSkyMaterial's
+; own shader plus a tint, so the stages of data/daylight.json can colour the
+; sky (scripts/street/daylight.gd). Values here are the `arrival` stage.
+[sub_resource type="ShaderMaterial" id="Sky_overcast"]
+shader = ExtResource("8_sky_shader")
+shader_parameter/panorama = ExtResource("8_sky")
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/energy = 1.0
 
 [sub_resource type="Sky" id="Sky_flat"]
 sky_material = SubResource("Sky_overcast")
 radiance_size = 2
 
+; Ambient from the sky (3), blended 45 % with the colour below: with the
+; source disabled (1, as it was) ambient_light_energy did nothing, and the
+; daylight stages move it.
 [sub_resource type="Environment" id="Environment_vale"]
 background_mode = 2
 sky = SubResource("Sky_flat")
-ambient_light_source = 1
+ambient_light_source = 3
 ambient_light_color = Color(0.64, 0.66, 0.7, 1)
 ambient_light_sky_contribution = 0.45
-ambient_light_energy = 1.3
+ambient_light_energy = 1.0
 reflected_light_source = 2
 tonemap_mode = 2
 tonemap_exposure = 1.0
