@@ -3381,34 +3381,34 @@ transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -11.75, 0, -17.5)
 tell_id = "poster_feather"
 
 [node name="DoorwayDark" type="MeshInstance3D" parent="Tells"]
-transform = Transform3D(1.4, 0, -0, 0, 2.4, 0, 0, 0, 0.08, -27, 1.2, -18.46)
+transform = Transform3D(1.4, 0, -0, 0, 2.4, 0, 0, 0, 0.08, -33, 1.2, -18.46)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("23_tyre")
 cast_shadow = 0
 
 [node name="DoorwayPostL" type="MeshInstance3D" parent="Tells"]
-transform = Transform3D(0.12, 0, -0, 0, 2.5, 0, 0, 0, 0.14, -27.76, 1.25, -18.44)
+transform = Transform3D(0.12, 0, -0, 0, 2.5, 0, 0, 0, 0.14, -33.76, 1.25, -18.44)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
 
 [node name="DoorwayPostR" type="MeshInstance3D" parent="Tells"]
-transform = Transform3D(0.12, 0, -0, 0, 2.5, 0, 0, 0, 0.14, -26.24, 1.25, -18.44)
+transform = Transform3D(0.12, 0, -0, 0, 2.5, 0, 0, 0, 0.14, -32.24, 1.25, -18.44)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
 
 [node name="DoorwayLintel" type="MeshInstance3D" parent="Tells"]
-transform = Transform3D(1.64, 0, -0, 0, 0.12, 0, 0, 0, 0.14, -27, 2.46, -18.44)
+transform = Transform3D(1.64, 0, -0, 0, 0.12, 0, 0, 0, 0.14, -33, 2.46, -18.44)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("16_timber")
 
 [node name="CowBody" type="MeshInstance3D" parent="Tells"]
-transform = Transform3D(1.7, 0, -0, 0, 0.01, 0, 0, 0, 0.75, -27, 0.012, -17.35)
+transform = Transform3D(1.7, 0, -0, 0, 0.01, 0, 0, 0, 0.75, -33, 0.012, -17.35)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("tell_shadow")
 cast_shadow = 0
 
 [node name="CowHead" type="MeshInstance3D" parent="Tells"]
-transform = Transform3D(0.55, 0, -0, 0, 0.01, 0, 0, 0, 0.42, -26.05, 0.012, -17)
+transform = Transform3D(0.55, 0, -0, 0, 0.01, 0, 0, 0, 0.42, -32.05, 0.012, -17)
 mesh = SubResource("BoxMesh_unit")
 surface_material_override/0 = ExtResource("tell_shadow")
 cast_shadow = 0
@@ -3438,7 +3438,7 @@ surface_material_override/0 = ExtResource("tell_shadow")
 cast_shadow = 0
 
 [node name="Tell_cow_shadow" parent="Tells" instance=ExtResource("tell")]
-transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -27, 0, -16.6)
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -33, 0, -16.6)
 tell_id = "cow_shadow"
 
 [node name="Kite" type="MeshInstance3D" parent="Tells"]
