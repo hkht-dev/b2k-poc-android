@@ -152,7 +152,8 @@ func test_evening_needs_two_of_the_four_and_lights_the_lamps() -> void:
 	assert_false(daylight.lamps_on())
 	GameState.set_flag("rukma_heard")
 	assert_eq(daylight.stage_id(), "evening", "two are")
-	await wait_frames(2)
+	# The lamps fade in by a tween; under a loaded machine give it frames.
+	await wait_frames(10)
 	assert_true(daylight.lamps_on())
 	for lamp: OmniLight3D in _lamps(street):
 		assert_true(lamp.visible, "the lamps are coming on")
