@@ -32,8 +32,14 @@ const STEP_HEIGHT := 0.25
 ## The engine's pitch at rest and at top speed (assets/audio/engine_loop.ogg).
 const PITCH_IDLE := 0.8
 const PITCH_TOP := 1.6
-## Where the player stands on getting out: this far beside a door, in metres.
+## Where the player stands on getting out: this far beside a door, in metres,
+## and this far behind the boot when both doors are against something.
 const DOOR_OFFSET := 1.7
+const BOOT_OFFSET := 2.6
+## How far above and below the car's floor a door point is looked for ground:
+## up over a kerb, down a step, not down a storey.
+const GROUND_PROBE_UP := 0.6
+const GROUND_PROBE_DOWN := 1.6
 ## Below this the car counts as standing still.
 const STILL := 0.05
 
@@ -120,16 +126,24 @@ func enter_area() -> Interactable:
 	return _enter
 
 
-## Where the player stands on getting out: beside the left door, or the right
-## one if something stands against the left.
+## Where the player stands on getting out: beside the left door, the right one
+## if something stands against the left, behind the boot if both are blocked,
+## and the car's own middle if even that is. Every candidate has to be both
+## clear of walls and over ground: parked along the fountain's lip or at the
+## block's edge, a door point can be clear and still hang over nothing, and
+## stepping out into a fall (or into a wall) is how a loop ends badly
+## (docs/DECISIONS.md "The loops close"). The car itself always stands on
+## something, so the last resort cannot be either.
 func door_point() -> Vector3:
-	var left := to_global(Vector3(-DOOR_OFFSET, 0.0, 0.0))
-	if _is_clear_to(left):
-		return left
-	var right := to_global(Vector3(DOOR_OFFSET, 0.0, 0.0))
-	if _is_clear_to(right):
-		return right
-	return left
+	for offset: Vector3 in [
+		Vector3(-DOOR_OFFSET, 0.0, 0.0),
+		Vector3(DOOR_OFFSET, 0.0, 0.0),
+		Vector3(0.0, 0.0, BOOT_OFFSET),
+	]:
+		var point := to_global(offset)
+		if _is_clear_to(point) and _has_ground_under(point):
+			return point
+	return global_position
 
 
 func _is_clear_to(point: Vector3) -> bool:
@@ -138,6 +152,15 @@ func _is_clear_to(point: Vector3) -> bool:
 	var query := PhysicsRayQueryParameters3D.create(from, to, WORLD_LAYER)
 	query.exclude = [get_rid()]
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
+
+
+## Something to stand on within a step down of the car's own floor.
+func _has_ground_under(point: Vector3) -> bool:
+	var from := Vector3(point.x, global_position.y + GROUND_PROBE_UP, point.z)
+	var to := from + Vector3.DOWN * (GROUND_PROBE_UP + GROUND_PROBE_DOWN)
+	var query := PhysicsRayQueryParameters3D.create(from, to, WORLD_LAYER)
+	query.exclude = [get_rid()]
+	return not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 
 func _advance_speed(throttle: float, delta: float) -> void:

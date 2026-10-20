@@ -102,7 +102,10 @@ func test_the_lines_are_data_and_only_the_way_down_has_them() -> void:
 		assert_lt(Strings.t(id).split(" ").size(), LINE_WORD_CAP, "§8: inside the cap")
 	assert_true(up.line_ids.is_empty(), "nothing is said on the way home")
 	assert_eq(down.next_place, "street", "down lands in the Street")
-	assert_eq(up.next_place, "grove", "up lands in the Grove")
+	# GDD §3 Act 5 is "Rising" and then "Home": the rise ends on the riverbank
+	# where the garland is offered, not back in the Grove meadow.
+	assert_eq(up.next_place, "home", "up lands on the riverbank")
+	assert_eq(up.next_spawn, "bank")
 	assert_eq(down.line_text(), "", "nothing is shown at the start")
 
 

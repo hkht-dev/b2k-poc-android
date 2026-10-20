@@ -140,7 +140,9 @@ func test_with_kept_veena_nobody_turns_but_the_bubble_and_a_softer_tint_come() -
 # -- the way in -----------------------------------------------------------------
 
 
-func test_the_basin_door_needs_remembered_and_leads_home() -> void:
+## GDD §3 Act 5 is "Rising" and then "Home": the water leads into the ascent
+## through the Pool of Worlds, which hands the player on to the riverbank.
+func test_the_basin_door_needs_remembered_and_leads_into_the_ascent() -> void:
 	var street := _street()
 	watch_signals(street)
 	await _put(street, STEPS)
@@ -151,10 +153,26 @@ func test_the_basin_door_needs_remembered_and_leads_home() -> void:
 	assert_eq(Strings.t("verb.step_in"), "Step into the water")
 	await _press(street)
 	assert_true(street.is_leaving())
-	assert_eq(GameState.place, "home")
+	assert_eq(GameState.place, "veil_up", "the rise, not the bank straight away")
 	assert_eq(GameState.spawn, "bank")
 	await wait_seconds(street.DOOR_FADE_SECONDS + 0.2)
-	assert_signal_emitted_with_parameters(street, "place_requested", ["home", "bank"])
+	assert_signal_emitted_with_parameters(street, "place_requested", ["veil_up", "bank"])
+
+
+## The ascent was orphaned until the owner's second review: nothing anywhere
+## named "veil_up", so Act 5's rise could not be reached at all.
+func test_the_ascent_is_reachable_and_hands_the_player_on_to_the_bank() -> void:
+	var ascent: Node3D = add_child_autofree(
+		(load(Places.scene_of("veil_up")) as PackedScene).instantiate()
+	)
+	await wait_frames(2)
+	assert_false(ascent.is_down(), "it rises")
+	assert_eq(ascent.next_place, "home", "it ends on the riverbank")
+	assert_eq(ascent.next_spawn, "bank")
+	var street_text := FileAccess.get_file_as_string("res://scenes/street/Street.tscn")
+	assert_true(
+		street_text.contains('place_id = "veil_up"'), "a door in the street leads into the ascent"
+	)
 
 
 # -- Act 5: Home ----------------------------------------------------------------

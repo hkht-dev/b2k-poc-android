@@ -6,7 +6,7 @@
 ## scroll itself with _draw (parchment between two rolled ends) and lays one
 ## panel's words on it in the heading serif. A tap or click on the scroll,
 ## Enter, or the gamepad's A turns to the next panel; *Back* goes back one;
-## *Close* rolls it up at any point. Turning
+## *Close*, Escape or the gamepad's B rolls it up at any point. Turning
 ## past the last panel finishes the sitting: the seat that opened the scroll
 ## hears `finished` and sets the flags. Nothing here counts or scores: no
 ## page number, no bar. The tale's canto and chapter sit at the foot of the
@@ -186,11 +186,18 @@ func _gui_input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if get_tree().paused:
 		return
-	# Enter, Space, or the pad's A (the `contextual` action). Escape is not
-	# taken: it stays the pause, as everywhere else. Godot 4.3's built-in
-	# ui_cancel has no pad button, so Back and Close are the buttons on the
-	# paper (docs/DECISIONS.md).
-	if event.is_action_pressed("ui_accept") or event.is_action_pressed("contextual"):
+	# Enter, Space, or the pad's A (the `contextual` action) turns the page;
+	# Escape or the pad's B rolls the scroll up, as cancel leaves every other
+	# screen. Until the owner's second review ui_cancel carried no pad button
+	# at all and this screen left it alone, so *Back* and *Close* were the only
+	# way out and neither can take focus: a pad could only leave a tale by
+	# reading it to the end (docs/DECISIONS.md "The loops close"). The pause is
+	# still a button away on the pad (Back/Select) and Escape once the scroll
+	# is up.
+	if event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		close()
+	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("contextual"):
 		get_viewport().set_input_as_handled()
 		_turn_from_input()
 

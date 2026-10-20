@@ -11,6 +11,8 @@ const PAUSE := preload("res://scenes/ui/PauseMenu.tscn")
 const SETTINGS := preload("res://scenes/ui/SettingsScreen.tscn")
 const HINT := preload("res://scenes/ui/ControlsHint.tscn")
 const CARDS := preload("res://scenes/ui/ChoiceCards.tscn")
+const SCROLL := preload("res://scenes/ui/ScrollScreen.tscn")
+const STREET := preload("res://scenes/street/Street.tscn")
 const SCRATCH := "user://test_controls_coverage_journey.json"
 ## Godot 4.3 ships these with keys only; the project binds A and B.
 const ACCEPT_BUTTON := JOY_BUTTON_A
@@ -151,3 +153,47 @@ func test_a_card_is_chosen_by_the_same_button_that_uses_the_world() -> void:
 	watch_signals(card)
 	card._on_gui_input(_press("contextual"))
 	assert_signal_emitted(card, "pressed", "A answers a card")
+
+
+## Resume takes the screens the menu opened with it. They are children of the
+## HUD, not of the menu, so a *Resume* reached behind an open Settings left
+## that screen sitting over a street that had started moving again.
+func test_resuming_closes_the_screens_the_pause_menu_opened() -> void:
+	var street: Node3D = add_child_autofree(STREET.instantiate())
+	await wait_frames(3)
+	street.pause()
+	var menu: Control = _pause_menu_of(street)
+	assert_not_null(menu, "the menu is up")
+	# No awaits from here: the tree is paused and GUT's frame waiter stops with it.
+	menu.settings_requested.emit()
+	assert_not_null(street.settings_overlay(), "Settings opened over the menu")
+	menu.controls_requested.emit()
+	street.resume()
+	assert_null(street.settings_overlay(), "and went with the menu")
+	assert_null(_screen_named(street, "ControlsHint"), "so did the controls card")
+	assert_false(get_tree().paused, "the street is running again")
+
+
+func _pause_menu_of(place: Node3D) -> Control:
+	return _screen_named(place, "PauseMenu")
+
+
+func _screen_named(place: Node3D, scene_name: String) -> Control:
+	for child: Node in place.get_node("UI").get_children():
+		if child.name.begins_with(scene_name):
+			return child as Control
+	return null
+
+
+## A tale is two minutes of reading; a pad could only leave one by finishing
+## it, because *Back* and *Close* cannot take focus (owner review 2026-10-20).
+func test_a_tale_can_be_rolled_up_with_cancel() -> void:
+	var scroll: Control = add_child_autofree(SCROLL.instantiate())
+	var tale_id: String = Tales.ids()[0]
+	scroll.open(tale_id, 1)
+	watch_signals(scroll)
+	await wait_frames(1)
+	assert_gt(scroll.panel_count(), 1, "there is more than one panel to be stuck in")
+	scroll._unhandled_input(_press("ui_cancel"))
+	assert_signal_emitted(scroll, "closed", "cancel rolls the scroll up")
+	assert_signal_not_emitted(scroll, "finished", "and nothing is recorded")

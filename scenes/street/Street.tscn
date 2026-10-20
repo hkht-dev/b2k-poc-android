@@ -2537,7 +2537,7 @@ cast_shadow = 0
 
 [node name="HomeDoor" parent="Fountain" instance=ExtResource("door")]
 transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 5.55, -0.15, 5.55)
-place_id = "home"
+place_id = "veil_up"
 spawn_id = "bank"
 verb_id = "verb.step_in"
 reach = Vector3(3, 2.4, 3)

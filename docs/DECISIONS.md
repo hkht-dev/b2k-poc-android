@@ -3622,3 +3622,51 @@ painted for its UVs, and a child is not one of these two adult builds. Two
 placeholder families stand side by side in this build; GDD §10 replaces all
 of them with the painted characters.
 
+
+### The last four, found by audit and left open for a day
+
+The loop audit that found the tower and the full hand found five more things.
+One closed itself: the fruit tree hands out five fruit where Vasanti wants
+one, which was a soft dead end only while nothing could be put down. Four
+were real and are closed here.
+
+**Act 5's rise had no entrance.** `veil_up` — the ascent back through the
+Pool of Worlds, GDD §3 Act 5 "Rising" — sat in `data/places.json` with a
+scene, a name and a test, and nothing in the game named it. The street's
+*Step into the water* went straight to `home`, so the rise could not play at
+all. The door now leads into `veil_up`, and `veil_up` hands the player on to
+`home`/`bank` when the stars have gone by; `check_data.py` already followed
+passages, so the chain is checked. The sequence reads as the GDD writes it:
+remember at the fountain, step into the water, rise ninety seconds through
+the stars with the Song coming back a layer at a time, wade to the bank,
+garland Him.
+
+**Getting out of the car could put the player in a wall or in a fall.**
+`door_point()` tried the left door, then the right, and returned the left
+either way if both were blocked — and it never asked whether there was ground
+under the point at all. Parked along the fountain's lip or at the block's
+edge, a door point can be clear of walls and still hang over nothing. It now
+tries left, right and behind the boot, requires each to be both clear and
+over ground within a step of the car's own floor, and falls back to the car's
+own middle, which cannot be either of those things because the car is
+standing in it.
+
+**Resume left Settings on the screen.** The pause menu opens *Controls*,
+*Settings* and *Set a lamp here* as children of the HUD, not of itself, so a
+*Resume* reached behind one of them unpaused the street and left that screen
+over it. `Place.resume()` now closes them first.
+
+**A gamepad could not leave a tale.** The scroll's *Back* and *Close* are
+`FOCUS_NONE` by design — Enter and A turn the page, and the buttons are for
+thumbs and mice — and the screen left `ui_cancel` alone because, as the note
+there said, Godot 4.3's `ui_cancel` had no pad button. It has one now (B),
+bound in this same review, so cancel rolls the scroll up, as cancel leaves
+every other screen in the game. On a keyboard Escape rolls it up and then
+pauses, in that order; on a pad the pause is still Back/Select.
+
+**Not changed:** the Veil holds the player for twenty seconds before a held
+touch will end it. That is deliberate (GDD §11 asks that nobody be held in a
+cinematic they cannot leave; the twenty seconds are so that the leaving is a
+decision and not a reflex), it is data on the scene, and the hold darkens the
+view while the finger is down so it says what it is doing. `Home` has no door
+out, and needs none: the embrace ends the chapter.

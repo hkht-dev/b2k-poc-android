@@ -257,12 +257,17 @@ func test_keys_turn_and_are_ignored_while_paused() -> void:
 	scroll._last_turn_ms = -1000
 	scroll._unhandled_input(use)
 	assert_eq(scroll.panel_index(), 2, "the gamepad's A turns too")
+	# Cancel rolls the scroll up where it is and stands the player up; it turns
+	# no page and records nothing (owner review 2026-10-20: a pad could not
+	# leave a tale at all, since *Back* and *Close* cannot take focus).
 	var escape := InputEventAction.new()
 	escape.action = "ui_cancel"
 	escape.pressed = true
 	scroll._unhandled_input(escape)
-	assert_eq(scroll.panel_index(), 2, "Escape is not the scroll's: it stays the pause")
-	assert_true(_seat(street).is_sitting())
+	assert_eq(scroll.panel_index(), 2, "cancel turns no page")
+	await wait_frames(2)
+	assert_false(_seat(street).is_sitting(), "it rolls the scroll up and stands them up")
+	assert_false(GameState.has_flag("heard_tale_puranjana_1"), "nothing is recorded")
 
 
 func test_a_tap_turns_once_even_as_touch_and_emulated_click() -> void:

@@ -483,13 +483,29 @@ func pause() -> void:
 	get_tree().paused = true
 
 
+## Resuming takes the screens the pause menu opened with it. They are
+## children of the HUD, not of the menu, so before the owner's second review
+## a *Resume* clicked behind an open Settings left that screen over a running
+## street with nothing under it listening (docs/DECISIONS.md "The loops
+## close").
 func resume() -> void:
 	if _pause_menu == null:
 		return
+	_close_pause_screens()
 	_ui.remove_child(_pause_menu)
 	_pause_menu.queue_free()
 	_pause_menu = null
 	get_tree().paused = false
+
+
+func _close_pause_screens() -> void:
+	for screen: Control in [_controls_overlay, _settings_overlay, _lamp_lines_overlay]:
+		if screen != null:
+			_ui.remove_child(screen)
+			screen.queue_free()
+	_controls_overlay = null
+	_settings_overlay = null
+	_lamp_lines_overlay = null
 
 
 func _show_controls() -> void:
