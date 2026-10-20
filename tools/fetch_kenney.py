@@ -66,8 +66,11 @@ def zip_url(kit: str) -> str:
 
 
 # Files taken as shipped from a kit, by their path inside the zip:
-# kit -> (paths, where used). Kenney's animated characters are FBX (a body,
-# clips, skin PNGs); Godot 4.3 imports FBX natively, so they stay FBX.
+# kit -> (paths, where used, retarget). Kenney's animated characters are FBX
+# (a body, clips, skin PNGs); Godot 4.3 imports FBX natively, so they stay
+# FBX. `retarget` names the skeleton node inside each FBX and the BoneMap
+# that maps its bones onto Godot's humanoid profile; the tool writes that
+# into the file's .import so a clip from another rig plays on the body.
 FILES = {
     "animated-characters-retro": (
         [
@@ -79,8 +82,86 @@ FILES = {
             "Skins/humanFemaleA.png",
         ],
         "the player, pedestrians and Tulu: rigged body, clips, skins",
+        ("Root/Skeleton3D", "res://assets/characters/kenney_humanoid_map.tres"),
     ),
 }
+
+# Retarget options written into a model's .import (Godot's scene importer,
+# "retarget/..." on the skeleton node). fix_silhouette is what makes a clip
+# from one rig read correctly on another: without it Kenney's own clips
+# came out rolling the arms about their length (docs/DECISIONS.md).
+RETARGET_SUBRESOURCES = '''_subresources={
+"nodes": {
+"PATH:%(skeleton)s": {
+"retarget/bone_map": Resource("%(bone_map)s"),
+"retarget/rest_fixer/fix_silhouette/enable": true
+}
+}
+}'''
+
+IMPORT_TEMPLATE = '''[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+path="res://.godot/imported/%(name)s-%(digest)s.scn"
+
+[deps]
+
+source_file="res://%(rel)s"
+dest_files=["res://.godot/imported/%(name)s-%(digest)s.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=true
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+%(subresources)s
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1
+'''
+
+
+def write_retarget_import(path: Path, skeleton: str, bone_map: str) -> None:
+    """Make the model's .import retarget its skeleton through `bone_map`.
+    An existing .import keeps its uid and everything else; only the
+    `_subresources` block is replaced. A missing one is written whole (Godot
+    adds the uid on the next import)."""
+    import hashlib  # noqa: PLC0415
+
+    sub = RETARGET_SUBRESOURCES % {"skeleton": skeleton, "bone_map": bone_map}
+    import_path = path.with_name(path.name + ".import")
+    if import_path.exists():
+        text = import_path.read_text()
+        start = text.index("_subresources={")
+        depth, end = 0, start + len("_subresources=")
+        for end in range(start + len("_subresources="), len(text)):
+            depth += {"{": 1, "}": -1}.get(text[end], 0)
+            if depth == 0:
+                break
+        import_path.write_text(text[:start] + sub + text[end + 1:])
+        return
+    rel = path.relative_to(ROOT).as_posix()
+    digest = hashlib.md5(("res://" + rel).encode()).hexdigest()
+    import_path.write_text(
+        IMPORT_TEMPLATE % {"name": path.name, "digest": digest, "rel": rel, "subresources": sub}
+    )
 
 # Kenney's palette has a turquoise foliage green; GDD §10 forbids peacock blue
 # in the Street, so leaves are set to a dull olive on the way in. Material
@@ -184,7 +265,7 @@ def main() -> int:
             processing = "GLB as shipped" if not steps else "GLB; " + "; ".join(steps)
             register_row(kit, model, used, path, processing)
             print(f"fetch_kenney: {kit}/{model}.glb ({path.stat().st_size // 1024} KB)")
-    for kit, (paths, used) in FILES.items():
+    for kit, (paths, used, retarget) in FILES.items():
         kit_dir = OUT / kit
         if args.check:
             for rel in paths:
@@ -200,10 +281,14 @@ def main() -> int:
         for rel in paths:
             path = kit_dir / Path(rel).name
             path.write_bytes(archive.read(rel))
-            register_row(kit, Path(rel).stem, used, path, f"as shipped ({rel})")
+            processing = f"as shipped ({rel})"
+            if retarget and path.suffix == ".fbx":
+                write_retarget_import(path, *retarget)
+                processing += "; retargeted onto the humanoid profile at import"
+            register_row(kit, Path(rel).stem, used, path, processing)
             print(f"fetch_kenney: {kit}/{path.name} ({path.stat().st_size // 1024} KB)")
     if args.check and not problems:
-        total = sum(len(m) for m, _, _ in KITS.values()) + sum(len(f) for f, _ in FILES.values())
+        total = sum(len(m) for m, _, _ in KITS.values()) + sum(len(f) for f, _, _ in FILES.values())
         print(f"fetch_kenney: {total} files present")
     return 1 if problems else 0
 

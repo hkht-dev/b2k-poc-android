@@ -703,3 +703,37 @@ fifteen boxes and spheres, each a draw call with its shadow; a skinned
 human is one mesh. The peak angle along the road is now inside the budget.
 Checked in the browser build: the body faces the way it walks, stands
 1.75 m, wears its skin, and pedestrians play the run clip on their loops.
+
+
+## 2026-10-20 — Retargeting: one humanoid profile for every body and clip
+
+The true walk comes from a different rig than the body (Quaternius'
+animation library on Kenney's human), so bodies and clips now go through
+Godot's `SkeletonProfileHumanoid` at import. Affects amendment §B4.
+
+- `assets/characters/kenney_humanoid_map.tres` and
+  `quaternius_humanoid_map.tres` are hand-written BoneMaps (Mixamo-style
+  names and Unreal-mannequin names respectively onto the profile). The
+  fetch tools write them into each model's `.import` under
+  `retarget/bone_map`, so the setting survives a refetch; the importer
+  renames the bones to the profile's names and the skeleton node to
+  `GeneralSkeleton`.
+- `CharacterRig` re-points each clip's bone tracks at the body's skeleton
+  node and drops non-bone tracks (a clip's own root node means nothing on
+  another body).
+- **`fix_silhouette` is required.** With the bone map alone (the default
+  `overwrite_axis` on, silhouette off) Kenney's own clips came out rolling
+  the arms about their length axis: the characters stood in a T-pose and
+  the hands moved 0.16 m over a run cycle against 1.21 m unretargeted.
+  Measured in a scratch project across settings, run clip on each body:
+
+  | Setting | Kenney body, hand swing | Quaternius body, hand swing |
+  |---|---|---|
+  | no retarget | 1.21 m | — |
+  | bone map only | 0.16 m | 0.05 m |
+  | + fix_silhouette | 1.11 m | 0.59 m |
+  | overwrite_axis off | 1.21 m | 0.59 m |
+
+  (The Quaternius body is 1.6 m to Kenney's 3.7 m, so 0.59 m is the same
+  swing.) `fix_silhouette` is the documented path for cross-rig clips and
+  keeps the axes normalised, so it is the one used.

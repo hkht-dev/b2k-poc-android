@@ -34,7 +34,8 @@ import_script/path=""
 _subresources={
 "nodes": {
 "PATH:Root/Skeleton3D": {
-"retarget/bone_map": Resource("res://assets/characters/kenney_humanoid_map.tres")
+"retarget/bone_map": Resource("res://assets/characters/kenney_humanoid_map.tres"),
+"retarget/rest_fixer/fix_silhouette/enable": true
 }
 }
 }
