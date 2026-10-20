@@ -53,10 +53,6 @@ const ARRIVE_DISTANCE := 0.45
 const STEP_HEIGHT := 0.36
 ## What the player carries persists as a flag `carrying_<item>` (GDD §12: the
 ## flag model is the only state), so an autosave mid-carry comes back with
-## Standing on the fitting dais with the wardrobe open: input is ignored.
-var _still := false
-## The skin the scene gave the body, worn when the journey names no outfit.
-var _scene_skin: Texture2D = null
 ## the item in hand. Which items exist, and what they look like, is data on
 ## the scene (`carryables`).
 const CARRY_PREFIX := "carrying_"
@@ -125,6 +121,11 @@ var _cable_axis := Vector3.ZERO
 var _cable_origin := Vector3.ZERO
 var _cable_grace := 0.0
 var _footsteps: AudioStreamPlayer3D = null
+
+## Standing on the fitting dais with the wardrobe open: input is ignored.
+var _still := false
+## The skin the scene gave the body, worn when the journey names no outfit.
+var _scene_skin: Texture2D = null
 
 @onready var _rig: CharacterRig = %Mesh
 
