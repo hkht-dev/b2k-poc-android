@@ -221,3 +221,23 @@ func test_no_network_code_in_the_lamp_files() -> void:
 		var text := FileAccess.get_file_as_string(path).to_lower()
 		for needle: String in needles:
 			assert_false(text.contains(needle), "%s has no '%s'" % [path, needle])
+
+
+func test_a_lamp_set_on_a_landing_keeps_its_height() -> void:
+	var street := _street()
+	await wait_frames(3)
+	var player: CharacterBody3D = street.get_node("%Player")
+	var landing: Node3D = street.get_node("Tower/Landing1")
+	player.global_position = landing.global_position + Vector3(0.0, 0.3, 0.0)
+	await wait_frames(4)
+	var at := player.global_position
+	assert_gt(at.y, 2.0, "standing on the landing")
+	street.pause()
+	street._pause_menu.get_node("%LampButton").pressed.emit()
+	(street.lamp_lines_overlay().line_buttons()[0] as Button).pressed.emit()
+	assert_almost_eq(float(GameState.lamps[0]["y"]), at.y, 0.01, "the record keeps the height")
+	await wait_frames(3)
+	var node: Node3D = street.lamps()[0]
+	assert_almost_eq(
+		node.global_position.y, at.y, 0.6, "the lamp is on the landing, not in the tower's foot"
+	)

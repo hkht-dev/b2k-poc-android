@@ -41,6 +41,9 @@ func show_screen(path: String) -> Node:
 		return null
 	var screen: Node = packed.instantiate()
 	if _current != null:
+		# The old screen's conversation, if one was up, goes with it.
+		if Content.dialogue.is_running():
+			Content.dialogue.dismiss()
 		_screen_root.remove_child(_current)
 		_current.queue_free()
 	_screen_root.add_child(screen)

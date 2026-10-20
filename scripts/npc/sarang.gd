@@ -39,6 +39,7 @@ const SONG_SCREEN := preload("res://scenes/ui/SongScreen.tscn")
 @export var mended_string: NodePath
 
 var _screen: Control = null
+var _was_paused := false
 
 @onready var _talk: Interactable = %Talk
 @onready var _overlay: CanvasLayer = %Overlay
@@ -68,6 +69,7 @@ func open_lesson(bar_id: String, speaker: String = "", text_id: String = "") -> 
 	_screen.set_on_finished(_on_lesson_finished.bind(bar_id))
 	_screen.closed.connect(_on_screen_closed)
 	_overlay.add_child(_screen)
+	_was_paused = get_tree().paused
 	get_tree().paused = true
 	return _screen
 
@@ -120,4 +122,5 @@ func _on_lesson_finished(quality: float, bar_id: String) -> void:
 
 func _on_screen_closed() -> void:
 	_screen = null
-	get_tree().paused = false
+	# As it was: a lesson opened under the pause menu leaves the menu's pause.
+	get_tree().paused = _was_paused

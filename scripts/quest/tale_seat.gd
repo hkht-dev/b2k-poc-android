@@ -112,13 +112,16 @@ func _stand_up() -> void:
 	stood_up.emit()
 
 
-## Holds the player on the seat: their physics stops (no walking off, by
-## stick or key, while the scroll is up) and the body holds the sitting
-## clip. The one place to change if the Place grows a seam for this.
+## Holds the player on the seat: held still (no walking off, by stick or
+## key, while the scroll is up; the feet fall silent) and the body holds the
+## sitting clip. The one place to change if the Place grows a seam for this.
 func _hold(player: Node3D) -> void:
 	if player.has_method("set_move_input"):
 		player.set_move_input(Vector2.ZERO, 0.0)
-	player.set_physics_process(false)
+	if player.has_method("hold_still"):
+		player.hold_still(true)
+	else:
+		player.set_physics_process(false)
 	var rig := player.get_node_or_null("%Mesh") as CharacterRig
 	if rig != null:
 		rig.hold_pose(SIT_POSE)
@@ -127,7 +130,10 @@ func _hold(player: Node3D) -> void:
 func _release(player: Node3D) -> void:
 	if player.has_method("set_move_input"):
 		player.set_move_input(Vector2.ZERO, 0.0)
-	player.set_physics_process(true)
+	if player.has_method("hold_still"):
+		player.hold_still(false)
+	else:
+		player.set_physics_process(true)
 	var rig := player.get_node_or_null("%Mesh") as CharacterRig
 	if rig != null:
 		rig.release_pose()

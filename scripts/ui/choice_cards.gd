@@ -152,7 +152,9 @@ func _chain_focus() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible:
+	# The cards never pause the world; when something else has (the pause
+	# menu over them), the keys are that thing's.
+	if not visible or get_tree().paused:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		for index in mini(_card_count, CARD_KEYS.size()):

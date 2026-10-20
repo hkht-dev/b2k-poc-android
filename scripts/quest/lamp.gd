@@ -70,8 +70,9 @@ func light() -> OmniLight3D:
 	return _light
 
 
-## Puts the lamp on the ground beneath its x, z. The record keeps no height,
-## so a lamp set on a kerb sits on the kerb when it comes back.
+## Puts the lamp on the ground about its recorded height (a journey saved
+## before lamps kept one starts from the street level): a lamp set on a kerb
+## sits on the kerb when it comes back, one set on a landing stays up there.
 func _settle() -> void:
 	_settled = true
 	var space := get_world_3d().direct_space_state

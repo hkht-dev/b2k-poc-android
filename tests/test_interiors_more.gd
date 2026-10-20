@@ -218,3 +218,14 @@ func test_a_loaded_journey_does_not_lay_the_string_down_again() -> void:
 	GameState.fire_event("sarang_string_picked_up")
 	var flat := _place(NANDA)
 	assert_false(flat.get_node("%StringPickup").visible)
+
+
+func test_a_door_ends_the_line_on_the_cards() -> void:
+	var street := _place(STREET)
+	assert_true(Content.dialogue.start("fountain_look"))
+	assert_true(Content.dialogue.is_running())
+	street._on_door_used("store", "store_door")
+	assert_false(
+		Content.dialogue.is_running(),
+		"the conversation does not follow the player through the door"
+	)

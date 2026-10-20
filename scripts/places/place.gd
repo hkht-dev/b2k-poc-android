@@ -282,6 +282,10 @@ func _on_door_used(target_place: String, spawn_id: String) -> void:
 	_leaving = true
 	_input_locked = true
 	_player.set_move_input(Vector2.ZERO, 0.0)
+	# One runner serves every place (Content.dialogue): a line still on the
+	# cards would outlive this place and hold the next one's people.
+	if Content.dialogue.is_running():
+		Content.dialogue.dismiss()
 	GameState.set_place(target_place, spawn_id)
 	var tween := create_tween()
 	tween.tween_property(_fade, "color:a", 1.0, DOOR_FADE_SECONDS)
@@ -580,7 +584,9 @@ func _sync_lamps() -> void:
 	for record in wanted:
 		var lamp: Lamp = LAMP.instantiate()
 		lamp.lamp = record
-		lamp.position = Vector3(float(record.get("x", 0.0)), 0.0, float(record.get("z", 0.0)))
+		lamp.position = Vector3(
+			float(record.get("x", 0.0)), float(record.get("y", 0.0)), float(record.get("z", 0.0))
+		)
 		lamp.sat.connect(_on_lamp_sat)
 		_lamps_root.add_child(lamp)
 
@@ -627,6 +633,7 @@ func _on_lamp_line_chosen(line_id: String) -> void:
 	var record := {
 		"place": place_id,
 		"x": at.x,
+		"y": at.y,
 		"z": at.z,
 		"line_id": line_id,
 		"lit_day": LampLines.play_day(),

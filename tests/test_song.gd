@@ -376,3 +376,32 @@ func test_the_string_from_nandas_flat_is_handed_over_once_and_strings_the_gap() 
 		"neither the hand-over nor the thanks come twice"
 	)
 	Content.dialogue.choose(1)
+
+
+func test_a_lesson_closed_under_the_pause_menu_leaves_the_world_paused() -> void:
+	var street := _street()
+	var sarang: Node3D = street.get_node("%Sarang")
+	street.pause()
+	var screen: Control = sarang.open_lesson("bar_one")
+	assert_true(get_tree().paused)
+	screen._close()
+	await wait_frames(1)
+	assert_true(get_tree().paused, "the pause menu still holds the world")
+	assert_true(street.is_paused())
+	street.resume()
+	assert_false(get_tree().paused)
+
+
+func test_the_cards_ignore_the_number_keys_under_the_pause_menu() -> void:
+	var street := _street()
+	assert_true(Content.dialogue.start("sarang_greet"))
+	street.pause()
+	var key := InputEventKey.new()
+	key.keycode = KEY_1
+	key.pressed = true
+	street.cards()._unhandled_input(key)
+	assert_eq(
+		Content.dialogue.current_line_id(), "sarang_greet", "the key was the menu's, not a card"
+	)
+	street.resume()
+	Content.dialogue.dismiss()
